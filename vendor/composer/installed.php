@@ -1,22 +1,22 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => NULL,
+        'reference' => '038339f65299f30259e43420fc9e047bf215d5c3',
         'name' => 'cameron/rector-syntax-bug',
         'dev' => true,
     ),
     'versions' => array(
         'cameron/rector-syntax-bug' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => NULL,
+            'reference' => '038339f65299f30259e43420fc9e047bf215d5c3',
             'dev_requirement' => false,
         ),
         'elasticsearch/elasticsearch' => array(

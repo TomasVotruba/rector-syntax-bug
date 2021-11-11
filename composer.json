@@ -2,7 +2,8 @@
     "name": "cameron/rector-syntax-bug",
     "type": "project",
     "require": {
-        "ruflin/elastica": "6.1.5"
+        "ruflin/elastica": "6.1.5",
+        "php": "^7.4"
     },
     "autoload": {
         "psr-4": {
