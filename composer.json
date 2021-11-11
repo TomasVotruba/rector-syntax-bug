@@ -1,0 +1,21 @@
+{
+    "name": "cameron/rector-syntax-bug",
+    "type": "project",
+    "require": {
+        "ruflin/elastica": "6.1.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cameron\\RectorSyntaxBug\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Cameron Junge",
+            "email": "cameron@weirdlyhub.com"
+        }
+    ],
+    "require-dev": {
+        "rector/rector": "^0.12.3"
+    }
+}
