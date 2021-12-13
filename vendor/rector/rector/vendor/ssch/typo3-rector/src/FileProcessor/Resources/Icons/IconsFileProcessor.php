@@ -10,7 +10,7 @@ use Rector\Testing\PHPUnit\StaticPHPUnitEnvironment;
 use Ssch\TYPO3Rector\Contract\FileProcessor\Resources\IconRectorInterface;
 use Ssch\TYPO3Rector\Helper\FilesFinder;
 use Symplify\SmartFileSystem\SmartFileInfo;
-use RectorPrefix20211110\Symplify\SmartFileSystem\SmartFileSystem;
+use RectorPrefix20211213\Symplify\SmartFileSystem\SmartFileSystem;
 /**
  * @changelog https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/8.3/Feature-77349-AdditionalLocationsForExtensionIcons.html
  * @see \Ssch\TYPO3Rector\Tests\FileProcessor\Resources\Icons\IconsProcessor\IconsProcessorTest
@@ -36,27 +36,19 @@ final class IconsFileProcessor implements \Rector\Core\Contract\Processor\FilePr
     /**
      * @param IconRectorInterface[] $iconsRector
      */
-    public function __construct(\Ssch\TYPO3Rector\Helper\FilesFinder $filesFinder, \RectorPrefix20211110\Symplify\SmartFileSystem\SmartFileSystem $smartFileSystem, array $iconsRector)
+    public function __construct(\Ssch\TYPO3Rector\Helper\FilesFinder $filesFinder, \RectorPrefix20211213\Symplify\SmartFileSystem\SmartFileSystem $smartFileSystem, array $iconsRector)
     {
         $this->filesFinder = $filesFinder;
         $this->smartFileSystem = $smartFileSystem;
         $this->iconsRector = $iconsRector;
     }
-    /**
-     * @param \Rector\Core\ValueObject\Application\File $file
-     * @param \Rector\Core\ValueObject\Configuration $configuration
-     */
-    public function process($file, $configuration) : void
+    public function process(\Rector\Core\ValueObject\Application\File $file, \Rector\Core\ValueObject\Configuration $configuration) : void
     {
         foreach ($this->iconsRector as $iconRector) {
             $iconRector->refactorFile($file);
         }
     }
-    /**
-     * @param \Rector\Core\ValueObject\Application\File $file
-     * @param \Rector\Core\ValueObject\Configuration $configuration
-     */
-    public function supports($file, $configuration) : bool
+    public function supports(\Rector\Core\ValueObject\Application\File $file, \Rector\Core\ValueObject\Configuration $configuration) : bool
     {
         $smartFileInfo = $file->getSmartFileInfo();
         if ($this->shouldSkip($smartFileInfo->getFilenameWithoutExtension())) {

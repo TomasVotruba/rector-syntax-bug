@@ -16,10 +16,13 @@ use PHPStan\Type\Type;
 use Rector\Core\Contract\PHPStan\Reflection\TypeToCallReflectionResolver\TypeToCallReflectionResolverInterface;
 /**
  * @see https://github.com/phpstan/phpstan-src/blob/b1fd47bda2a7a7d25091197b125c0adf82af6757/src/Type/Constant/ConstantArrayType.php#L188
+ *
+ * @implements TypeToCallReflectionResolverInterface<ConstantArrayType>
  */
 final class ConstantArrayTypeToCallReflectionResolver implements \Rector\Core\Contract\PHPStan\Reflection\TypeToCallReflectionResolver\TypeToCallReflectionResolverInterface
 {
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
@@ -27,18 +30,14 @@ final class ConstantArrayTypeToCallReflectionResolver implements \Rector\Core\Co
     {
         $this->reflectionProvider = $reflectionProvider;
     }
-    /**
-     * @param \PHPStan\Type\Type $type
-     */
-    public function supports($type) : bool
+    public function supports(\PHPStan\Type\Type $type) : bool
     {
         return $type instanceof \PHPStan\Type\Constant\ConstantArrayType;
     }
     /**
-     * @param \PHPStan\Type\Type $type
-     * @param \PHPStan\Analyser\Scope $scope
+     * @param ConstantArrayType $type
      */
-    public function resolve($type, $scope) : ?\PHPStan\Reflection\MethodReflection
+    public function resolve(\PHPStan\Type\Type $type, \PHPStan\Analyser\Scope $scope) : ?\PHPStan\Reflection\MethodReflection
     {
         $constantArrayTypeAndMethod = $this->findTypeAndMethodName($type);
         if (!$constantArrayTypeAndMethod instanceof \PHPStan\Type\Constant\ConstantArrayTypeAndMethod) {

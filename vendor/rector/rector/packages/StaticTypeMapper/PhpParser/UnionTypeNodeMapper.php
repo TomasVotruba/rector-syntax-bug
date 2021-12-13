@@ -9,7 +9,10 @@ use PHPStan\Type\Type;
 use Rector\NodeTypeResolver\PHPStan\Type\TypeFactory;
 use Rector\StaticTypeMapper\Contract\PhpParser\PhpParserNodeMapperInterface;
 use Rector\StaticTypeMapper\Mapper\PhpParserNodeMapper;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
+/**
+ * @implements PhpParserNodeMapperInterface<UnionType>
+ */
 final class UnionTypeNodeMapper implements \Rector\StaticTypeMapper\Contract\PhpParser\PhpParserNodeMapperInterface
 {
     /**
@@ -17,6 +20,7 @@ final class UnionTypeNodeMapper implements \Rector\StaticTypeMapper\Contract\Php
      */
     private $phpParserNodeMapper;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PHPStan\Type\TypeFactory
      */
     private $typeFactory;
@@ -27,21 +31,18 @@ final class UnionTypeNodeMapper implements \Rector\StaticTypeMapper\Contract\Php
     /**
      * @required
      */
-    public function autowireUnionTypeNodeMapper(\Rector\StaticTypeMapper\Mapper\PhpParserNodeMapper $phpParserNodeMapper) : void
+    public function autowire(\Rector\StaticTypeMapper\Mapper\PhpParserNodeMapper $phpParserNodeMapper) : void
     {
         $this->phpParserNodeMapper = $phpParserNodeMapper;
     }
-    /**
-     * @return class-string<Node>
-     */
     public function getNodeType() : string
     {
         return \PhpParser\Node\UnionType::class;
     }
     /**
-     * @param \PhpParser\Node $node
+     * @param UnionType $node
      */
-    public function mapToPHPStan($node) : \PHPStan\Type\Type
+    public function mapToPHPStan(\PhpParser\Node $node) : \PHPStan\Type\Type
     {
         $types = [];
         foreach ($node->types as $unionedType) {

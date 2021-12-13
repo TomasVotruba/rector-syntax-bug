@@ -5,16 +5,17 @@ namespace Rector\Composer\Rector;
 
 use Rector\Composer\Contract\Rector\ComposerRectorInterface;
 use Rector\Composer\ValueObject\RenamePackage;
-use RectorPrefix20211110\Symplify\ComposerJsonManipulator\ValueObject\ComposerJson;
+use RectorPrefix20211213\Symplify\ComposerJsonManipulator\ValueObject\ComposerJson;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Composer\Rector\RenamePackageComposerRector\RenamePackageComposerRectorTest
  */
 final class RenamePackageComposerRector implements \Rector\Composer\Contract\Rector\ComposerRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const RENAME_PACKAGES = 'rename_packages';
@@ -22,7 +23,7 @@ final class RenamePackageComposerRector implements \Rector\Composer\Contract\Rec
      * @var RenamePackage[]
      */
     private $renamePackages = [];
-    public function refactor(\RectorPrefix20211110\Symplify\ComposerJsonManipulator\ValueObject\ComposerJson $composerJson) : void
+    public function refactor(\RectorPrefix20211213\Symplify\ComposerJsonManipulator\ValueObject\ComposerJson $composerJson) : void
     {
         foreach ($this->renamePackages as $renamePackage) {
             if ($composerJson->hasRequiredPackage($renamePackage->getOldPackageName())) {
@@ -51,15 +52,15 @@ CODE_SAMPLE
     }
 }
 CODE_SAMPLE
-, [self::RENAME_PACKAGES => [new \Rector\Composer\ValueObject\RenamePackage('rector/rector', 'rector/rector-src')]])]);
+, [new \Rector\Composer\ValueObject\RenamePackage('rector/rector', 'rector/rector-src')])]);
     }
     /**
-     * @param array<string, RenamePackage[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $renamePackages = $configuration[self::RENAME_PACKAGES] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($renamePackages, \Rector\Composer\ValueObject\RenamePackage::class);
+        $renamePackages = $configuration[self::RENAME_PACKAGES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($renamePackages, \Rector\Composer\ValueObject\RenamePackage::class);
         $this->renamePackages = $renamePackages;
     }
 }

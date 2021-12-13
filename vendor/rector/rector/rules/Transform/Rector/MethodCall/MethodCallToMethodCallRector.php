@@ -18,13 +18,14 @@ use Rector\PostRector\ValueObject\PropertyMetadata;
 use Rector\Transform\ValueObject\MethodCallToMethodCall;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\MethodCall\MethodCallToMethodCallRector\MethodCallToMethodCallRectorTest
  */
 final class MethodCallToMethodCallRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const METHOD_CALLS_TO_METHOD_CALLS = 'method_calls_to_method_calls';
@@ -33,14 +34,17 @@ final class MethodCallToMethodCallRector extends \Rector\Core\Rector\AbstractRec
      */
     private $methodCallsToMethodsCalls = [];
     /**
+     * @readonly
      * @var \Rector\Naming\Naming\PropertyNaming
      */
     private $propertyNaming;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\PropertyPresenceChecker
      */
     private $propertyPresenceChecker;
     /**
+     * @readonly
      * @var \Rector\PostRector\Collector\PropertyToAddCollector
      */
     private $propertyToAddCollector;
@@ -80,7 +84,7 @@ class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::METHOD_CALLS_TO_METHOD_CALLS => [new \Rector\Transform\ValueObject\MethodCallToMethodCall('FirstDependency', 'go', 'SecondDependency', 'away')]])]);
+, [new \Rector\Transform\ValueObject\MethodCallToMethodCall('FirstDependency', 'go', 'SecondDependency', 'away')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -122,12 +126,12 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, MethodCallToMethodCall[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $methodCallsToMethodsCalls = $configuration[self::METHOD_CALLS_TO_METHOD_CALLS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsAOf($methodCallsToMethodsCalls, \Rector\Transform\ValueObject\MethodCallToMethodCall::class);
+        $methodCallsToMethodsCalls = $configuration[self::METHOD_CALLS_TO_METHOD_CALLS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($methodCallsToMethodsCalls, \Rector\Transform\ValueObject\MethodCallToMethodCall::class);
         $this->methodCallsToMethodsCalls = $methodCallsToMethodsCalls;
     }
     private function isMatch(\PhpParser\Node\Expr\MethodCall $methodCall, \Rector\Transform\ValueObject\MethodCallToMethodCall $methodCallToMethodCall) : bool
@@ -145,7 +149,7 @@ CODE_SAMPLE
         if ($classContextProperty === null) {
             return $newPropertyName;
         }
-        // re-use existing proeprty name
+        // re-use existing property name
         return $this->getName($classContextProperty);
     }
 }

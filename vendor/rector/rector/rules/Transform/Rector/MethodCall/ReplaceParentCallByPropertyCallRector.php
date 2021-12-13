@@ -10,13 +10,14 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Transform\ValueObject\ReplaceParentCallByPropertyCall;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\MethodCall\ReplaceParentCallByPropertyCallRector\ReplaceParentCallByPropertyCallRectorTest
  */
 final class ReplaceParentCallByPropertyCallRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const PARENT_CALLS_TO_PROPERTIES = 'parent_calls_to_properties';
@@ -44,7 +45,7 @@ final class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::PARENT_CALLS_TO_PROPERTIES => [new \Rector\Transform\ValueObject\ReplaceParentCallByPropertyCall('SomeTypeToReplace', 'someMethodCall', 'someProperty')]])]);
+, [new \Rector\Transform\ValueObject\ReplaceParentCallByPropertyCall('SomeTypeToReplace', 'someMethodCall', 'someProperty')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -71,12 +72,12 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, ReplaceParentCallByPropertyCall[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $parentCallToProperties = $configuration[self::PARENT_CALLS_TO_PROPERTIES] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($parentCallToProperties, \Rector\Transform\ValueObject\ReplaceParentCallByPropertyCall::class);
+        $parentCallToProperties = $configuration[self::PARENT_CALLS_TO_PROPERTIES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($parentCallToProperties, \Rector\Transform\ValueObject\ReplaceParentCallByPropertyCall::class);
         $this->parentCallToProperties = $parentCallToProperties;
     }
 }

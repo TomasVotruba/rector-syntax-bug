@@ -9,10 +9,11 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\ParamTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo;
 use Rector\DeadCode\PhpDoc\DeadParamTagValueNodeAnalyzer;
-use RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser;
+use RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser;
 final class ParamTagRemover
 {
     /**
+     * @readonly
      * @var \Rector\DeadCode\PhpDoc\DeadParamTagValueNodeAnalyzer
      */
     private $deadParamTagValueNodeAnalyzer;
@@ -20,10 +21,11 @@ final class ParamTagRemover
     {
         $this->deadParamTagValueNodeAnalyzer = $deadParamTagValueNodeAnalyzer;
     }
-    public function removeParamTagsIfUseless(\Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo $phpDocInfo, \PhpParser\Node\FunctionLike $functionLike) : void
+    public function removeParamTagsIfUseless(\Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo $phpDocInfo, \PhpParser\Node\FunctionLike $functionLike) : bool
     {
-        $phpDocNodeTraverser = new \RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser();
-        $phpDocNodeTraverser->traverseWithCallable($phpDocInfo->getPhpDocNode(), '', function (\PHPStan\PhpDocParser\Ast\Node $docNode) use($functionLike, $phpDocInfo) : ?int {
+        $hasChanged = \false;
+        $phpDocNodeTraverser = new \RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser();
+        $phpDocNodeTraverser->traverseWithCallable($phpDocInfo->getPhpDocNode(), '', function (\PHPStan\PhpDocParser\Ast\Node $docNode) use($functionLike, $phpDocInfo, &$hasChanged) : ?int {
             if (!$docNode instanceof \PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode) {
                 return null;
             }
@@ -38,7 +40,9 @@ final class ParamTagRemover
                 return null;
             }
             $phpDocInfo->markAsChanged();
-            return \RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser::NODE_REMOVE;
+            $hasChanged = \true;
+            return \RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser::NODE_REMOVE;
         });
+        return $hasChanged;
     }
 }

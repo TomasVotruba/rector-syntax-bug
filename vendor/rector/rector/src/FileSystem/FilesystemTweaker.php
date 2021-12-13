@@ -3,14 +3,15 @@
 declare (strict_types=1);
 namespace Rector\Core\FileSystem;
 
-use RectorPrefix20211110\Symplify\SmartFileSystem\FileSystemGuard;
+use RectorPrefix20211213\Symplify\SmartFileSystem\FileSystemGuard;
 final class FilesystemTweaker
 {
     /**
+     * @readonly
      * @var \Symplify\SmartFileSystem\FileSystemGuard
      */
     private $fileSystemGuard;
-    public function __construct(\RectorPrefix20211110\Symplify\SmartFileSystem\FileSystemGuard $fileSystemGuard)
+    public function __construct(\RectorPrefix20211213\Symplify\SmartFileSystem\FileSystemGuard $fileSystemGuard)
     {
         $this->fileSystemGuard = $fileSystemGuard;
     }

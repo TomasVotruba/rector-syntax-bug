@@ -8,21 +8,24 @@ use Rector\Php80\Enum\MatchKind;
 final class CondAndExpr
 {
     /**
-     * @var \PhpParser\Node\Expr[]
+     * @var \PhpParser\Node\Expr[]|null
+     * @readonly
      */
     private $condExprs;
     /**
+     * @readonly
      * @var \PhpParser\Node\Expr
      */
     private $expr;
     /**
+     * @readonly
      * @var \Rector\Php80\Enum\MatchKind
      */
     private $matchKind;
     /**
-     * @param Expr[] $condExprs
+     * @param Expr[]|null $condExprs
      */
-    public function __construct(array $condExprs, \PhpParser\Node\Expr $expr, \Rector\Php80\Enum\MatchKind $matchKind)
+    public function __construct($condExprs, \PhpParser\Node\Expr $expr, \Rector\Php80\Enum\MatchKind $matchKind)
     {
         $this->condExprs = $condExprs;
         $this->expr = $expr;
@@ -33,10 +36,14 @@ final class CondAndExpr
         return $this->expr;
     }
     /**
-     * @return Expr[]
+     * @return mixed[]|null
      */
-    public function getCondExprs() : array
+    public function getCondExprs()
     {
+        // internally checked by PHPStan, cannot be empty array
+        if ($this->condExprs === []) {
+            return null;
+        }
         return $this->condExprs;
     }
     public function getMatchKind() : \Rector\Php80\Enum\MatchKind

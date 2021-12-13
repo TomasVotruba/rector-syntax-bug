@@ -18,13 +18,14 @@ use Rector\PostRector\ValueObject\PropertyMetadata;
 use Rector\Transform\ValueObject\NewToMethodCall;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\New_\NewToMethodCallRector\NewToMethodCallRectorTest
  */
 final class NewToMethodCallRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const NEWS_TO_METHOD_CALLS = 'news_to_method_calls';
@@ -33,10 +34,12 @@ final class NewToMethodCallRector extends \Rector\Core\Rector\AbstractRector imp
      */
     private $newsToMethodCalls = [];
     /**
+     * @readonly
      * @var \Rector\CodingStyle\Naming\ClassNaming
      */
     private $classNaming;
     /**
+     * @readonly
      * @var \Rector\PostRector\Collector\PropertyToAddCollector
      */
     private $propertyToAddCollector;
@@ -68,7 +71,7 @@ class SomeClass
 	}
 }
 CODE_SAMPLE
-, [self::NEWS_TO_METHOD_CALLS => [new \Rector\Transform\ValueObject\NewToMethodCall('MyClass', 'MyClassFactory', 'create')]])]);
+, [new \Rector\Transform\ValueObject\NewToMethodCall('MyClass', 'MyClassFactory', 'create')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -112,12 +115,13 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, NewToMethodCall[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $newsToMethodCalls = $configuration[self::NEWS_TO_METHOD_CALLS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($newsToMethodCalls, \Rector\Transform\ValueObject\NewToMethodCall::class);
+        $newsToMethodCalls = $configuration[self::NEWS_TO_METHOD_CALLS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($newsToMethodCalls);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($newsToMethodCalls, \Rector\Transform\ValueObject\NewToMethodCall::class);
         $this->newsToMethodCalls = $newsToMethodCalls;
     }
     private function getExistingFactoryPropertyName(\PhpParser\Node\Stmt\Class_ $class, \PHPStan\Type\ObjectType $factoryObjectType) : ?string

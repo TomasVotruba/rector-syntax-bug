@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\DowngradePhp70\Rector\String_;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Error;
 use PhpParser\Node;
 use PhpParser\Node\Scalar\String_;
@@ -39,6 +39,7 @@ final class DowngradeGeneratedScalarTypesRector extends \Rector\Core\Rector\Abst
      */
     private $phpRectors = [];
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Parser\InlineCodeParser
      */
     private $inlineCodeParser;

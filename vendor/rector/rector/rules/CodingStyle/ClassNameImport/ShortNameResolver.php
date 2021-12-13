@@ -3,8 +3,7 @@
 declare (strict_types=1);
 namespace Rector\CodingStyle\ClassNameImport;
 
-use RectorPrefix20211110\Nette\Utils\Reflection;
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Reflection;
 use PhpParser\Node;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
@@ -18,13 +17,14 @@ use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo;
 use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory;
 use Rector\CodingStyle\NodeAnalyzer\UseImportNameMatcher;
 use Rector\Core\PhpParser\Node\BetterNodeFinder;
+use Rector\Core\Util\StringUtils;
 use Rector\Core\ValueObject\Application\File;
 use Rector\NodeNameResolver\NodeNameResolver;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use ReflectionClass;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
-use RectorPrefix20211110\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser;
-use RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser;
+use RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser;
 /**
  * @see \Rector\Tests\CodingStyle\ClassNameImport\ShortNameResolver\ShortNameResolverTest
  */
@@ -44,26 +44,31 @@ final class ShortNameResolver
      */
     private $phpDocInfoFactory;
     /**
+     * @readonly
      * @var \Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser
      */
     private $simpleCallableNodeTraverser;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\CodingStyle\NodeAnalyzer\UseImportNameMatcher
      */
     private $useImportNameMatcher;
-    public function __construct(\RectorPrefix20211110\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser $simpleCallableNodeTraverser, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder, \Rector\CodingStyle\NodeAnalyzer\UseImportNameMatcher $useImportNameMatcher)
+    public function __construct(\RectorPrefix20211213\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser $simpleCallableNodeTraverser, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder, \Rector\CodingStyle\NodeAnalyzer\UseImportNameMatcher $useImportNameMatcher)
     {
         $this->simpleCallableNodeTraverser = $simpleCallableNodeTraverser;
         $this->nodeNameResolver = $nodeNameResolver;
@@ -75,7 +80,7 @@ final class ShortNameResolver
     /**
      * @required
      */
-    public function autowireShortNameResolver(\Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory $phpDocInfoFactory) : void
+    public function autowire(\Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory $phpDocInfoFactory) : void
     {
         $this->phpDocInfoFactory = $phpDocInfoFactory;
     }
@@ -143,7 +148,9 @@ final class ShortNameResolver
             $shortNamesToFullyQualifiedNames[$originalName->toString()] = $fullyQualifiedName;
         });
         $docBlockShortNamesToFullyQualifiedNames = $this->resolveFromStmtsDocBlocks($stmts);
-        return \array_merge($shortNamesToFullyQualifiedNames, $docBlockShortNamesToFullyQualifiedNames);
+        /** @var array<string, string> $result */
+        $result = \array_merge($shortNamesToFullyQualifiedNames, $docBlockShortNamesToFullyQualifiedNames);
+        return $result;
     }
     /**
      * @param Stmt[] $stmts
@@ -159,11 +166,11 @@ final class ShortNameResolver
             if (!$phpDocInfo instanceof \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo) {
                 return;
             }
-            $phpDocNodeTraverser = new \RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser();
+            $phpDocNodeTraverser = new \RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser();
             $phpDocNodeTraverser->traverseWithCallable($phpDocInfo->getPhpDocNode(), '', function ($node) use(&$shortNames) {
                 if ($node instanceof \PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode) {
                     $shortName = \trim($node->name, '@');
-                    if (\RectorPrefix20211110\Nette\Utils\Strings::match($shortName, self::BIG_LETTER_START_REGEX)) {
+                    if (\Rector\Core\Util\StringUtils::isMatch($shortName, self::BIG_LETTER_START_REGEX)) {
                         $shortNames[] = $shortName;
                     }
                     return null;
@@ -201,10 +208,13 @@ final class ShortNameResolver
     {
         $shortNamesToFullyQualifiedNames = [];
         foreach ($shortNames as $shortName) {
+            $stmtsMatchedName = $this->useImportNameMatcher->matchNameWithStmts($shortName, $stmts);
             if ($reflectionClass instanceof \ReflectionClass) {
-                $fullyQualifiedName = \RectorPrefix20211110\Nette\Utils\Reflection::expandClassName($shortName, $reflectionClass);
+                $fullyQualifiedName = \RectorPrefix20211213\Nette\Utils\Reflection::expandClassName($shortName, $reflectionClass);
+            } elseif (\is_string($stmtsMatchedName)) {
+                $fullyQualifiedName = $stmtsMatchedName;
             } else {
-                $fullyQualifiedName = $this->useImportNameMatcher->matchNameWithStmts($shortName, $stmts) ?: $shortName;
+                $fullyQualifiedName = $shortName;
             }
             $shortNamesToFullyQualifiedNames[$shortName] = $fullyQualifiedName;
         }

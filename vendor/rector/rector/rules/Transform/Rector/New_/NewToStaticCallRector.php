@@ -10,13 +10,14 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Transform\ValueObject\NewToStaticCall;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\New_\NewToStaticCallRector\NewToStaticCallRectorTest
  */
 final class NewToStaticCallRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const TYPE_TO_STATIC_CALLS = 'type_to_static_calls';
@@ -44,7 +45,7 @@ class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::TYPE_TO_STATIC_CALLS => [new \Rector\Transform\ValueObject\NewToStaticCall('Cookie', 'Cookie', 'create')]])]);
+, [new \Rector\Transform\ValueObject\NewToStaticCall('Cookie', 'Cookie', 'create')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -67,12 +68,13 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, NewToStaticCall[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $typeToStaticCalls = $configuration[self::TYPE_TO_STATIC_CALLS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($typeToStaticCalls, \Rector\Transform\ValueObject\NewToStaticCall::class);
+        $typeToStaticCalls = $configuration[self::TYPE_TO_STATIC_CALLS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($typeToStaticCalls);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($typeToStaticCalls, \Rector\Transform\ValueObject\NewToStaticCall::class);
         $this->typeToStaticCalls = $typeToStaticCalls;
     }
 }

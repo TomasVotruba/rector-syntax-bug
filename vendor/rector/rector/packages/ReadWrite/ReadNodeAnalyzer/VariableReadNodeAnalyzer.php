@@ -3,22 +3,28 @@
 declare (strict_types=1);
 namespace Rector\ReadWrite\ReadNodeAnalyzer;
 
-use PhpParser\Node;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Variable;
 use Rector\NodeNestingScope\ParentScopeFinder;
 use Rector\ReadWrite\Contract\ReadNodeAnalyzerInterface;
 use Rector\ReadWrite\NodeFinder\NodeUsageFinder;
+/**
+ * @implements ReadNodeAnalyzerInterface<Variable>
+ */
 final class VariableReadNodeAnalyzer implements \Rector\ReadWrite\Contract\ReadNodeAnalyzerInterface
 {
     /**
+     * @readonly
      * @var \Rector\NodeNestingScope\ParentScopeFinder
      */
     private $parentScopeFinder;
     /**
+     * @readonly
      * @var \Rector\ReadWrite\NodeFinder\NodeUsageFinder
      */
     private $nodeUsageFinder;
     /**
+     * @readonly
      * @var \Rector\ReadWrite\ReadNodeAnalyzer\JustReadExprAnalyzer
      */
     private $justReadExprAnalyzer;
@@ -28,23 +34,20 @@ final class VariableReadNodeAnalyzer implements \Rector\ReadWrite\Contract\ReadN
         $this->nodeUsageFinder = $nodeUsageFinder;
         $this->justReadExprAnalyzer = $justReadExprAnalyzer;
     }
-    /**
-     * @param \PhpParser\Node $node
-     */
-    public function supports($node) : bool
+    public function supports(\PhpParser\Node\Expr $expr) : bool
     {
-        return $node instanceof \PhpParser\Node\Expr\Variable;
+        return $expr instanceof \PhpParser\Node\Expr\Variable;
     }
     /**
-     * @param \PhpParser\Node $node
+     * @param Variable $expr
      */
-    public function isRead($node) : bool
+    public function isRead(\PhpParser\Node\Expr $expr) : bool
     {
-        $parentScope = $this->parentScopeFinder->find($node);
+        $parentScope = $this->parentScopeFinder->find($expr);
         if ($parentScope === null) {
             return \false;
         }
-        $variableUsages = $this->nodeUsageFinder->findVariableUsages((array) $parentScope->stmts, $node);
+        $variableUsages = $this->nodeUsageFinder->findVariableUsages((array) $parentScope->stmts, $expr);
         foreach ($variableUsages as $variableUsage) {
             if ($this->justReadExprAnalyzer->isReadContext($variableUsage)) {
                 return \true;

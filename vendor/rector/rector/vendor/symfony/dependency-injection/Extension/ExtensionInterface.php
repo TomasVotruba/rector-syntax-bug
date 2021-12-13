@@ -8,9 +8,9 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\DependencyInjection\Extension;
+namespace RectorPrefix20211213\Symfony\Component\DependencyInjection\Extension;
 
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerBuilder;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * ExtensionInterface is the interface implemented by container extension classes.
  *
@@ -22,14 +22,12 @@ interface ExtensionInterface
      * Loads a specific configuration.
      *
      * @throws \InvalidArgumentException When provided tag is not defined in this extension
-     * @param mixed[] $configs
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
      */
-    public function load($configs, $container);
+    public function load(array $configs, \RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerBuilder $container);
     /**
      * Returns the namespace to be used for this extension (XML namespace).
      *
-     * @return string The XML namespace
+     * @return string
      */
     public function getNamespace();
     /**
@@ -43,7 +41,7 @@ interface ExtensionInterface
      *
      * This alias is also the mandatory prefix to use when using YAML.
      *
-     * @return string The alias
+     * @return string
      */
     public function getAlias();
 }

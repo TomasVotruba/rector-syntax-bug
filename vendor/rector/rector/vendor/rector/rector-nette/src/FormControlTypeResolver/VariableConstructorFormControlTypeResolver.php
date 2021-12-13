@@ -5,6 +5,7 @@ namespace Rector\Nette\FormControlTypeResolver;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Type\TypeWithClassName;
 use Rector\Core\PhpParser\AstResolver;
@@ -13,7 +14,7 @@ use Rector\Nette\Contract\FormControlTypeResolverInterface;
 use Rector\Nette\NodeResolver\MethodNamesByInputNamesResolver;
 use Rector\NodeNameResolver\NodeNameResolver;
 use Rector\NodeTypeResolver\NodeTypeResolver;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
 final class VariableConstructorFormControlTypeResolver implements \Rector\Nette\Contract\FormControlTypeResolverInterface
 {
     /**
@@ -45,9 +46,8 @@ final class VariableConstructorFormControlTypeResolver implements \Rector\Nette\
     }
     /**
      * @return array<string, string>
-     * @param \PhpParser\Node $node
      */
-    public function resolve($node) : array
+    public function resolve(\PhpParser\Node $node) : array
     {
         if (!$node instanceof \PhpParser\Node\Expr\Variable) {
             return [];
@@ -65,7 +65,7 @@ final class VariableConstructorFormControlTypeResolver implements \Rector\Nette\
             return [];
         }
         $classMethod = $this->astResolver->resolveClassMethod($formType->getClassName(), \Rector\Core\ValueObject\MethodName::CONSTRUCT);
-        if ($classMethod === null) {
+        if (!$classMethod instanceof \PhpParser\Node\Stmt\ClassMethod) {
             return [];
         }
         return $this->methodNamesByInputNamesResolver->resolveExpr($classMethod);
@@ -73,7 +73,7 @@ final class VariableConstructorFormControlTypeResolver implements \Rector\Nette\
     /**
      * @required
      */
-    public function autowireVariableConstructorFormControlTypeResolver(\Rector\Nette\NodeResolver\MethodNamesByInputNamesResolver $methodNamesByInputNamesResolver) : void
+    public function autowire(\Rector\Nette\NodeResolver\MethodNamesByInputNamesResolver $methodNamesByInputNamesResolver) : void
     {
         $this->methodNamesByInputNamesResolver = $methodNamesByInputNamesResolver;
     }

@@ -9,7 +9,7 @@ use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @changelog https://github.com/symfony/symfony/pull/35858
  *
@@ -18,6 +18,7 @@ use RectorPrefix20211110\Webmozart\Assert\Assert;
 final class RenameStringRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const STRING_CHANGES = 'string_changes';
@@ -45,7 +46,7 @@ class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::STRING_CHANGES => ['ROLE_PREVIOUS_ADMIN' => 'IS_IMPERSONATOR']])]);
+, ['ROLE_PREVIOUS_ADMIN' => 'IS_IMPERSONATOR'])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -68,13 +69,14 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, array<string, string>> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $stringChanges = $configuration[self::STRING_CHANGES] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allString($stringChanges);
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allString(\array_values($stringChanges));
+        $stringChanges = $configuration[self::STRING_CHANGES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($stringChanges);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString(\array_keys($stringChanges));
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($stringChanges);
         $this->stringChanges = $stringChanges;
     }
 }

@@ -4,13 +4,16 @@ declare (strict_types=1);
 namespace Rector\Naming\Guard;
 
 use DateTimeInterface;
-use RectorPrefix20211110\Nette\Utils\Strings;
 use PHPStan\Type\TypeWithClassName;
+use Rector\Core\Util\StringUtils;
 use Rector\Naming\Contract\Guard\ConflictingNameGuardInterface;
 use Rector\Naming\Contract\RenameValueObjectInterface;
 use Rector\Naming\ValueObject\PropertyRename;
 use Rector\NodeTypeResolver\NodeTypeResolver;
 use Rector\PHPStanStaticTypeMapper\Utils\TypeUnwrapper;
+/**
+ * @implements ConflictingNameGuardInterface<PropertyRename>
+ */
 final class DateTimeAtNamingConventionGuard implements \Rector\Naming\Contract\Guard\ConflictingNameGuardInterface
 {
     /**
@@ -19,10 +22,12 @@ final class DateTimeAtNamingConventionGuard implements \Rector\Naming\Contract\G
      */
     private const AT_NAMING_REGEX = '#[\\w+]At$#';
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeTypeResolver
      */
     private $nodeTypeResolver;
     /**
+     * @readonly
      * @var \Rector\PHPStanStaticTypeMapper\Utils\TypeUnwrapper
      */
     private $typeUnwrapper;
@@ -32,9 +37,9 @@ final class DateTimeAtNamingConventionGuard implements \Rector\Naming\Contract\G
         $this->typeUnwrapper = $typeUnwrapper;
     }
     /**
-     * @param \Rector\Naming\Contract\RenameValueObjectInterface $renameValueObject
+     * @param PropertyRename $renameValueObject
      */
-    public function isConflicting($renameValueObject) : bool
+    public function isConflicting(\Rector\Naming\Contract\RenameValueObjectInterface $renameValueObject) : bool
     {
         return $this->isDateTimeAtNamingConvention($renameValueObject);
     }
@@ -48,6 +53,6 @@ final class DateTimeAtNamingConventionGuard implements \Rector\Naming\Contract\G
         if (!\is_a($type->getClassName(), \DateTimeInterface::class, \true)) {
             return \false;
         }
-        return (bool) \RectorPrefix20211110\Nette\Utils\Strings::match($propertyRename->getCurrentName(), self::AT_NAMING_REGEX . '');
+        return \Rector\Core\Util\StringUtils::isMatch($propertyRename->getCurrentName(), self::AT_NAMING_REGEX . '');
     }
 }

@@ -5,6 +5,9 @@
         "ruflin/elastica": "6.1.5",
         "php": "^7.4"
     },
+    "require-dev": {
+        "rector/rector": "dev-main#db95226"
+    },
     "autoload": {
         "psr-4": {
             "Cameron\\RectorSyntaxBug\\": "src/"
@@ -15,8 +18,5 @@
             "name": "Cameron Junge",
             "email": "cameron@weirdlyhub.com"
         }
-    ],
-    "require-dev": {
-        "rector/rector": "^0.12.3"
-    }
+    ]
 }

@@ -9,15 +9,17 @@ use Rector\FileSystemRector\Contract\FileWithNodesInterface;
 final class AddedFileWithNodes implements \Rector\FileSystemRector\Contract\AddedFileInterface, \Rector\FileSystemRector\Contract\FileWithNodesInterface
 {
     /**
+     * @readonly
      * @var string
      */
     private $filePath;
     /**
-     * @var \PhpParser\Node[]
+     * @var \PhpParser\Node\Stmt[]
+     * @readonly
      */
     private $nodes;
     /**
-     * @param Node[] $nodes
+     * @param Node\Stmt[] $nodes
      */
     public function __construct(string $filePath, array $nodes)
     {
@@ -29,7 +31,7 @@ final class AddedFileWithNodes implements \Rector\FileSystemRector\Contract\Adde
         return $this->filePath;
     }
     /**
-     * @return Node[]
+     * @return Node\Stmt[]
      */
     public function getNodes() : array
     {

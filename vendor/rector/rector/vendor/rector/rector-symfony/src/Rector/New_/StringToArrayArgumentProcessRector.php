@@ -17,8 +17,8 @@ use PHPStan\Type\ObjectType;
 use PHPStan\Type\StringType;
 use Rector\Core\PhpParser\NodeTransformer;
 use Rector\Core\Rector\AbstractRector;
-use RectorPrefix20211110\Symfony\Component\Console\Input\StringInput;
-use RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesCaller;
+use RectorPrefix20211213\Symfony\Component\Console\Input\StringInput;
+use RectorPrefix20211213\Symplify\PackageBuilder\Reflection\PrivatesCaller;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 /**
@@ -27,6 +27,10 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
  */
 final class StringToArrayArgumentProcessRector extends \Rector\Core\Rector\AbstractRector
 {
+    /**
+     * @var string[]
+     */
+    private const EXCLUDED_PROCESS_METHOD_CALLS = ['setWorkingDirectory', 'addOutput', 'addErrorOutput'];
     /**
      * @var \Rector\Core\PhpParser\NodeTransformer
      */
@@ -84,12 +88,21 @@ CODE_SAMPLE
         if ($activeArgValue instanceof \PhpParser\Node\Expr\Array_) {
             return null;
         }
+        if ($node instanceof \PhpParser\Node\Expr\MethodCall && $this->shouldSkipProcessMethodCall($node)) {
+            return null;
+        }
         // type analyzer
         $activeValueType = $this->getType($activeArgValue);
-        if ($activeValueType instanceof \PHPStan\Type\StringType) {
-            $this->processStringType($node, $argumentPosition, $activeArgValue);
+        if (!$activeValueType instanceof \PHPStan\Type\StringType) {
+            return null;
         }
+        $this->processStringType($node, $argumentPosition, $activeArgValue);
         return $node;
+    }
+    private function shouldSkipProcessMethodCall(\PhpParser\Node\Expr\MethodCall $methodCall) : bool
+    {
+        $methodName = (string) $this->nodeNameResolver->getName($methodCall->name);
+        return \in_array($methodName, self::EXCLUDED_PROCESS_METHOD_CALLS, \true);
     }
     /**
      * @param \PhpParser\Node\Expr\MethodCall|\PhpParser\Node\Expr\New_ $expr
@@ -98,9 +111,7 @@ CODE_SAMPLE
     {
         if ($firstArgumentExpr instanceof \PhpParser\Node\Expr\BinaryOp\Concat) {
             $arrayNode = $this->nodeTransformer->transformConcatToStringArray($firstArgumentExpr);
-            if ($arrayNode !== null) {
-                $expr->args[$argumentPosition] = new \PhpParser\Node\Arg($arrayNode);
-            }
+            $expr->args[$argumentPosition] = new \PhpParser\Node\Arg($arrayNode);
             return;
         }
         if ($firstArgumentExpr instanceof \PhpParser\Node\Expr\FuncCall && $this->isName($firstArgumentExpr, 'sprintf')) {
@@ -119,8 +130,8 @@ CODE_SAMPLE
      */
     private function splitProcessCommandToItems(string $process) : array
     {
-        $privatesCaller = new \RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesCaller();
-        return $privatesCaller->callPrivateMethod(new \RectorPrefix20211110\Symfony\Component\Console\Input\StringInput(''), 'tokenize', [$process]);
+        $privatesCaller = new \RectorPrefix20211213\Symplify\PackageBuilder\Reflection\PrivatesCaller();
+        return $privatesCaller->callPrivateMethod(new \RectorPrefix20211213\Symfony\Component\Console\Input\StringInput(''), 'tokenize', [$process]);
     }
     private function processPreviousAssign(\PhpParser\Node $node, \PhpParser\Node\Expr $firstArgumentExpr) : void
     {

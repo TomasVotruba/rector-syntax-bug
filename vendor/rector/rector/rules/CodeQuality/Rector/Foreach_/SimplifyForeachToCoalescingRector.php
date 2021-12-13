@@ -31,6 +31,7 @@ final class SimplifyForeachToCoalescingRector extends \Rector\Core\Rector\Abstra
      */
     private $return;
     /**
+     * @readonly
      * @var \Rector\Core\NodeManipulator\ForeachManipulator
      */
     private $foreachManipulator;
@@ -111,7 +112,10 @@ CODE_SAMPLE
             return null;
         });
     }
-    private function processForeachNodeWithReturnInside(\PhpParser\Node\Stmt\Foreach_ $foreach, \PhpParser\Node\Stmt\Return_ $return) : ?\PhpParser\Node
+    /**
+     * @return \PhpParser\Node\Stmt\Return_|null
+     */
+    private function processForeachNodeWithReturnInside(\PhpParser\Node\Stmt\Foreach_ $foreach, \PhpParser\Node\Stmt\Return_ $return)
     {
         if (!$this->nodeComparator->areNodesEqual($foreach->valueVar, $return->expr)) {
             return null;
@@ -133,7 +137,7 @@ CODE_SAMPLE
             $this->return = $nextNode;
             $this->removeNode($this->return);
         }
-        $coalesce = new \PhpParser\Node\Expr\BinaryOp\Coalesce(new \PhpParser\Node\Expr\ArrayDimFetch($foreach->expr, $checkedNode), $this->return && $this->return->expr !== null ? $this->return->expr : $checkedNode);
+        $coalesce = new \PhpParser\Node\Expr\BinaryOp\Coalesce(new \PhpParser\Node\Expr\ArrayDimFetch($foreach->expr, $checkedNode), $this->return instanceof \PhpParser\Node\Stmt\Return_ && $this->return->expr !== null ? $this->return->expr : $checkedNode);
         if ($this->return !== null) {
             return new \PhpParser\Node\Stmt\Return_($coalesce);
         }

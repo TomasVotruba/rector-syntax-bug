@@ -24,10 +24,12 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class ReturnTypeFromStrictTypedPropertyRector extends \Rector\Core\Rector\AbstractRector implements \Rector\VersionBonding\Contract\MinPhpVersionInterface
 {
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PHPStan\Type\TypeFactory
      */
     private $typeFactory;
     /**
+     * @readonly
      * @var \Rector\Core\Reflection\ReflectionResolver
      */
     private $reflectionResolver;
@@ -103,7 +105,7 @@ CODE_SAMPLE
     private function resolveReturnPropertyType(\PhpParser\Node\Stmt\ClassMethod $classMethod) : array
     {
         /** @var Return_[] $returns */
-        $returns = $this->betterNodeFinder->findInstanceOf($classMethod, \PhpParser\Node\Stmt\Return_::class);
+        $returns = $this->betterNodeFinder->findInstancesOfInFunctionLikeScoped($classMethod, \PhpParser\Node\Stmt\Return_::class);
         $propertyTypes = [];
         foreach ($returns as $return) {
             if ($return->expr === null) {

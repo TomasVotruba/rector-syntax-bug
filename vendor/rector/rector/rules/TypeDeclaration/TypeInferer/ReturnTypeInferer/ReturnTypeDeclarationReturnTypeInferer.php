@@ -12,10 +12,12 @@ use Rector\TypeDeclaration\FunctionLikeReturnTypeResolver;
 final class ReturnTypeDeclarationReturnTypeInferer implements \Rector\TypeDeclaration\Contract\TypeInferer\ReturnTypeInfererInterface
 {
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\FunctionLikeReturnTypeResolver
      */
     private $functionLikeReturnTypeResolver;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
@@ -24,10 +26,7 @@ final class ReturnTypeDeclarationReturnTypeInferer implements \Rector\TypeDeclar
         $this->functionLikeReturnTypeResolver = $functionLikeReturnTypeResolver;
         $this->nodeNameResolver = $nodeNameResolver;
     }
-    /**
-     * @param \PhpParser\Node\FunctionLike $functionLike
-     */
-    public function inferFunctionLike($functionLike) : \PHPStan\Type\Type
+    public function inferFunctionLike(\PhpParser\Node\FunctionLike $functionLike) : \PHPStan\Type\Type
     {
         if ($functionLike->getReturnType() === null) {
             return new \PHPStan\Type\MixedType();

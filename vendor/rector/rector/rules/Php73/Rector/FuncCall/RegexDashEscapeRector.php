@@ -3,13 +3,14 @@
 declare (strict_types=1);
 namespace Rector\Php73\Rector\FuncCall;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Scalar\String_;
 use Rector\Core\Php\Regex\RegexPatternArgumentManipulator;
 use Rector\Core\Rector\AbstractRector;
+use Rector\Core\Util\StringUtils;
 use Rector\Core\ValueObject\PhpVersionFeature;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\VersionBonding\Contract\MinPhpVersionInterface;
@@ -39,6 +40,7 @@ final class RegexDashEscapeRector extends \Rector\Core\Rector\AbstractRector imp
      */
     private const RIGHT_HAND_UNESCAPED_DASH_REGEX = '#(?<!\\[)-(\\\\(w|s|d)[.*]?)\\]#i';
     /**
+     * @readonly
      * @var \Rector\Core\Php\Regex\RegexPatternArgumentManipulator
      */
     private $regexPatternArgumentManipulator;
@@ -77,7 +79,7 @@ CODE_SAMPLE
             return null;
         }
         foreach ($regexArguments as $regexArgument) {
-            if (\RectorPrefix20211110\Nette\Utils\Strings::match($regexArgument->value, self::THREE_BACKSLASH_FOR_ESCAPE_NEXT_REGEX)) {
+            if (\Rector\Core\Util\StringUtils::isMatch($regexArgument->value, self::THREE_BACKSLASH_FOR_ESCAPE_NEXT_REGEX)) {
                 continue;
             }
             $this->escapeStringNode($regexArgument);
@@ -87,14 +89,14 @@ CODE_SAMPLE
     private function escapeStringNode(\PhpParser\Node\Scalar\String_ $string) : void
     {
         $stringValue = $string->value;
-        if (\RectorPrefix20211110\Nette\Utils\Strings::match($stringValue, self::LEFT_HAND_UNESCAPED_DASH_REGEX)) {
-            $string->value = \RectorPrefix20211110\Nette\Utils\Strings::replace($stringValue, self::LEFT_HAND_UNESCAPED_DASH_REGEX, '$1\\-');
+        if (\Rector\Core\Util\StringUtils::isMatch($stringValue, self::LEFT_HAND_UNESCAPED_DASH_REGEX)) {
+            $string->value = \RectorPrefix20211213\Nette\Utils\Strings::replace($stringValue, self::LEFT_HAND_UNESCAPED_DASH_REGEX, '$1\\-');
             // helped needed to skip re-escaping regular expression
             $string->setAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::IS_REGULAR_PATTERN, \true);
             return;
         }
-        if (\RectorPrefix20211110\Nette\Utils\Strings::match($stringValue, self::RIGHT_HAND_UNESCAPED_DASH_REGEX)) {
-            $string->value = \RectorPrefix20211110\Nette\Utils\Strings::replace($stringValue, self::RIGHT_HAND_UNESCAPED_DASH_REGEX, '\\-$1]');
+        if (\Rector\Core\Util\StringUtils::isMatch($stringValue, self::RIGHT_HAND_UNESCAPED_DASH_REGEX)) {
+            $string->value = \RectorPrefix20211213\Nette\Utils\Strings::replace($stringValue, self::RIGHT_HAND_UNESCAPED_DASH_REGEX, '\\-$1]');
             // helped needed to skip re-escaping regular expression
             $string->setAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::IS_REGULAR_PATTERN, \true);
         }

@@ -15,14 +15,17 @@ use Rector\NodeTypeResolver\Node\AttributeKey;
 final class InvertedIfFactory
 {
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\EarlyReturn\NodeTransformer\ConditionInverter
      */
     private $conditionInverter;
     /**
+     * @readonly
      * @var \Rector\NodeNestingScope\ContextAnalyzer
      */
     private $contextAnalyzer;
@@ -40,7 +43,7 @@ final class InvertedIfFactory
     {
         $ifs = [];
         $ifNextReturn = $this->getIfNextReturn($if);
-        $stmt = $this->contextAnalyzer->isInLoop($if) && !$ifNextReturn ? [new \PhpParser\Node\Stmt\Continue_()] : [$return];
+        $stmt = $this->contextAnalyzer->isInLoop($if) && !$ifNextReturn instanceof \PhpParser\Node\Stmt\Return_ ? [new \PhpParser\Node\Stmt\Continue_()] : [$return];
         if ($ifNextReturn instanceof \PhpParser\Node\Stmt\Return_) {
             $stmt[0]->setAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::COMMENTS, $ifNextReturn->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::COMMENTS));
         }

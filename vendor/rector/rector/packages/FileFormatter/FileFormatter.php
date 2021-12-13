@@ -13,25 +13,28 @@ use Rector\FileFormatter\ValueObject\EditorConfigConfiguration;
 use Rector\FileFormatter\ValueObject\Indent;
 use Rector\FileFormatter\ValueObject\NewLine;
 use Rector\FileFormatter\ValueObjectFactory\EditorConfigConfigurationBuilder;
-use RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider;
+use RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider;
 final class FileFormatter
 {
     /**
+     * @readonly
      * @var \Rector\FileFormatter\EditorConfig\EditorConfigParser
      */
     private $editorConfigParser;
     /**
+     * @readonly
      * @var \Symplify\PackageBuilder\Parameter\ParameterProvider
      */
     private $parameterProvider;
     /**
      * @var \Rector\FileFormatter\Contract\Formatter\FileFormatterInterface[]
+     * @readonly
      */
     private $fileFormatters = [];
     /**
      * @param FileFormatterInterface[] $fileFormatters
      */
-    public function __construct(\Rector\FileFormatter\EditorConfig\EditorConfigParser $editorConfigParser, \RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider, array $fileFormatters = [])
+    public function __construct(\Rector\FileFormatter\EditorConfig\EditorConfigParser $editorConfigParser, \RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider, array $fileFormatters = [])
     {
         $this->editorConfigParser = $editorConfigParser;
         $this->parameterProvider = $parameterProvider;

@@ -22,6 +22,7 @@ use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\ElseIf_;
 use PhpParser\Node\Stmt\If_;
+use PHPStan\Type\ArrayType;
 use PHPStan\Type\BooleanType;
 use PHPStan\Type\Constant\ConstantIntegerType;
 use PHPStan\Type\FloatType;
@@ -44,10 +45,12 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class ExplicitBoolCompareRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\TypeAnalyzer\StringTypeAnalyzer
      */
     private $stringTypeAnalyzer;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\TypeAnalyzer\ArrayTypeAnalyzer
      */
     private $arrayTypeAnalyzer;
@@ -152,10 +155,14 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @return \PhpParser\Node\Expr\BinaryOp\Greater|\PhpParser\Node\Expr\BinaryOp\Identical
+     * @return \PhpParser\Node\Expr\BinaryOp\Greater|\PhpParser\Node\Expr\BinaryOp\Identical|null
      */
     private function resolveCount(bool $isNegated, \PhpParser\Node\Expr\FuncCall $funcCall)
     {
+        $countedType = $this->getType($funcCall->args[0]->value);
+        if ($countedType instanceof \PHPStan\Type\ArrayType) {
+            return null;
+        }
         $lNumber = new \PhpParser\Node\Scalar\LNumber(0);
         // compare === 0, assumption
         if ($isNegated) {

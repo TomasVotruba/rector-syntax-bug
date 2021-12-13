@@ -18,7 +18,7 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @changelog https://medium.com/tech-tajawal/use-memory-gently-with-yield-in-php-7e62e2480b8d
  * @see https://3v4l.org/5PJid
@@ -28,6 +28,7 @@ use RectorPrefix20211110\Webmozart\Assert\Assert;
 final class ReturnArrayClassMethodToYieldRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const METHODS_TO_YIELDS = 'methods_to_yields';
@@ -36,10 +37,12 @@ final class ReturnArrayClassMethodToYieldRector extends \Rector\Core\Rector\Abst
      */
     private $methodsToYields = [];
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\NodeTransformer
      */
     private $nodeTransformer;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\Comment\CommentsMerger
      */
     private $commentsMerger;
@@ -72,7 +75,7 @@ final class SomeTest implements TestCase
     }
 }
 CODE_SAMPLE
-, [self::METHODS_TO_YIELDS => [new \Rector\CodingStyle\ValueObject\ReturnArrayClassMethodToYield('PHPUnit\\Framework\\TestCase', '*provide*')]])]);
+, [new \Rector\CodingStyle\ValueObject\ReturnArrayClassMethodToYield('PHPUnit\\Framework\\TestCase', '*provide*')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -108,12 +111,12 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, ReturnArrayClassMethodToYield[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $methodsToYields = $configuration[self::METHODS_TO_YIELDS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($methodsToYields, \Rector\CodingStyle\ValueObject\ReturnArrayClassMethodToYield::class);
+        $methodsToYields = $configuration[self::METHODS_TO_YIELDS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($methodsToYields, \Rector\CodingStyle\ValueObject\ReturnArrayClassMethodToYield::class);
         $this->methodsToYields = $methodsToYields;
     }
     private function collectReturnArrayNodesFromClassMethod(\PhpParser\Node\Stmt\ClassMethod $classMethod) : ?\PhpParser\Node\Expr\Array_

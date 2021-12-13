@@ -11,7 +11,7 @@ use Rector\Core\ValueObject\MethodName;
 use Rector\Nette\Contract\FormControlTypeResolverInterface;
 use Rector\Nette\NodeResolver\MethodNamesByInputNamesResolver;
 use Rector\NodeNameResolver\NodeNameResolver;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
 final class ConstructorFormControlTypeResolver implements \Rector\Nette\Contract\FormControlTypeResolverInterface
 {
     /**
@@ -34,15 +34,14 @@ final class ConstructorFormControlTypeResolver implements \Rector\Nette\Contract
     /**
      * @required
      */
-    public function autowireConstructorFormControlTypeResolver(\Rector\Nette\NodeResolver\MethodNamesByInputNamesResolver $methodNamesByInputNamesResolver) : void
+    public function autowire(\Rector\Nette\NodeResolver\MethodNamesByInputNamesResolver $methodNamesByInputNamesResolver) : void
     {
         $this->methodNamesByInputNamesResolver = $methodNamesByInputNamesResolver;
     }
     /**
      * @return array<string, string>
-     * @param \PhpParser\Node $node
      */
-    public function resolve($node) : array
+    public function resolve(\PhpParser\Node $node) : array
     {
         if (!$node instanceof \PhpParser\Node\Stmt\ClassMethod) {
             return [];

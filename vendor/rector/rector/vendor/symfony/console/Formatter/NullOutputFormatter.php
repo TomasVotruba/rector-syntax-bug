@@ -8,39 +8,33 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Console\Formatter;
+namespace RectorPrefix20211213\Symfony\Component\Console\Formatter;
 
 /**
  * @author Tien Xuan Vo <tien.xuan.vo@gmail.com>
  */
-final class NullOutputFormatter implements \RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterInterface
+final class NullOutputFormatter implements \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterInterface
 {
     private $style;
     /**
      * {@inheritdoc}
-     * @param string|null $message
      */
-    public function format($message) : void
+    public function format(?string $message) : ?string
     {
-        // do nothing
+        return null;
     }
     /**
      * {@inheritdoc}
-     * @param string $name
      */
-    public function getStyle($name) : \RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterStyleInterface
+    public function getStyle(string $name) : \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterStyleInterface
     {
-        if ($this->style) {
-            return $this->style;
-        }
         // to comply with the interface we must return a OutputFormatterStyleInterface
-        return $this->style = new \RectorPrefix20211110\Symfony\Component\Console\Formatter\NullOutputFormatterStyle();
+        return $this->style ?? ($this->style = new \RectorPrefix20211213\Symfony\Component\Console\Formatter\NullOutputFormatterStyle());
     }
     /**
      * {@inheritdoc}
-     * @param string $name
      */
-    public function hasStyle($name) : bool
+    public function hasStyle(string $name) : bool
     {
         return \false;
     }
@@ -53,18 +47,15 @@ final class NullOutputFormatter implements \RectorPrefix20211110\Symfony\Compone
     }
     /**
      * {@inheritdoc}
-     * @param bool $decorated
      */
-    public function setDecorated($decorated) : void
+    public function setDecorated(bool $decorated) : void
     {
         // do nothing
     }
     /**
      * {@inheritdoc}
-     * @param string $name
-     * @param \Symfony\Component\Console\Formatter\OutputFormatterStyleInterface $style
      */
-    public function setStyle($name, $style) : void
+    public function setStyle(string $name, \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterStyleInterface $style) : void
     {
         // do nothing
     }

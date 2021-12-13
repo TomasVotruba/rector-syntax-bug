@@ -15,13 +15,18 @@ use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\StaticTypeMapper\Contract\PhpParser\PhpParserNodeMapperInterface;
 use Rector\StaticTypeMapper\ValueObject\Type\AliasedObjectType;
 use Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType;
+/**
+ * @implements PhpParserNodeMapperInterface<FullyQualified>
+ */
 final class FullyQualifiedNodeMapper implements \Rector\StaticTypeMapper\Contract\PhpParser\PhpParserNodeMapperInterface
 {
     /**
+     * @readonly
      * @var \Rector\Core\Provider\CurrentFileProvider
      */
     private $currentFileProvider;
     /**
+     * @readonly
      * @var \Rector\CodingStyle\ClassNameImport\UsedImportsResolver
      */
     private $usedImportsResolver;
@@ -30,17 +35,14 @@ final class FullyQualifiedNodeMapper implements \Rector\StaticTypeMapper\Contrac
         $this->currentFileProvider = $currentFileProvider;
         $this->usedImportsResolver = $usedImportsResolver;
     }
-    /**
-     * @return class-string<Node>
-     */
     public function getNodeType() : string
     {
         return \PhpParser\Node\Name\FullyQualified::class;
     }
     /**
-     * @param \PhpParser\Node $node
+     * @param FullyQualified $node
      */
-    public function mapToPHPStan($node) : \PHPStan\Type\Type
+    public function mapToPHPStan(\PhpParser\Node $node) : \PHPStan\Type\Type
     {
         $parent = $node->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::PARENT_NODE);
         if ($this->isParamTyped($node, $parent)) {

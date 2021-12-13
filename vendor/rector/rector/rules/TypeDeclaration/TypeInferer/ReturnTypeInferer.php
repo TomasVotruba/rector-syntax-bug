@@ -5,9 +5,12 @@ namespace Rector\TypeDeclaration\TypeInferer;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\ArrowFunction;
+use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Return_;
 use PhpParser\Node\UnionType as PhpParserUnionType;
 use PHPStan\Reflection\ClassReflection;
@@ -29,7 +32,7 @@ use Rector\TypeDeclaration\Contract\TypeInferer\ReturnTypeInfererInterface;
 use Rector\TypeDeclaration\Sorter\TypeInfererSorter;
 use Rector\TypeDeclaration\TypeAnalyzer\GenericClassStringTypeNormalizer;
 use Rector\TypeDeclaration\TypeNormalizer;
-use RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider;
+use RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider;
 final class ReturnTypeInferer
 {
     /**
@@ -37,33 +40,39 @@ final class ReturnTypeInferer
      */
     private $returnTypeInferers = [];
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\TypeNormalizer
      */
     private $typeNormalizer;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\TypeAnalyzer\GenericClassStringTypeNormalizer
      */
     private $genericClassStringTypeNormalizer;
     /**
+     * @readonly
      * @var \Rector\Core\Php\PhpVersionProvider
      */
     private $phpVersionProvider;
     /**
+     * @readonly
      * @var \Symplify\PackageBuilder\Parameter\ParameterProvider
      */
     private $parameterProvider;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
      * @param ReturnTypeInfererInterface[] $returnTypeInferers
      */
-    public function __construct(array $returnTypeInferers, \Rector\TypeDeclaration\TypeNormalizer $typeNormalizer, \Rector\TypeDeclaration\Sorter\TypeInfererSorter $typeInfererSorter, \Rector\TypeDeclaration\TypeAnalyzer\GenericClassStringTypeNormalizer $genericClassStringTypeNormalizer, \Rector\Core\Php\PhpVersionProvider $phpVersionProvider, \RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder, \PHPStan\Reflection\ReflectionProvider $reflectionProvider)
+    public function __construct(array $returnTypeInferers, \Rector\TypeDeclaration\TypeNormalizer $typeNormalizer, \Rector\TypeDeclaration\Sorter\TypeInfererSorter $typeInfererSorter, \Rector\TypeDeclaration\TypeAnalyzer\GenericClassStringTypeNormalizer $genericClassStringTypeNormalizer, \Rector\Core\Php\PhpVersionProvider $phpVersionProvider, \RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder, \PHPStan\Reflection\ReflectionProvider $reflectionProvider)
     {
         $this->typeNormalizer = $typeNormalizer;
         $this->genericClassStringTypeNormalizer = $genericClassStringTypeNormalizer;
@@ -123,8 +132,9 @@ final class ReturnTypeInferer
     }
     private function resolveTypeWithVoidHandling(\PhpParser\Node\FunctionLike $functionLike, \PHPStan\Type\Type $resolvedType) : \PHPStan\Type\Type
     {
-        if ($resolvedType instanceof \PHPStan\Type\VoidType) {
-            $hasReturnValue = (bool) $this->betterNodeFinder->findFirst((array) $functionLike->getStmts(), function (\PhpParser\Node $subNode) : bool {
+        if ($resolvedType instanceof \PHPStan\Type\VoidType && !$functionLike instanceof \PhpParser\Node\Expr\ArrowFunction) {
+            /** @var ClassMethod|Function_|Closure $functionLike */
+            $hasReturnValue = (bool) $this->betterNodeFinder->findFirstInFunctionLikeScoped($functionLike, function (\PhpParser\Node $subNode) : bool {
                 if (!$subNode instanceof \PhpParser\Node\Stmt\Return_) {
                     return \false;
                 }

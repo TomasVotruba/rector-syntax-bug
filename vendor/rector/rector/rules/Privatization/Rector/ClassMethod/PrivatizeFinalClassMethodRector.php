@@ -9,6 +9,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use Rector\Core\Rector\AbstractRector;
 use Rector\NodeTypeResolver\Node\AttributeKey;
+use Rector\Privatization\NodeManipulator\VisibilityManipulator;
 use Rector\Privatization\VisibilityGuard\ClassMethodVisibilityGuard;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
@@ -18,12 +19,19 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class PrivatizeFinalClassMethodRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
+     * @readonly
      * @var \Rector\Privatization\VisibilityGuard\ClassMethodVisibilityGuard
      */
     private $classMethodVisibilityGuard;
-    public function __construct(\Rector\Privatization\VisibilityGuard\ClassMethodVisibilityGuard $classMethodVisibilityGuard)
+    /**
+     * @readonly
+     * @var \Rector\Privatization\NodeManipulator\VisibilityManipulator
+     */
+    private $visibilityManipulator;
+    public function __construct(\Rector\Privatization\VisibilityGuard\ClassMethodVisibilityGuard $classMethodVisibilityGuard, \Rector\Privatization\NodeManipulator\VisibilityManipulator $visibilityManipulator)
     {
         $this->classMethodVisibilityGuard = $classMethodVisibilityGuard;
+        $this->visibilityManipulator = $visibilityManipulator;
     }
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {

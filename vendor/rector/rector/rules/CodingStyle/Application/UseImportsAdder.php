@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\CodingStyle\Application;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Declare_;
 use PhpParser\Node\Stmt\Namespace_;
@@ -11,16 +11,19 @@ use PhpParser\Node\Stmt\Nop;
 use PhpParser\Node\Stmt\Use_;
 use PHPStan\Type\ObjectType;
 use Rector\CodingStyle\ClassNameImport\UsedImportsResolver;
+use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\NodeTypeResolver\PHPStan\Type\TypeFactory;
 use Rector\StaticTypeMapper\ValueObject\Type\AliasedObjectType;
 use Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType;
 final class UseImportsAdder
 {
     /**
+     * @readonly
      * @var \Rector\CodingStyle\ClassNameImport\UsedImportsResolver
      */
     private $usedImportsResolver;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PHPStan\Type\TypeFactory
      */
     private $typeFactory;
@@ -74,6 +77,13 @@ final class UseImportsAdder
         $useImportTypes = $this->diffFullyQualifiedObjectTypes($useImportTypes, $existingUseImportTypes);
         $functionUseImportTypes = $this->diffFullyQualifiedObjectTypes($functionUseImportTypes, $existingFunctionUseImportTypes);
         $newUses = $this->createUses($useImportTypes, $functionUseImportTypes, $namespaceName);
+        if ($namespace->stmts[0] instanceof \PhpParser\Node\Stmt\Use_ && $newUses !== []) {
+            $comments = (array) $namespace->stmts[0]->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::COMMENTS);
+            if ($comments !== []) {
+                $newUses[0]->setAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::COMMENTS, $namespace->stmts[0]->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::COMMENTS));
+                $namespace->stmts[0]->setAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::COMMENTS, null);
+            }
+        }
         $namespace->stmts = \array_merge($newUses, $namespace->stmts);
     }
     /**
@@ -125,8 +135,8 @@ final class UseImportsAdder
     }
     private function isCurrentNamespace(string $namespaceName, \PHPStan\Type\ObjectType $objectType) : bool
     {
-        $afterCurrentNamespace = \RectorPrefix20211110\Nette\Utils\Strings::after($objectType->getClassName(), $namespaceName . '\\');
-        if (!$afterCurrentNamespace) {
+        $afterCurrentNamespace = \RectorPrefix20211213\Nette\Utils\Strings::after($objectType->getClassName(), $namespaceName . '\\');
+        if ($afterCurrentNamespace === null) {
             return \false;
         }
         return \strpos($afterCurrentNamespace, '\\') === \false;

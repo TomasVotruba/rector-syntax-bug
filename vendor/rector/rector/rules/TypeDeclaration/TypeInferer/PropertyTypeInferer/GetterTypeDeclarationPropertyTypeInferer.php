@@ -17,18 +17,22 @@ use Rector\TypeDeclaration\NodeAnalyzer\ClassMethodAndPropertyAnalyzer;
 final class GetterTypeDeclarationPropertyTypeInferer implements \Rector\TypeDeclaration\Contract\TypeInferer\PropertyTypeInfererInterface
 {
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\FunctionLikeReturnTypeResolver
      */
     private $functionLikeReturnTypeResolver;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\NodeAnalyzer\ClassMethodAndPropertyAnalyzer
      */
     private $classMethodAndPropertyAnalyzer;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
@@ -39,10 +43,7 @@ final class GetterTypeDeclarationPropertyTypeInferer implements \Rector\TypeDecl
         $this->nodeNameResolver = $nodeNameResolver;
         $this->betterNodeFinder = $betterNodeFinder;
     }
-    /**
-     * @param \PhpParser\Node\Stmt\Property $property
-     */
-    public function inferProperty($property) : ?\PHPStan\Type\Type
+    public function inferProperty(\PhpParser\Node\Stmt\Property $property) : ?\PHPStan\Type\Type
     {
         $classLike = $this->betterNodeFinder->findParentType($property, \PhpParser\Node\Stmt\ClassLike::class);
         if (!$classLike instanceof \PhpParser\Node\Stmt\Class_) {

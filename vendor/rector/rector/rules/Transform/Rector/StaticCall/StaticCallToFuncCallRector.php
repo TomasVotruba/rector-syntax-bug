@@ -12,13 +12,14 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Transform\ValueObject\StaticCallToFuncCall;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\StaticCall\StaticCallToFuncCallRector\StaticCallToFuncCallRectorTest
  */
 final class StaticCallToFuncCallRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const STATIC_CALLS_TO_FUNCTIONS = 'static_calls_to_functions';
@@ -35,7 +36,7 @@ final class StaticCallToFuncCallRector extends \Rector\Core\Rector\AbstractRecto
     }
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
-        return new \Symplify\RuleDocGenerator\ValueObject\RuleDefinition('Turns static call to function call.', [new \Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample('OldClass::oldMethod("args");', 'new_function("args");', [self::STATIC_CALLS_TO_FUNCTIONS => [new \Rector\Transform\ValueObject\StaticCallToFuncCall('OldClass', 'oldMethod', 'new_function')]])]);
+        return new \Symplify\RuleDocGenerator\ValueObject\RuleDefinition('Turns static call to function call.', [new \Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample('OldClass::oldMethod("args");', 'new_function("args");', [new \Rector\Transform\ValueObject\StaticCallToFuncCall('OldClass', 'oldMethod', 'new_function')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -61,12 +62,13 @@ final class StaticCallToFuncCallRector extends \Rector\Core\Rector\AbstractRecto
         return null;
     }
     /**
-     * @param array<string, StaticCallToFuncCall[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $staticCallsToFunctions = $configuration[self::STATIC_CALLS_TO_FUNCTIONS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($staticCallsToFunctions, \Rector\Transform\ValueObject\StaticCallToFuncCall::class);
+        $staticCallsToFunctions = $configuration[self::STATIC_CALLS_TO_FUNCTIONS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($staticCallsToFunctions);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($staticCallsToFunctions, \Rector\Transform\ValueObject\StaticCallToFuncCall::class);
         $this->staticCallsToFunctions = $staticCallsToFunctions;
     }
 }

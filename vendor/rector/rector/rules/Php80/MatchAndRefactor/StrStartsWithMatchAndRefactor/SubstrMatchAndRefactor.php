@@ -5,7 +5,6 @@ namespace Rector\Php80\MatchAndRefactor\StrStartsWithMatchAndRefactor;
 
 use PhpParser\Node;
 use PhpParser\Node\Arg;
-use PhpParser\Node\Expr\BinaryOp;
 use PhpParser\Node\Expr\BinaryOp\Identical;
 use PhpParser\Node\Expr\BinaryOp\NotIdentical;
 use PhpParser\Node\Expr\FuncCall;
@@ -21,22 +20,27 @@ use Rector\Php80\ValueObject\StrStartsWith;
 final class SubstrMatchAndRefactor implements \Rector\Php80\Contract\StrStartWithMatchAndRefactorInterface
 {
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\Value\ValueResolver
      */
     private $valueResolver;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Comparing\NodeComparator
      */
     private $nodeComparator;
     /**
+     * @readonly
      * @var \Rector\Php80\NodeFactory\StrStartsWithFuncCallFactory
      */
     private $strStartsWithFuncCallFactory;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\ArgsAnalyzer
      */
     private $argsAnalyzer;
@@ -49,7 +53,7 @@ final class SubstrMatchAndRefactor implements \Rector\Php80\Contract\StrStartWit
         $this->argsAnalyzer = $argsAnalyzer;
     }
     /**
-     * @param \PhpParser\Node\Expr\BinaryOp $binaryOp
+     * @param \PhpParser\Node\Expr\BinaryOp\Identical|\PhpParser\Node\Expr\BinaryOp\NotIdentical $binaryOp
      */
     public function match($binaryOp) : ?\Rector\Php80\ValueObject\StrStartsWith
     {
@@ -78,10 +82,7 @@ final class SubstrMatchAndRefactor implements \Rector\Php80\Contract\StrStartWit
         }
         return null;
     }
-    /**
-     * @param \Rector\Php80\ValueObject\StrStartsWith $strStartsWith
-     */
-    public function refactorStrStartsWith($strStartsWith) : ?\PhpParser\Node
+    public function refactorStrStartsWith(\Rector\Php80\ValueObject\StrStartsWith $strStartsWith) : ?\PhpParser\Node
     {
         if ($this->isStrlenWithNeedleExpr($strStartsWith)) {
             return $this->strStartsWithFuncCallFactory->createStrStartsWith($strStartsWith);

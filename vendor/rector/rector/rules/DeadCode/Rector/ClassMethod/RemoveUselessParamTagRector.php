@@ -17,6 +17,7 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class RemoveUselessParamTagRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
+     * @readonly
      * @var \Rector\DeadCode\PhpDoc\TagRemover\ParamTagRemover
      */
     private $paramTagRemover;
@@ -67,8 +68,8 @@ CODE_SAMPLE
         if (!$phpDocInfo instanceof \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo) {
             return null;
         }
-        $this->paramTagRemover->removeParamTagsIfUseless($phpDocInfo, $node);
-        if ($phpDocInfo->hasChanged()) {
+        $hasChanged = $this->paramTagRemover->removeParamTagsIfUseless($phpDocInfo, $node);
+        if ($hasChanged) {
             $node->setAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::HAS_PHP_DOC_INFO_JUST_CHANGED, \true);
             return $node;
         }

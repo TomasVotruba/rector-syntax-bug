@@ -25,13 +25,14 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\PHPStanStaticTypeMapper\Enum\TypeKind;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Arguments\Rector\ClassMethod\ArgumentAdderRector\ArgumentAdderRectorTest
  */
 final class ArgumentAdderRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const ADDED_ARGUMENTS = 'added_arguments';
@@ -44,10 +45,12 @@ final class ArgumentAdderRector extends \Rector\Core\Rector\AbstractRector imple
      */
     private $haveArgumentsChanged = \false;
     /**
+     * @readonly
      * @var \Rector\Arguments\NodeAnalyzer\ArgumentAddingScope
      */
     private $argumentAddingScope;
     /**
+     * @readonly
      * @var \Rector\Arguments\NodeAnalyzer\ChangedArgumentsDetector
      */
     private $changedArgumentsDetector;
@@ -58,8 +61,6 @@ final class ArgumentAdderRector extends \Rector\Core\Rector\AbstractRector imple
     }
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
-        $objectType = new \PHPStan\Type\ObjectType('SomeType');
-        $exampleConfiguration = [self::ADDED_ARGUMENTS => [new \Rector\Arguments\ValueObject\ArgumentAdder('SomeExampleClass', 'someMethod', 0, 'someArgument', \true, $objectType)]];
         return new \Symplify\RuleDocGenerator\ValueObject\RuleDefinition('This Rector adds new default arguments in calls of defined methods and class types.', [new \Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample(<<<'CODE_SAMPLE'
 $someObject = new SomeExampleClass;
 $someObject->someMethod();
@@ -82,7 +83,7 @@ class MyCustomClass extends SomeExampleClass
     }
 }
 CODE_SAMPLE
-, $exampleConfiguration)]);
+, [new \Rector\Arguments\ValueObject\ArgumentAdder('SomeExampleClass', 'someMethod', 0, 'someArgument', \true, new \PHPStan\Type\ObjectType('SomeType'))])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -113,12 +114,12 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, ArgumentAdder[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $addedArguments = $configuration[self::ADDED_ARGUMENTS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($addedArguments, \Rector\Arguments\ValueObject\ArgumentAdder::class);
+        $addedArguments = $configuration[self::ADDED_ARGUMENTS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($addedArguments, \Rector\Arguments\ValueObject\ArgumentAdder::class);
         $this->addedArguments = $addedArguments;
     }
     /**

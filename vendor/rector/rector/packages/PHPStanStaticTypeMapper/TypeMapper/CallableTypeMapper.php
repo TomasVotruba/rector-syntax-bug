@@ -14,7 +14,7 @@ use Rector\BetterPhpDocParser\ValueObject\Type\SpacingAwareCallableTypeNode;
 use Rector\PHPStanStaticTypeMapper\Contract\TypeMapperInterface;
 use Rector\PHPStanStaticTypeMapper\Enum\TypeKind;
 use Rector\PHPStanStaticTypeMapper\PHPStanStaticTypeMapper;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
 /**
  * @implements TypeMapperInterface<CallableType>
  */
@@ -27,7 +27,7 @@ final class CallableTypeMapper implements \Rector\PHPStanStaticTypeMapper\Contra
     /**
      * @required
      */
-    public function autowireCallableTypeMapper(\Rector\PHPStanStaticTypeMapper\PHPStanStaticTypeMapper $phpStanStaticTypeMapper) : void
+    public function autowire(\Rector\PHPStanStaticTypeMapper\PHPStanStaticTypeMapper $phpStanStaticTypeMapper) : void
     {
         $this->phpStanStaticTypeMapper = $phpStanStaticTypeMapper;
     }
@@ -39,19 +39,17 @@ final class CallableTypeMapper implements \Rector\PHPStanStaticTypeMapper\Contra
         return \PHPStan\Type\CallableType::class;
     }
     /**
-     * @param \PHPStan\Type\Type $type
-     * @param \Rector\PHPStanStaticTypeMapper\Enum\TypeKind $typeKind
+     * @param CallableType $type
      */
-    public function mapToPHPStanPhpDocTypeNode($type, $typeKind) : \PHPStan\PhpDocParser\Ast\Type\TypeNode
+    public function mapToPHPStanPhpDocTypeNode(\PHPStan\Type\Type $type, \Rector\PHPStanStaticTypeMapper\Enum\TypeKind $typeKind) : \PHPStan\PhpDocParser\Ast\Type\TypeNode
     {
         $returnTypeNode = $this->phpStanStaticTypeMapper->mapToPHPStanPhpDocTypeNode($type->getReturnType(), $typeKind);
         return new \Rector\BetterPhpDocParser\ValueObject\Type\SpacingAwareCallableTypeNode(new \PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode('callable'), [], $returnTypeNode);
     }
     /**
-     * @param \PHPStan\Type\Type $type
-     * @param \Rector\PHPStanStaticTypeMapper\Enum\TypeKind $typeKind
+     * @param CallableType|ClosureType $type
      */
-    public function mapToPhpParserNode($type, $typeKind) : ?\PhpParser\Node
+    public function mapToPhpParserNode(\PHPStan\Type\Type $type, \Rector\PHPStanStaticTypeMapper\Enum\TypeKind $typeKind) : ?\PhpParser\Node
     {
         if ($typeKind->equals(\Rector\PHPStanStaticTypeMapper\Enum\TypeKind::PROPERTY())) {
             return null;

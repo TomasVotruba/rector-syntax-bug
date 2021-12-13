@@ -11,12 +11,14 @@ use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\FuncCall\FuncCallToNewRector\FuncCallToNewRectorTest
  */
 final class FuncCallToNewRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const FUNCTIONS_TO_NEWS = 'functions_to_news';
@@ -44,7 +46,7 @@ class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::FUNCTIONS_TO_NEWS => ['collection' => ['Collection']]])]);
+, ['collection' => ['Collection']])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -67,10 +69,13 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, mixed> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $this->functionToNew = $configuration[self::FUNCTIONS_TO_NEWS] ?? [];
+        $functionsToNews = $configuration[self::FUNCTIONS_TO_NEWS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($functionsToNews);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($functionsToNews);
+        $this->functionToNew = $functionsToNews;
     }
 }

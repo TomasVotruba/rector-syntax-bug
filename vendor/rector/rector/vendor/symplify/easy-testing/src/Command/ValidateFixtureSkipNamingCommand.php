@@ -1,16 +1,16 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Symplify\EasyTesting\Command;
+namespace RectorPrefix20211213\Symplify\EasyTesting\Command;
 
-use RectorPrefix20211110\Symfony\Component\Console\Input\InputArgument;
-use RectorPrefix20211110\Symfony\Component\Console\Input\InputInterface;
-use RectorPrefix20211110\Symfony\Component\Console\Output\OutputInterface;
-use RectorPrefix20211110\Symplify\EasyTesting\Finder\FixtureFinder;
-use RectorPrefix20211110\Symplify\EasyTesting\MissplacedSkipPrefixResolver;
-use RectorPrefix20211110\Symplify\EasyTesting\ValueObject\Option;
-use RectorPrefix20211110\Symplify\PackageBuilder\Console\Command\AbstractSymplifyCommand;
-final class ValidateFixtureSkipNamingCommand extends \RectorPrefix20211110\Symplify\PackageBuilder\Console\Command\AbstractSymplifyCommand
+use RectorPrefix20211213\Symfony\Component\Console\Input\InputArgument;
+use RectorPrefix20211213\Symfony\Component\Console\Input\InputInterface;
+use RectorPrefix20211213\Symfony\Component\Console\Output\OutputInterface;
+use RectorPrefix20211213\Symplify\EasyTesting\Finder\FixtureFinder;
+use RectorPrefix20211213\Symplify\EasyTesting\MissplacedSkipPrefixResolver;
+use RectorPrefix20211213\Symplify\EasyTesting\ValueObject\Option;
+use RectorPrefix20211213\Symplify\PackageBuilder\Console\Command\AbstractSymplifyCommand;
+final class ValidateFixtureSkipNamingCommand extends \RectorPrefix20211213\Symplify\PackageBuilder\Console\Command\AbstractSymplifyCommand
 {
     /**
      * @var \Symplify\EasyTesting\MissplacedSkipPrefixResolver
@@ -20,7 +20,7 @@ final class ValidateFixtureSkipNamingCommand extends \RectorPrefix20211110\Sympl
      * @var \Symplify\EasyTesting\Finder\FixtureFinder
      */
     private $fixtureFinder;
-    public function __construct(\RectorPrefix20211110\Symplify\EasyTesting\MissplacedSkipPrefixResolver $missplacedSkipPrefixResolver, \RectorPrefix20211110\Symplify\EasyTesting\Finder\FixtureFinder $fixtureFinder)
+    public function __construct(\RectorPrefix20211213\Symplify\EasyTesting\MissplacedSkipPrefixResolver $missplacedSkipPrefixResolver, \RectorPrefix20211213\Symplify\EasyTesting\Finder\FixtureFinder $fixtureFinder)
     {
         $this->missplacedSkipPrefixResolver = $missplacedSkipPrefixResolver;
         $this->fixtureFinder = $fixtureFinder;
@@ -28,16 +28,13 @@ final class ValidateFixtureSkipNamingCommand extends \RectorPrefix20211110\Sympl
     }
     protected function configure() : void
     {
-        $this->addArgument(\RectorPrefix20211110\Symplify\EasyTesting\ValueObject\Option::SOURCE, \RectorPrefix20211110\Symfony\Component\Console\Input\InputArgument::REQUIRED | \RectorPrefix20211110\Symfony\Component\Console\Input\InputArgument::IS_ARRAY, 'Paths to analyse');
+        $this->setName('validate-fixture-skip-naming');
+        $this->addArgument(\RectorPrefix20211213\Symplify\EasyTesting\ValueObject\Option::SOURCE, \RectorPrefix20211213\Symfony\Component\Console\Input\InputArgument::REQUIRED | \RectorPrefix20211213\Symfony\Component\Console\Input\InputArgument::IS_ARRAY, 'Paths to analyse');
         $this->setDescription('Check that skipped fixture files (without `-----` separator) have a "skip" prefix');
     }
-    /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
-     */
-    protected function execute($input, $output) : int
+    protected function execute(\RectorPrefix20211213\Symfony\Component\Console\Input\InputInterface $input, \RectorPrefix20211213\Symfony\Component\Console\Output\OutputInterface $output) : int
     {
-        $source = (array) $input->getArgument(\RectorPrefix20211110\Symplify\EasyTesting\ValueObject\Option::SOURCE);
+        $source = (array) $input->getArgument(\RectorPrefix20211213\Symplify\EasyTesting\ValueObject\Option::SOURCE);
         $fixtureFileInfos = $this->fixtureFinder->find($source);
         $missplacedFixtureFileInfos = $this->missplacedSkipPrefixResolver->resolve($fixtureFileInfos);
         if ($missplacedFixtureFileInfos === []) {

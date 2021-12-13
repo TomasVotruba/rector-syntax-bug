@@ -4,15 +4,17 @@ declare (strict_types=1);
 namespace Rector\Composer\Rector;
 
 use Rector\Composer\Contract\Rector\ComposerRectorInterface;
-use RectorPrefix20211110\Symplify\ComposerJsonManipulator\ValueObject\ComposerJson;
+use RectorPrefix20211213\Symplify\ComposerJsonManipulator\ValueObject\ComposerJson;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Composer\Rector\RemovePackageComposerRector\RemovePackageComposerRectorTest
  */
 final class RemovePackageComposerRector implements \Rector\Composer\Contract\Rector\ComposerRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const PACKAGE_NAMES = 'package_names';
@@ -20,7 +22,7 @@ final class RemovePackageComposerRector implements \Rector\Composer\Contract\Rec
      * @var string[]
      */
     private $packageNames = [];
-    public function refactor(\RectorPrefix20211110\Symplify\ComposerJsonManipulator\ValueObject\ComposerJson $composerJson) : void
+    public function refactor(\RectorPrefix20211213\Symplify\ComposerJsonManipulator\ValueObject\ComposerJson $composerJson) : void
     {
         foreach ($this->packageNames as $packageName) {
             $composerJson->removePackage($packageName);
@@ -39,13 +41,16 @@ CODE_SAMPLE
 {
 }
 CODE_SAMPLE
-, [self::PACKAGE_NAMES => ['symfony/console']])]);
+, ['symfony/console'])]);
     }
     /**
-     * @param array<string, string[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $this->packageNames = $configuration[self::PACKAGE_NAMES] ?? [];
+        $packagesNames = $configuration[self::PACKAGE_NAMES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($packagesNames);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($packagesNames);
+        $this->packageNames = $packagesNames;
     }
 }

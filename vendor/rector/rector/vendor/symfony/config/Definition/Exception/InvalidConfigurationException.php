@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Config\Definition\Exception;
+namespace RectorPrefix20211213\Symfony\Component\Config\Definition\Exception;
 
 /**
  * A very general exception which can be thrown whenever non of the more specific
@@ -16,14 +16,11 @@ namespace RectorPrefix20211110\Symfony\Component\Config\Definition\Exception;
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
-class InvalidConfigurationException extends \RectorPrefix20211110\Symfony\Component\Config\Definition\Exception\Exception
+class InvalidConfigurationException extends \RectorPrefix20211213\Symfony\Component\Config\Definition\Exception\Exception
 {
     private $path;
     private $containsHints = \false;
-    /**
-     * @param string $path
-     */
-    public function setPath($path)
+    public function setPath(string $path)
     {
         $this->path = $path;
     }
@@ -33,9 +30,8 @@ class InvalidConfigurationException extends \RectorPrefix20211110\Symfony\Compon
     }
     /**
      * Adds extra information that is suffixed to the original exception message.
-     * @param string $hint
      */
-    public function addHint($hint)
+    public function addHint(string $hint)
     {
         if (!$this->containsHints) {
             $this->message .= "\nHint: " . $hint;

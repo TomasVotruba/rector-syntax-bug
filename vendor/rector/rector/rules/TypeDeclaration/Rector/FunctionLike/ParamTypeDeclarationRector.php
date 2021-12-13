@@ -9,6 +9,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Interface_;
 use PHPStan\Type\MixedType;
+use PHPStan\Type\UnionType;
 use Rector\Core\Rector\AbstractRector;
 use Rector\Core\ValueObject\PhpVersionFeature;
 use Rector\DeadCode\PhpDoc\TagRemover\ParamTagRemover;
@@ -17,7 +18,6 @@ use Rector\PHPStanStaticTypeMapper\Enum\TypeKind;
 use Rector\StaticTypeMapper\ValueObject\Type\NonExistingObjectType;
 use Rector\TypeDeclaration\NodeTypeAnalyzer\TraitTypeAnalyzer;
 use Rector\TypeDeclaration\TypeInferer\ParamTypeInferer;
-use Rector\TypeDeclaration\ValueObject\NewType;
 use Rector\VendorLocker\ParentClassMethodTypeOverrideGuard;
 use Rector\VendorLocker\VendorLockResolver;
 use Rector\VersionBonding\Contract\MinPhpVersionInterface;
@@ -38,22 +38,27 @@ final class ParamTypeDeclarationRector extends \Rector\Core\Rector\AbstractRecto
      */
     private $hasChanged = \false;
     /**
+     * @readonly
      * @var \Rector\VendorLocker\VendorLockResolver
      */
     private $vendorLockResolver;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\TypeInferer\ParamTypeInferer
      */
     private $paramTypeInferer;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\NodeTypeAnalyzer\TraitTypeAnalyzer
      */
     private $traitTypeAnalyzer;
     /**
+     * @readonly
      * @var \Rector\DeadCode\PhpDoc\TagRemover\ParamTagRemover
      */
     private $paramTagRemover;
     /**
+     * @readonly
      * @var \Rector\VendorLocker\ParentClassMethodTypeOverrideGuard
      */
     private $parentClassMethodTypeOverrideGuard;
@@ -163,6 +168,10 @@ CODE_SAMPLE
         if ($inferedType instanceof \PHPStan\Type\MixedType) {
             return;
         }
+        // mixed type cannot be part of union
+        if ($inferedType instanceof \PHPStan\Type\UnionType && $inferedType->isSuperTypeOf(new \PHPStan\Type\MixedType())->yes()) {
+            return;
+        }
         if ($inferedType instanceof \Rector\StaticTypeMapper\ValueObject\Type\NonExistingObjectType) {
             return;
         }
@@ -201,6 +210,7 @@ CODE_SAMPLE
             return \false;
         }
         // already set → skip
-        return !$param->type->getAttribute(\Rector\TypeDeclaration\ValueObject\NewType::HAS_NEW_INHERITED_TYPE, \false);
+        $hasNewInheritedType = (bool) $param->type->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::HAS_NEW_INHERITED_TYPE, \false);
+        return !$hasNewInheritedType;
     }
 }

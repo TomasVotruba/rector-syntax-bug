@@ -6,12 +6,15 @@ namespace Rector\Naming\Guard;
 use Rector\Naming\Contract\Guard\ConflictingNameGuardInterface;
 use Rector\Naming\Contract\RenameValueObjectInterface;
 use Rector\Naming\ValueObject\PropertyRename;
+/**
+ * @implements ConflictingNameGuardInterface<PropertyRename>
+ */
 final class NotPrivatePropertyGuard implements \Rector\Naming\Contract\Guard\ConflictingNameGuardInterface
 {
     /**
-     * @param \Rector\Naming\Contract\RenameValueObjectInterface $renameValueObject
+     * @param PropertyRename $renameValueObject
      */
-    public function isConflicting($renameValueObject) : bool
+    public function isConflicting(\Rector\Naming\Contract\RenameValueObjectInterface $renameValueObject) : bool
     {
         return !$renameValueObject->isPrivateProperty();
     }

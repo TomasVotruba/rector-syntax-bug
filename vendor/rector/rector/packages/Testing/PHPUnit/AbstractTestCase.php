@@ -4,10 +4,10 @@ declare (strict_types=1);
 namespace Rector\Testing\PHPUnit;
 
 use PHPUnit\Framework\TestCase;
-use RectorPrefix20211110\Psr\Container\ContainerInterface;
+use RectorPrefix20211213\Psr\Container\ContainerInterface;
 use Rector\Core\Exception\ShouldNotHappenException;
 use Rector\Core\Kernel\RectorKernel;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 abstract class AbstractTestCase extends \PHPUnit\Framework\TestCase
 {
     /**
@@ -25,7 +25,7 @@ abstract class AbstractTestCase extends \PHPUnit\Framework\TestCase
     /**
      * @param string[] $configFiles
      */
-    protected function bootFromConfigFiles($configFiles) : void
+    protected function bootFromConfigFiles(array $configFiles) : void
     {
         $configsHash = $this->createConfigsHash($configFiles);
         if (isset(self::$kernelsByHash[$configsHash])) {
@@ -45,7 +45,7 @@ abstract class AbstractTestCase extends \PHPUnit\Framework\TestCase
      * @param class-string<T> $type
      * @return object
      */
-    protected function getService($type)
+    protected function getService(string $type)
     {
         if (self::$currentContainer === null) {
             throw new \Rector\Core\Exception\ShouldNotHappenException('First, create container with "bootWithConfigFileInfos([...])"');
@@ -62,8 +62,8 @@ abstract class AbstractTestCase extends \PHPUnit\Framework\TestCase
      */
     private function createConfigsHash(array $configFiles) : string
     {
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allFile($configFiles);
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allString($configFiles);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allFile($configFiles);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($configFiles);
         $configHash = '';
         foreach ($configFiles as $configFile) {
             $configHash .= \md5_file($configFile);

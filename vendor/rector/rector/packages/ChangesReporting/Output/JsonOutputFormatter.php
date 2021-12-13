@@ -3,11 +3,12 @@
 declare (strict_types=1);
 namespace Rector\ChangesReporting\Output;
 
-use RectorPrefix20211110\Nette\Utils\Json;
+use RectorPrefix20211213\Nette\Utils\Json;
 use Rector\ChangesReporting\Annotation\RectorsChangelogResolver;
 use Rector\ChangesReporting\Contract\Output\OutputFormatterInterface;
 use Rector\Core\ValueObject\Configuration;
 use Rector\Core\ValueObject\ProcessResult;
+use Rector\Parallel\ValueObject\Bridge;
 final class JsonOutputFormatter implements \Rector\ChangesReporting\Contract\Output\OutputFormatterInterface
 {
     /**
@@ -15,6 +16,7 @@ final class JsonOutputFormatter implements \Rector\ChangesReporting\Contract\Out
      */
     public const NAME = 'json';
     /**
+     * @readonly
      * @var \Rector\ChangesReporting\Annotation\RectorsChangelogResolver
      */
     private $rectorsChangelogResolver;
@@ -26,29 +28,25 @@ final class JsonOutputFormatter implements \Rector\ChangesReporting\Contract\Out
     {
         return self::NAME;
     }
-    /**
-     * @param \Rector\Core\ValueObject\ProcessResult $processResult
-     * @param \Rector\Core\ValueObject\Configuration $configuration
-     */
-    public function report($processResult, $configuration) : void
+    public function report(\Rector\Core\ValueObject\ProcessResult $processResult, \Rector\Core\ValueObject\Configuration $configuration) : void
     {
-        $errorsArray = ['meta' => ['config' => $configuration->getMainConfigFilePath()], 'totals' => ['changed_files' => \count($processResult->getFileDiffs()), 'removed_and_added_files_count' => $processResult->getRemovedAndAddedFilesCount(), 'removed_node_count' => $processResult->getRemovedNodeCount()]];
+        $errorsJson = ['meta' => ['config' => $configuration->getMainConfigFilePath()], 'totals' => ['changed_files' => \count($processResult->getFileDiffs()), 'removed_and_added_files_count' => $processResult->getRemovedAndAddedFilesCount(), 'removed_node_count' => $processResult->getRemovedNodeCount()]];
         $fileDiffs = $processResult->getFileDiffs();
         \ksort($fileDiffs);
         foreach ($fileDiffs as $fileDiff) {
             $relativeFilePath = $fileDiff->getRelativeFilePath();
             $appliedRectorsWithChangelog = $this->rectorsChangelogResolver->resolve($fileDiff->getRectorClasses());
-            $errorsArray['file_diffs'][] = ['file' => $relativeFilePath, 'diff' => $fileDiff->getDiff(), 'applied_rectors' => $fileDiff->getRectorClasses(), 'applied_rectors_with_changelog' => $appliedRectorsWithChangelog];
+            $errorsJson[\Rector\Parallel\ValueObject\Bridge::FILE_DIFFS][] = ['file' => $relativeFilePath, 'diff' => $fileDiff->getDiff(), 'applied_rectors' => $fileDiff->getRectorClasses(), 'applied_rectors_with_changelog' => $appliedRectorsWithChangelog];
             // for Rector CI
-            $errorsArray['changed_files'][] = $relativeFilePath;
+            $errorsJson['changed_files'][] = $relativeFilePath;
         }
         $errors = $processResult->getErrors();
-        $errorsArray['totals']['errors'] = \count($errors);
+        $errorsJson['totals']['errors'] = \count($errors);
         $errorsData = $this->createErrorsData($errors);
         if ($errorsData !== []) {
-            $errorsArray['errors'] = $errorsData;
+            $errorsJson['errors'] = $errorsData;
         }
-        $json = \RectorPrefix20211110\Nette\Utils\Json::encode($errorsArray, \RectorPrefix20211110\Nette\Utils\Json::PRETTY);
+        $json = \RectorPrefix20211213\Nette\Utils\Json::encode($errorsJson, \RectorPrefix20211213\Nette\Utils\Json::PRETTY);
         echo $json . \PHP_EOL;
     }
     /**
@@ -59,14 +57,14 @@ final class JsonOutputFormatter implements \Rector\ChangesReporting\Contract\Out
     {
         $errorsData = [];
         foreach ($errors as $error) {
-            $errorData = ['message' => $error->getMessage(), 'file' => $error->getRelativeFilePath()];
+            $errorDataJson = ['message' => $error->getMessage(), 'file' => $error->getRelativeFilePath()];
             if ($error->getRectorClass()) {
-                $errorData['caused_by'] = $error->getRectorClass();
+                $errorDataJson['caused_by'] = $error->getRectorClass();
             }
             if ($error->getLine() !== null) {
-                $errorData['line'] = $error->getLine();
+                $errorDataJson['line'] = $error->getLine();
             }
-            $errorsData[] = $errorData;
+            $errorsData[] = $errorDataJson;
         }
         return $errorsData;
     }

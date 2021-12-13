@@ -9,7 +9,7 @@ use PhpParser\Node\Expr\Variable;
 use Rector\Core\PhpParser\Node\BetterNodeFinder;
 use Rector\Nette\Contract\FormControlTypeResolverInterface;
 use Rector\Nette\NodeResolver\MethodNamesByInputNamesResolver;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
 final class AssignedVariablesMethodCallsFormTypeResolver implements \Rector\Nette\Contract\FormControlTypeResolverInterface
 {
     /**
@@ -27,15 +27,14 @@ final class AssignedVariablesMethodCallsFormTypeResolver implements \Rector\Nett
     /**
      * @required
      */
-    public function autowireAssignedVariablesMethodCallsFormTypeResolver(\Rector\Nette\NodeResolver\MethodNamesByInputNamesResolver $methodNamesByInputNamesResolver) : void
+    public function autowire(\Rector\Nette\NodeResolver\MethodNamesByInputNamesResolver $methodNamesByInputNamesResolver) : void
     {
         $this->methodNamesByInputNamesResolver = $methodNamesByInputNamesResolver;
     }
     /**
      * @return array<string, string>
-     * @param \PhpParser\Node $node
      */
-    public function resolve($node) : array
+    public function resolve(\PhpParser\Node $node) : array
     {
         if (!$node instanceof \PhpParser\Node\Expr\Variable) {
             return [];

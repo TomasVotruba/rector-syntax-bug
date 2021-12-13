@@ -16,7 +16,7 @@ use PHPStan\BetterReflection\SourceLocator\Located\LocatedSource;
 use PHPStan\BetterReflection\SourceLocator\Type\SourceLocator;
 use PHPStan\Reflection\ReflectionProvider;
 use Rector\Core\PhpParser\AstResolver;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
 /**
  * This mimics classes that PHPStan fails to find in scope, but actually has an access in static reflection.
  * Some weird bug, that crashes on parent classes.
@@ -30,6 +30,7 @@ final class ParentAttributeSourceLocator implements \PHPStan\BetterReflection\So
      */
     private $astResolver;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
@@ -40,7 +41,7 @@ final class ParentAttributeSourceLocator implements \PHPStan\BetterReflection\So
     /**
      * @required
      */
-    public function autowireParentAttributeSourceLocator(\Rector\Core\PhpParser\AstResolver $astResolver) : void
+    public function autowire(\Rector\Core\PhpParser\AstResolver $astResolver) : void
     {
         $this->astResolver = $astResolver;
     }

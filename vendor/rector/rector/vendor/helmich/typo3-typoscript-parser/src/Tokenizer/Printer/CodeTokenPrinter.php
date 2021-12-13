@@ -1,16 +1,16 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Helmich\TypoScriptParser\Tokenizer\Printer;
+namespace RectorPrefix20211213\Helmich\TypoScriptParser\Tokenizer\Printer;
 
-use RectorPrefix20211110\Helmich\TypoScriptParser\Tokenizer\TokenInterface;
-class CodeTokenPrinter implements \RectorPrefix20211110\Helmich\TypoScriptParser\Tokenizer\Printer\TokenPrinterInterface
+use RectorPrefix20211213\Helmich\TypoScriptParser\Tokenizer\TokenInterface;
+class CodeTokenPrinter implements \RectorPrefix20211213\Helmich\TypoScriptParser\Tokenizer\Printer\TokenPrinterInterface
 {
     /**
      * @param TokenInterface[] $tokens
      * @return string
      */
-    public function printTokenStream($tokens) : string
+    public function printTokenStream(array $tokens) : string
     {
         $content = '';
         foreach ($tokens as $token) {

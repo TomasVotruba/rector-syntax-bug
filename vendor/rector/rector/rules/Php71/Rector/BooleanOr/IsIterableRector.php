@@ -19,10 +19,12 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class IsIterableRector extends \Rector\Core\Rector\AbstractRector implements \Rector\VersionBonding\Contract\MinPhpVersionInterface
 {
     /**
+     * @readonly
      * @var \Rector\Php71\IsArrayAndDualCheckToAble
      */
     private $isArrayAndDualCheckToAble;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
@@ -54,7 +56,7 @@ final class IsIterableRector extends \Rector\Core\Rector\AbstractRector implemen
         if ($this->shouldSkip()) {
             return null;
         }
-        return $this->isArrayAndDualCheckToAble->processBooleanOr($node, 'Traversable', 'is_iterable') ?: $node;
+        return $this->isArrayAndDualCheckToAble->processBooleanOr($node, 'Traversable', 'is_iterable');
     }
     private function shouldSkip() : bool
     {

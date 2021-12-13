@@ -3,7 +3,6 @@
 declare (strict_types=1);
 namespace Rector\NodeNameResolver;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\MethodCall;
@@ -15,6 +14,7 @@ use PhpParser\Node\Stmt\ClassLike;
 use Rector\CodingStyle\Naming\ClassNaming;
 use Rector\Core\Exception\ShouldNotHappenException;
 use Rector\Core\NodeAnalyzer\CallAnalyzer;
+use Rector\Core\Util\StringUtils;
 use Rector\NodeNameResolver\Contract\NodeNameResolverInterface;
 use Rector\NodeNameResolver\Error\InvalidNameNodeReporter;
 use Rector\NodeNameResolver\Regex\RegexPatternDetector;
@@ -22,23 +22,28 @@ use Rector\NodeTypeResolver\Node\AttributeKey;
 final class NodeNameResolver
 {
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\Regex\RegexPatternDetector
      */
     private $regexPatternDetector;
     /**
+     * @readonly
      * @var \Rector\CodingStyle\Naming\ClassNaming
      */
     private $classNaming;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\Error\InvalidNameNodeReporter
      */
     private $invalidNameNodeReporter;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\CallAnalyzer
      */
     private $callAnalyzer;
     /**
      * @var \Rector\NodeNameResolver\Contract\NodeNameResolverInterface[]
+     * @readonly
      */
     private $nodeNameResolvers = [];
     /**
@@ -182,7 +187,7 @@ final class NodeNameResolver
     public function endsWith(string $currentName, string $expectedName) : bool
     {
         $suffixNamePattern = '#\\w+' . \ucfirst($expectedName) . '#';
-        return (bool) \RectorPrefix20211110\Nette\Utils\Strings::match($currentName, $suffixNamePattern);
+        return \Rector\Core\Util\StringUtils::isMatch($currentName, $suffixNamePattern);
     }
     /**
      * @param \PhpParser\Node\Identifier|\PhpParser\Node\Name|\PhpParser\Node\Stmt\ClassLike|string $name
@@ -206,7 +211,7 @@ final class NodeNameResolver
         }
         // is probably regex pattern
         if ($this->regexPatternDetector->isRegexPattern($desiredName)) {
-            return (bool) \RectorPrefix20211110\Nette\Utils\Strings::match($resolvedName, $desiredName);
+            return \Rector\Core\Util\StringUtils::isMatch($resolvedName, $desiredName);
         }
         // is probably fnmatch
         if (\strpos($desiredName, '*') !== \false) {

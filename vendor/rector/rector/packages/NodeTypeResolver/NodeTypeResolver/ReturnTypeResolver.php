@@ -9,7 +9,10 @@ use PHPStan\Type\Type;
 use PHPStan\Type\VoidType;
 use Rector\NodeTypeResolver\Contract\NodeTypeResolverInterface;
 use Rector\NodeTypeResolver\NodeTypeResolver;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
+/**
+ * @implements NodeTypeResolverInterface<Return_>
+ */
 final class ReturnTypeResolver implements \Rector\NodeTypeResolver\Contract\NodeTypeResolverInterface
 {
     /**
@@ -19,7 +22,7 @@ final class ReturnTypeResolver implements \Rector\NodeTypeResolver\Contract\Node
     /**
      * @required
      */
-    public function autowireReturnTypeResolver(\Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver) : void
+    public function autowire(\Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver) : void
     {
         $this->nodeTypeResolver = $nodeTypeResolver;
     }
@@ -31,9 +34,9 @@ final class ReturnTypeResolver implements \Rector\NodeTypeResolver\Contract\Node
         return [\PhpParser\Node\Stmt\Return_::class];
     }
     /**
-     * @param \PhpParser\Node $node
+     * @param Return_ $node
      */
-    public function resolve($node) : \PHPStan\Type\Type
+    public function resolve(\PhpParser\Node $node) : \PHPStan\Type\Type
     {
         if ($node->expr === null) {
             return new \PHPStan\Type\VoidType();

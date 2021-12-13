@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\TypeDeclaration\TypeInferer\ParamTypeInferer;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\Yield_;
@@ -25,7 +25,7 @@ use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\NodeTypeResolver\NodeTypeResolver;
 use Rector\NodeTypeResolver\PHPStan\Type\TypeFactory;
 use Rector\TypeDeclaration\Contract\TypeInferer\ParamTypeInfererInterface;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
 final class PHPUnitDataProviderParamTypeInferer implements \Rector\TypeDeclaration\Contract\TypeInferer\ParamTypeInfererInterface
 {
     /**
@@ -38,14 +38,17 @@ final class PHPUnitDataProviderParamTypeInferer implements \Rector\TypeDeclarati
      */
     private $nodeTypeResolver;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PHPStan\Type\TypeFactory
      */
     private $typeFactory;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory
      */
     private $phpDocInfoFactory;
@@ -59,14 +62,11 @@ final class PHPUnitDataProviderParamTypeInferer implements \Rector\TypeDeclarati
     /**
      * @required
      */
-    public function autowirePHPUnitDataProviderParamTypeInferer(\Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver) : void
+    public function autowire(\Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver) : void
     {
         $this->nodeTypeResolver = $nodeTypeResolver;
     }
-    /**
-     * @param \PhpParser\Node\Param $param
-     */
-    public function inferParam($param) : \PHPStan\Type\Type
+    public function inferParam(\PhpParser\Node\Param $param) : \PHPStan\Type\Type
     {
         $dataProviderClassMethod = $this->resolveDataProviderClassMethod($param);
         if (!$dataProviderClassMethod instanceof \PhpParser\Node\Stmt\ClassMethod) {
@@ -100,7 +100,7 @@ final class PHPUnitDataProviderParamTypeInferer implements \Rector\TypeDeclarati
             return null;
         }
         $content = $phpDocTagNode->value->value;
-        $match = \RectorPrefix20211110\Nette\Utils\Strings::match($content, self::METHOD_NAME_REGEX);
+        $match = \RectorPrefix20211213\Nette\Utils\Strings::match($content, self::METHOD_NAME_REGEX);
         if ($match === null) {
             return null;
         }

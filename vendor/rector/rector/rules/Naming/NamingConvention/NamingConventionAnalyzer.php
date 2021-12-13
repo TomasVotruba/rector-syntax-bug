@@ -3,14 +3,15 @@
 declare (strict_types=1);
 namespace Rector\Naming\NamingConvention;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
+use Rector\Core\Util\StringUtils;
 use Rector\NodeNameResolver\NodeNameResolver;
 final class NamingConventionAnalyzer
 {
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
@@ -34,6 +35,6 @@ final class NamingConventionAnalyzer
             return \true;
         }
         // starts with or ends with
-        return (bool) \RectorPrefix20211110\Nette\Utils\Strings::match($currentName, '#^(' . $expectedName . '|' . $expectedName . '$)#i');
+        return \Rector\Core\Util\StringUtils::isMatch($currentName, '#^(' . $expectedName . '|' . $expectedName . '$)#i');
     }
 }

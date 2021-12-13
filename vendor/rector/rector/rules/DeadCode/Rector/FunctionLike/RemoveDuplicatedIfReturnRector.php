@@ -30,14 +30,17 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class RemoveDuplicatedIfReturnRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
+     * @readonly
      * @var \Rector\Core\NodeManipulator\IfManipulator
      */
     private $ifManipulator;
     /**
+     * @readonly
      * @var \Rector\DeadCode\NodeCollector\ModifiedVariableNamesCollector
      */
     private $modifiedVariableNamesCollector;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer
      */
     private $propertyFetchAnalyzer;
@@ -98,6 +101,7 @@ CODE_SAMPLE
         if ($ifWithOnlyReturnsByHash === []) {
             return null;
         }
+        $hasRemovedNode = \false;
         foreach ($ifWithOnlyReturnsByHash as $ifWithOnlyReturns) {
             $isBool = $this->isBoolVarIfCondReturnTrueNextReturnBoolVar($ifWithOnlyReturns);
             if (!$isBool && \count($ifWithOnlyReturns) < 2) {
@@ -109,9 +113,13 @@ CODE_SAMPLE
             }
             foreach ($ifWithOnlyReturns as $ifWithOnlyReturn) {
                 $this->removeNode($ifWithOnlyReturn);
+                $hasRemovedNode = \true;
             }
         }
-        return $node;
+        if ($hasRemovedNode) {
+            return $node;
+        }
+        return null;
     }
     /**
      * @param If_[] $ifWithOnlyReturns

@@ -12,10 +12,12 @@ use Rector\TypeDeclaration\TypeInferer\SplArrayFixedTypeNarrower;
 final class SplFixedArrayParamTypeInferer implements \Rector\TypeDeclaration\Contract\TypeInferer\ParamTypeInfererInterface
 {
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\TypeInferer\SplArrayFixedTypeNarrower
      */
     private $splArrayFixedTypeNarrower;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeTypeResolver
      */
     private $nodeTypeResolver;
@@ -24,10 +26,7 @@ final class SplFixedArrayParamTypeInferer implements \Rector\TypeDeclaration\Con
         $this->splArrayFixedTypeNarrower = $splArrayFixedTypeNarrower;
         $this->nodeTypeResolver = $nodeTypeResolver;
     }
-    /**
-     * @param \PhpParser\Node\Param $param
-     */
-    public function inferParam($param) : \PHPStan\Type\Type
+    public function inferParam(\PhpParser\Node\Param $param) : \PHPStan\Type\Type
     {
         if ($param->type === null) {
             return new \PHPStan\Type\MixedType();

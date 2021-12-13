@@ -8,75 +8,81 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\DependencyInjection;
+namespace RectorPrefix20211213\Symfony\Component\DependencyInjection;
 
-use RectorPrefix20211110\Composer\InstalledVersions;
-use RectorPrefix20211110\Psr\Container\ContainerInterface as PsrContainerInterface;
-use RectorPrefix20211110\Symfony\Component\Config\Resource\ClassExistenceResource;
-use RectorPrefix20211110\Symfony\Component\Config\Resource\ComposerResource;
-use RectorPrefix20211110\Symfony\Component\Config\Resource\DirectoryResource;
-use RectorPrefix20211110\Symfony\Component\Config\Resource\FileExistenceResource;
-use RectorPrefix20211110\Symfony\Component\Config\Resource\FileResource;
-use RectorPrefix20211110\Symfony\Component\Config\Resource\GlobResource;
-use RectorPrefix20211110\Symfony\Component\Config\Resource\ReflectionClassResource;
-use RectorPrefix20211110\Symfony\Component\Config\Resource\ResourceInterface;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Argument\AbstractArgument;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Argument\IteratorArgument;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Argument\ServiceLocator;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Attribute\Target;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Compiler\Compiler;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Compiler\PassConfig;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Compiler\ResolveEnvPlaceholdersPass;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\BadMethodCallException;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\LogicException;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\RuntimeException;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\LazyProxy\Instantiator\InstantiatorInterface;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\LazyProxy\Instantiator\RealServiceInstantiator;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use RectorPrefix20211110\Symfony\Component\ExpressionLanguage\Expression;
-use RectorPrefix20211110\Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
+use RectorPrefix20211213\Composer\InstalledVersions;
+use RectorPrefix20211213\Psr\Container\ContainerInterface as PsrContainerInterface;
+use RectorPrefix20211213\Symfony\Component\Config\Resource\ClassExistenceResource;
+use RectorPrefix20211213\Symfony\Component\Config\Resource\ComposerResource;
+use RectorPrefix20211213\Symfony\Component\Config\Resource\DirectoryResource;
+use RectorPrefix20211213\Symfony\Component\Config\Resource\FileExistenceResource;
+use RectorPrefix20211213\Symfony\Component\Config\Resource\FileResource;
+use RectorPrefix20211213\Symfony\Component\Config\Resource\GlobResource;
+use RectorPrefix20211213\Symfony\Component\Config\Resource\ReflectionClassResource;
+use RectorPrefix20211213\Symfony\Component\Config\Resource\ResourceInterface;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Argument\AbstractArgument;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Argument\IteratorArgument;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Argument\ServiceLocator;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Attribute\Target;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler\Compiler;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler\PassConfig;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler\ResolveEnvPlaceholdersPass;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\BadMethodCallException;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\LogicException;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\RuntimeException;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\LazyProxy\Instantiator\InstantiatorInterface;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\LazyProxy\Instantiator\RealServiceInstantiator;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use RectorPrefix20211213\Symfony\Component\ExpressionLanguage\Expression;
+use RectorPrefix20211213\Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
 /**
  * ContainerBuilder is a DI container that provides an API to easily describe services.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\DependencyInjection\Container implements \RectorPrefix20211110\Symfony\Component\DependencyInjection\TaggedContainerInterface
+class ContainerBuilder extends \RectorPrefix20211213\Symfony\Component\DependencyInjection\Container implements \RectorPrefix20211213\Symfony\Component\DependencyInjection\TaggedContainerInterface
 {
     /**
-     * @var ExtensionInterface[]
+     * @var array<string, ExtensionInterface>
      */
     private $extensions = [];
     /**
-     * @var ExtensionInterface[]
+     * @var array<string, ExtensionInterface>
      */
     private $extensionsByNs = [];
     /**
-     * @var Definition[]
+     * @var array<string, Definition>
      */
     private $definitions = [];
     /**
-     * @var Alias[]
+     * @var array<string, Alias>
      */
     private $aliasDefinitions = [];
     /**
-     * @var ResourceInterface[]
+     * @var array<string, ResourceInterface>
      */
     private $resources = [];
+    /**
+     * @var array<string, array<array<string, mixed>>>
+     */
     private $extensionConfigs = [];
     /**
      * @var Compiler
      */
     private $compiler;
+    /**
+     * @var bool
+     */
     private $trackResources;
     /**
      * @var InstantiatorInterface|null
@@ -106,24 +112,33 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      * @var string[] the list of vendor directories
      */
     private $vendors;
+    /**
+     * @var array<string, ChildDefinition>
+     */
     private $autoconfiguredInstanceof = [];
     /**
-     * @var callable[]
+     * @var array<string, callable>
      */
     private $autoconfiguredAttributes = [];
+    /**
+     * @var array<string, bool>
+     */
     private $removedIds = [];
+    /**
+     * @var array<int, bool>
+     */
     private $removedBindingIds = [];
     private const INTERNAL_TYPES = ['int' => \true, 'float' => \true, 'string' => \true, 'bool' => \true, 'resource' => \true, 'object' => \true, 'array' => \true, 'null' => \true, 'callable' => \true, 'iterable' => \true, 'mixed' => \true];
-    public function __construct(\RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface $parameterBag = null)
+    public function __construct(\RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface $parameterBag = null)
     {
         parent::__construct($parameterBag);
-        $this->trackResources = \interface_exists(\RectorPrefix20211110\Symfony\Component\Config\Resource\ResourceInterface::class);
-        $this->setDefinition('service_container', (new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Definition(\RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::class))->setSynthetic(\true)->setPublic(\true));
-        $this->setAlias(\RectorPrefix20211110\Psr\Container\ContainerInterface::class, new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Alias('service_container', \false))->setDeprecated('symfony/dependency-injection', '5.1', $deprecationMessage = 'The "%alias_id%" autowiring alias is deprecated. Define it explicitly in your app if you want to keep using it.');
-        $this->setAlias(\RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::class, new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Alias('service_container', \false))->setDeprecated('symfony/dependency-injection', '5.1', $deprecationMessage);
+        $this->trackResources = \interface_exists(\RectorPrefix20211213\Symfony\Component\Config\Resource\ResourceInterface::class);
+        $this->setDefinition('service_container', (new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition(\RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::class))->setSynthetic(\true)->setPublic(\true));
+        $this->setAlias(\RectorPrefix20211213\Psr\Container\ContainerInterface::class, new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Alias('service_container', \false))->setDeprecated('symfony/dependency-injection', '5.1', $deprecationMessage = 'The "%alias_id%" autowiring alias is deprecated. Define it explicitly in your app if you want to keep using it.');
+        $this->setAlias(\RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::class, new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Alias('service_container', \false))->setDeprecated('symfony/dependency-injection', '5.1', $deprecationMessage);
     }
     /**
-     * @var \ReflectionClass[] a list of class reflectors
+     * @var array<string, \ReflectionClass>
      */
     private $classReflectors;
     /**
@@ -131,16 +146,15 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      *
      * If you are not using the loaders and therefore don't want
      * to depend on the Config component, set this flag to false.
-     * @param bool $track
      */
-    public function setResourceTracking($track)
+    public function setResourceTracking(bool $track)
     {
         $this->trackResources = $track;
     }
     /**
      * Checks if resources are tracked.
      *
-     * @return bool true If resources are tracked, false otherwise
+     * @return bool
      */
     public function isTrackingResources()
     {
@@ -148,16 +162,12 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     }
     /**
      * Sets the instantiator to be used when fetching proxies.
-     * @param \Symfony\Component\DependencyInjection\LazyProxy\Instantiator\InstantiatorInterface $proxyInstantiator
      */
-    public function setProxyInstantiator($proxyInstantiator)
+    public function setProxyInstantiator(\RectorPrefix20211213\Symfony\Component\DependencyInjection\LazyProxy\Instantiator\InstantiatorInterface $proxyInstantiator)
     {
         $this->proxyInstantiator = $proxyInstantiator;
     }
-    /**
-     * @param \Symfony\Component\DependencyInjection\Extension\ExtensionInterface $extension
-     */
-    public function registerExtension($extension)
+    public function registerExtension(\RectorPrefix20211213\Symfony\Component\DependencyInjection\Extension\ExtensionInterface $extension)
     {
         $this->extensions[$extension->getAlias()] = $extension;
         if (\false !== $extension->getNamespace()) {
@@ -167,12 +177,11 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Returns an extension by alias or namespace.
      *
-     * @return ExtensionInterface An extension instance
+     * @return ExtensionInterface
      *
      * @throws LogicException if the extension is not registered
-     * @param string $name
      */
-    public function getExtension($name)
+    public function getExtension(string $name)
     {
         if (isset($this->extensions[$name])) {
             return $this->extensions[$name];
@@ -180,12 +189,12 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
         if (isset($this->extensionsByNs[$name])) {
             return $this->extensionsByNs[$name];
         }
-        throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\LogicException(\sprintf('Container extension "%s" is not registered.', $name));
+        throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\LogicException(\sprintf('Container extension "%s" is not registered.', $name));
     }
     /**
      * Returns all registered extensions.
      *
-     * @return ExtensionInterface[] An array of ExtensionInterface
+     * @return array<string, ExtensionInterface>
      */
     public function getExtensions()
     {
@@ -194,17 +203,16 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Checks if we have an extension.
      *
-     * @return bool If the extension exists
-     * @param string $name
+     * @return bool
      */
-    public function hasExtension($name)
+    public function hasExtension(string $name)
     {
         return isset($this->extensions[$name]) || isset($this->extensionsByNs[$name]);
     }
     /**
      * Returns an array of resources loaded to build this configuration.
      *
-     * @return ResourceInterface[] An array of resources
+     * @return ResourceInterface[]
      */
     public function getResources()
     {
@@ -212,14 +220,13 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     }
     /**
      * @return $this
-     * @param \Symfony\Component\Config\Resource\ResourceInterface $resource
      */
-    public function addResource($resource)
+    public function addResource(\RectorPrefix20211213\Symfony\Component\Config\Resource\ResourceInterface $resource)
     {
         if (!$this->trackResources) {
             return $this;
         }
-        if ($resource instanceof \RectorPrefix20211110\Symfony\Component\Config\Resource\GlobResource && $this->inVendors($resource->getPrefix())) {
+        if ($resource instanceof \RectorPrefix20211213\Symfony\Component\Config\Resource\GlobResource && $this->inVendors($resource->getPrefix())) {
             return $this;
         }
         $this->resources[(string) $resource] = $resource;
@@ -228,11 +235,11 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Sets the resources for this configuration.
      *
-     * @param ResourceInterface[] $resources An array of resources
+     * @param array<string, ResourceInterface> $resources
      *
      * @return $this
      */
-    public function setResources($resources)
+    public function setResources(array $resources)
     {
         if (!$this->trackResources) {
             return $this;
@@ -284,10 +291,8 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      * @throws \ReflectionException when a parent class/interface/trait is not found and $throw is true
      *
      * @final
-     * @param string|null $class
-     * @param bool $throw
      */
-    public function getReflectionClass($class, $throw = \true) : ?\ReflectionClass
+    public function getReflectionClass(?string $class, bool $throw = \true) : ?\ReflectionClass
     {
         if (!($class = $this->getParameterBag()->resolveValue($class))) {
             return null;
@@ -299,8 +304,8 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
         try {
             if (isset($this->classReflectors[$class])) {
                 $classReflector = $this->classReflectors[$class];
-            } elseif (\class_exists(\RectorPrefix20211110\Symfony\Component\Config\Resource\ClassExistenceResource::class)) {
-                $resource = new \RectorPrefix20211110\Symfony\Component\Config\Resource\ClassExistenceResource($class, \false);
+            } elseif (\class_exists(\RectorPrefix20211213\Symfony\Component\Config\Resource\ClassExistenceResource::class)) {
+                $resource = new \RectorPrefix20211213\Symfony\Component\Config\Resource\ClassExistenceResource($class, \false);
                 $classReflector = $resource->isFresh(0) ? \false : new \ReflectionClass($class);
             } else {
                 $classReflector = \class_exists($class) ? new \ReflectionClass($class) : \false;
@@ -312,11 +317,11 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
         }
         if ($this->trackResources) {
             if (!$classReflector) {
-                $this->addResource($resource ?? new \RectorPrefix20211110\Symfony\Component\Config\Resource\ClassExistenceResource($class, \false));
+                $this->addResource($resource ?? new \RectorPrefix20211213\Symfony\Component\Config\Resource\ClassExistenceResource($class, \false));
             } elseif (!$classReflector->isInternal()) {
                 $path = $classReflector->getFileName();
                 if (!$this->inVendors($path)) {
-                    $this->addResource(new \RectorPrefix20211110\Symfony\Component\Config\Resource\ReflectionClassResource($classReflector, $this->vendors));
+                    $this->addResource(new \RectorPrefix20211213\Symfony\Component\Config\Resource\ReflectionClassResource($classReflector, $this->vendors));
                 }
             }
             $this->classReflectors[$class] = $classReflector;
@@ -332,48 +337,45 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      *
      * @final
      */
-    public function fileExists($path, $trackContents = \true) : bool
+    public function fileExists(string $path, $trackContents = \true) : bool
     {
         $exists = \file_exists($path);
         if (!$this->trackResources || $this->inVendors($path)) {
             return $exists;
         }
         if (!$exists) {
-            $this->addResource(new \RectorPrefix20211110\Symfony\Component\Config\Resource\FileExistenceResource($path));
+            $this->addResource(new \RectorPrefix20211213\Symfony\Component\Config\Resource\FileExistenceResource($path));
             return $exists;
         }
         if (\is_dir($path)) {
             if ($trackContents) {
-                $this->addResource(new \RectorPrefix20211110\Symfony\Component\Config\Resource\DirectoryResource($path, \is_string($trackContents) ? $trackContents : null));
+                $this->addResource(new \RectorPrefix20211213\Symfony\Component\Config\Resource\DirectoryResource($path, \is_string($trackContents) ? $trackContents : null));
             } else {
-                $this->addResource(new \RectorPrefix20211110\Symfony\Component\Config\Resource\GlobResource($path, '/*', \false));
+                $this->addResource(new \RectorPrefix20211213\Symfony\Component\Config\Resource\GlobResource($path, '/*', \false));
             }
         } elseif ($trackContents) {
-            $this->addResource(new \RectorPrefix20211110\Symfony\Component\Config\Resource\FileResource($path));
+            $this->addResource(new \RectorPrefix20211213\Symfony\Component\Config\Resource\FileResource($path));
         }
         return $exists;
     }
     /**
      * Loads the configuration for an extension.
      *
-     * @param string $extension The extension alias or namespace
-     * @param array  $values    An array of values that customizes the extension
+     * @param string                    $extension The extension alias or namespace
+     * @param array<string, mixed>|null $values    An array of values that customizes the extension
      *
      * @return $this
      *
      * @throws BadMethodCallException When this ContainerBuilder is compiled
      * @throws \LogicException        if the extension is not registered
      */
-    public function loadFromExtension($extension, $values = null)
+    public function loadFromExtension(string $extension, array $values = null)
     {
         if ($this->isCompiled()) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\BadMethodCallException('Cannot load from an extension on a compiled container.');
-        }
-        if (\func_num_args() < 2) {
-            $values = [];
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\BadMethodCallException('Cannot load from an extension on a compiled container.');
         }
         $namespace = $this->getExtension($extension)->getAlias();
-        $this->extensionConfigs[$namespace][] = $values;
+        $this->extensionConfigs[$namespace][] = $values ?? [];
         return $this;
     }
     /**
@@ -383,9 +385,8 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      * @param int    $priority Used to sort the passes
      *
      * @return $this
-     * @param \Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface $pass
      */
-    public function addCompilerPass($pass, $type = \RectorPrefix20211110\Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_BEFORE_OPTIMIZATION, $priority = 0)
+    public function addCompilerPass(\RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface $pass, string $type = \RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_BEFORE_OPTIMIZATION, int $priority = 0)
     {
         $this->getCompiler()->addPass($pass, $type, $priority);
         $this->addObjectResource($pass);
@@ -394,7 +395,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Returns the compiler pass config which can then be modified.
      *
-     * @return PassConfig The compiler pass config
+     * @return PassConfig
      */
     public function getCompilerPassConfig()
     {
@@ -403,12 +404,12 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Returns the compiler.
      *
-     * @return Compiler The compiler
+     * @return Compiler
      */
     public function getCompiler()
     {
         if (null === $this->compiler) {
-            $this->compiler = new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Compiler\Compiler();
+            $this->compiler = new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler\Compiler();
         }
         return $this->compiler;
     }
@@ -417,22 +418,20 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      *
      * @throws BadMethodCallException When this ContainerBuilder is compiled
      * @param object|null $service
-     * @param string $id
      */
-    public function set($id, $service)
+    public function set(string $id, $service)
     {
         if ($this->isCompiled() && (isset($this->definitions[$id]) && !$this->definitions[$id]->isSynthetic())) {
             // setting a synthetic service on a compiled container is alright
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\BadMethodCallException(\sprintf('Setting service "%s" for an unknown or non-synthetic service definition on a compiled container is not allowed.', $id));
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\BadMethodCallException(\sprintf('Setting service "%s" for an unknown or non-synthetic service definition on a compiled container is not allowed.', $id));
         }
         unset($this->definitions[$id], $this->aliasDefinitions[$id], $this->removedIds[$id]);
         parent::set($id, $service);
     }
     /**
      * Removes a service definition.
-     * @param string $id
      */
-    public function removeDefinition($id)
+    public function removeDefinition(string $id)
     {
         if (isset($this->definitions[$id])) {
             unset($this->definitions[$id]);
@@ -444,14 +443,14 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      *
      * @param string $id The service identifier
      *
-     * @return bool true if the service is defined, false otherwise
+     * @return bool
      */
-    public function has($id)
+    public function has(string $id)
     {
         return isset($this->definitions[$id]) || isset($this->aliasDefinitions[$id]) || parent::has($id);
     }
     /**
-     * @return object|null The associated service
+     * @return object|null
      *
      * @throws InvalidArgumentException          when no definitions are available
      * @throws ServiceCircularReferenceException When a circular reference is detected
@@ -459,17 +458,15 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      * @throws \Exception
      *
      * @see Reference
-     * @param string $id
-     * @param int $invalidBehavior
      */
-    public function get($id, $invalidBehavior = \RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE)
+    public function get(string $id, int $invalidBehavior = \RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE)
     {
-        if ($this->isCompiled() && isset($this->removedIds[$id]) && \RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE >= $invalidBehavior) {
+        if ($this->isCompiled() && isset($this->removedIds[$id]) && \RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE >= $invalidBehavior) {
             return parent::get($id);
         }
         return $this->doGet($id, $invalidBehavior);
     }
-    private function doGet(string $id, int $invalidBehavior = \RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, array &$inlineServices = null, bool $isConstructorArgument = \false)
+    private function doGet(string $id, int $invalidBehavior = \RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, array &$inlineServices = null, bool $isConstructorArgument = \false)
     {
         if (isset($inlineServices[$id])) {
             return $inlineServices[$id];
@@ -479,13 +476,13 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
             $inlineServices = [];
         }
         try {
-            if (\RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE === $invalidBehavior) {
+            if (\RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE === $invalidBehavior) {
                 return parent::get($id, $invalidBehavior);
             }
-            if ($service = parent::get($id, \RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::NULL_ON_INVALID_REFERENCE)) {
+            if ($service = parent::get($id, \RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::NULL_ON_INVALID_REFERENCE)) {
                 return $service;
             }
-        } catch (\RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException $e) {
+        } catch (\RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException $e) {
             if ($isConstructorArgument) {
                 throw $e;
             }
@@ -500,14 +497,14 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
         }
         try {
             $definition = $this->getDefinition($id);
-        } catch (\RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
-            if (\RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE < $invalidBehavior) {
+        } catch (\RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
+            if (\RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE < $invalidBehavior) {
                 return null;
             }
             throw $e;
         }
         if ($definition->hasErrors() && ($e = $definition->getErrors())) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\RuntimeException(\reset($e));
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\RuntimeException(\reset($e));
         }
         if ($isConstructorArgument) {
             $this->loading[$id] = \true;
@@ -539,12 +536,11 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      * constructor.
      *
      * @throws BadMethodCallException When this ContainerBuilder is compiled
-     * @param $this $container
      */
-    public function merge($container)
+    public function merge(self $container)
     {
         if ($this->isCompiled()) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\BadMethodCallException('Cannot merge on a compiled container.');
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\BadMethodCallException('Cannot merge on a compiled container.');
         }
         $this->addDefinitions($container->getDefinitions());
         $this->addAliases($container->getAliases());
@@ -560,7 +556,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
             }
             $this->extensionConfigs[$name] = \array_merge($this->extensionConfigs[$name], $container->getExtensionConfig($name));
         }
-        if ($this->getParameterBag() instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag && $container->getParameterBag() instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag) {
+        if ($this->getParameterBag() instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag && $container->getParameterBag() instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag) {
             $envPlaceholders = $container->getParameterBag()->getEnvPlaceholders();
             $this->getParameterBag()->mergeEnvPlaceholders($container->getParameterBag());
         } else {
@@ -578,13 +574,13 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
         }
         foreach ($container->getAutoconfiguredInstanceof() as $interface => $childDefinition) {
             if (isset($this->autoconfiguredInstanceof[$interface])) {
-                throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('"%s" has already been autoconfigured and merge() does not support merging autoconfiguration for the same class/interface.', $interface));
+                throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('"%s" has already been autoconfigured and merge() does not support merging autoconfiguration for the same class/interface.', $interface));
             }
             $this->autoconfiguredInstanceof[$interface] = $childDefinition;
         }
         foreach ($container->getAutoconfiguredAttributes() as $attribute => $configurator) {
             if (isset($this->autoconfiguredAttributes[$attribute])) {
-                throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('"%s" has already been autoconfigured and merge() does not support merging autoconfiguration for the same attribute.', $attribute));
+                throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('"%s" has already been autoconfigured and merge() does not support merging autoconfiguration for the same attribute.', $attribute));
             }
             $this->autoconfiguredAttributes[$attribute] = $configurator;
         }
@@ -592,10 +588,9 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Returns the configuration array for the given extension.
      *
-     * @return array An array of configuration
-     * @param string $name
+     * @return array<array<string, mixed>>
      */
-    public function getExtensionConfig($name)
+    public function getExtensionConfig(string $name)
     {
         if (!isset($this->extensionConfigs[$name])) {
             $this->extensionConfigs[$name] = [];
@@ -604,10 +599,10 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     }
     /**
      * Prepends a config array to the configs of the given extension.
-     * @param string $name
-     * @param mixed[] $config
+     *
+     * @param array<string, mixed> $config
      */
-    public function prependExtensionConfig($name, $config)
+    public function prependExtensionConfig(string $name, array $config)
     {
         if (!isset($this->extensionConfigs[$name])) {
             $this->extensionConfigs[$name] = [];
@@ -633,7 +628,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      *                                     Set to "true" when you want to use the current ContainerBuilder
      *                                     directly, keep to "false" when the container is dumped instead.
      */
-    public function compile($resolveEnvPlaceholders = \false)
+    public function compile(bool $resolveEnvPlaceholders = \false)
     {
         $compiler = $this->getCompiler();
         if ($this->trackResources) {
@@ -642,8 +637,8 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
             }
         }
         $bag = $this->getParameterBag();
-        if ($resolveEnvPlaceholders && $bag instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag) {
-            $compiler->addPass(new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Compiler\ResolveEnvPlaceholdersPass(), \RectorPrefix20211110\Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_AFTER_REMOVING, -1000);
+        if ($resolveEnvPlaceholders && $bag instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag) {
+            $compiler->addPass(new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler\ResolveEnvPlaceholdersPass(), \RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_AFTER_REMOVING, -1000);
         }
         $compiler->compile($this);
         foreach ($this->definitions as $id => $definition) {
@@ -652,9 +647,9 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
             }
         }
         $this->extensionConfigs = [];
-        if ($bag instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag) {
+        if ($bag instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag) {
             if ($resolveEnvPlaceholders) {
-                $this->parameterBag = new \RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\ParameterBag($this->resolveEnvPlaceholders($bag->all(), \true));
+                $this->parameterBag = new \RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\ParameterBag($this->resolveEnvPlaceholders($bag->all(), \true));
             }
             $this->envPlaceholders = $bag->getEnvPlaceholders();
         }
@@ -675,7 +670,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Gets removed service or alias ids.
      *
-     * @return array
+     * @return array<string, bool>
      */
     public function getRemovedIds()
     {
@@ -683,9 +678,10 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     }
     /**
      * Adds the service aliases.
-     * @param mixed[] $aliases
+     *
+     * @param array<string, string|Alias> $aliases
      */
-    public function addAliases($aliases)
+    public function addAliases(array $aliases)
     {
         foreach ($aliases as $alias => $id) {
             $this->setAlias($alias, $id);
@@ -693,9 +689,10 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     }
     /**
      * Sets the service aliases.
-     * @param mixed[] $aliases
+     *
+     * @param array<string, string|Alias> $aliases
      */
-    public function setAliases($aliases)
+    public function setAliases(array $aliases)
     {
         $this->aliasDefinitions = [];
         $this->addAliases($aliases);
@@ -711,26 +708,23 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      * @throws InvalidArgumentException if the id is not a string or an Alias
      * @throws InvalidArgumentException if the alias is for itself
      */
-    public function setAlias($alias, $id)
+    public function setAlias(string $alias, $id)
     {
         if ('' === $alias || '\\' === $alias[-1] || \strlen($alias) !== \strcspn($alias, "\0\r\n'")) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('Invalid alias id: "%s".', $alias));
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('Invalid alias id: "%s".', $alias));
         }
         if (\is_string($id)) {
-            $id = new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Alias($id);
-        } elseif (!$id instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Alias) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException('$id must be a string, or an Alias object.');
+            $id = new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Alias($id);
+        } elseif (!$id instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Alias) {
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException('$id must be a string, or an Alias object.');
         }
         if ($alias === (string) $id) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('An alias can not reference itself, got a circular reference on "%s".', $alias));
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('An alias cannot reference itself, got a circular reference on "%s".', $alias));
         }
         unset($this->definitions[$alias], $this->removedIds[$alias]);
         return $this->aliasDefinitions[$alias] = $id;
     }
-    /**
-     * @param string $alias
-     */
-    public function removeAlias($alias)
+    public function removeAlias(string $alias)
     {
         if (isset($this->aliasDefinitions[$alias])) {
             unset($this->aliasDefinitions[$alias]);
@@ -738,30 +732,28 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
         }
     }
     /**
-     * @return bool true if the alias exists, false otherwise
-     * @param string $id
+     * @return bool
      */
-    public function hasAlias($id)
+    public function hasAlias(string $id)
     {
         return isset($this->aliasDefinitions[$id]);
     }
     /**
-     * @return Alias[] An array of aliases
+     * @return array<string, Alias>
      */
     public function getAliases()
     {
         return $this->aliasDefinitions;
     }
     /**
-     * @return Alias An Alias instance
+     * @return Alias
      *
      * @throws InvalidArgumentException if the alias does not exist
-     * @param string $id
      */
-    public function getAlias($id)
+    public function getAlias(string $id)
     {
         if (!isset($this->aliasDefinitions[$id])) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('The service alias "%s" does not exist.', $id));
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('The service alias "%s" does not exist.', $id));
         }
         return $this->aliasDefinitions[$id];
     }
@@ -771,13 +763,11 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      * This methods allows for simple registration of service definition
      * with a fluid interface.
      *
-     * @return Definition A Definition instance
-     * @param string $id
-     * @param string|null $class
+     * @return Definition
      */
-    public function register($id, $class = null)
+    public function register(string $id, string $class = null)
     {
-        return $this->setDefinition($id, new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Definition($class));
+        return $this->setDefinition($id, new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition($class));
     }
     /**
      * Registers an autowired service definition.
@@ -785,20 +775,18 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      * This method implements a shortcut for using setDefinition() with
      * an autowired definition.
      *
-     * @return Definition The created definition
-     * @param string $id
-     * @param string|null $class
+     * @return Definition
      */
-    public function autowire($id, $class = null)
+    public function autowire(string $id, string $class = null)
     {
-        return $this->setDefinition($id, (new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Definition($class))->setAutowired(\true));
+        return $this->setDefinition($id, (new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition($class))->setAutowired(\true));
     }
     /**
      * Adds the service definitions.
      *
-     * @param Definition[] $definitions An array of service definitions
+     * @param array<string, Definition> $definitions
      */
-    public function addDefinitions($definitions)
+    public function addDefinitions(array $definitions)
     {
         foreach ($definitions as $id => $definition) {
             $this->setDefinition($id, $definition);
@@ -807,9 +795,9 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Sets the service definitions.
      *
-     * @param Definition[] $definitions An array of service definitions
+     * @param array<string, Definition> $definitions
      */
-    public function setDefinitions($definitions)
+    public function setDefinitions(array $definitions)
     {
         $this->definitions = [];
         $this->addDefinitions($definitions);
@@ -817,7 +805,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Gets all service definitions.
      *
-     * @return Definition[] An array of Definition instances
+     * @return array<string, Definition>
      */
     public function getDefinitions()
     {
@@ -826,19 +814,17 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Sets a service definition.
      *
-     * @return Definition the service definition
+     * @return Definition
      *
      * @throws BadMethodCallException When this ContainerBuilder is compiled
-     * @param string $id
-     * @param \Symfony\Component\DependencyInjection\Definition $definition
      */
-    public function setDefinition($id, $definition)
+    public function setDefinition(string $id, \RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition $definition)
     {
         if ($this->isCompiled()) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\BadMethodCallException('Adding definition to a compiled container is not allowed.');
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\BadMethodCallException('Adding definition to a compiled container is not allowed.');
         }
         if ('' === $id || '\\' === $id[-1] || \strlen($id) !== \strcspn($id, "\0\r\n'")) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('Invalid service id: "%s".', $id));
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('Invalid service id: "%s".', $id));
         }
         unset($this->aliasDefinitions[$id], $this->removedIds[$id]);
         return $this->definitions[$id] = $definition;
@@ -846,25 +832,23 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Returns true if a service definition exists under the given identifier.
      *
-     * @return bool true if the service definition exists, false otherwise
-     * @param string $id
+     * @return bool
      */
-    public function hasDefinition($id)
+    public function hasDefinition(string $id)
     {
         return isset($this->definitions[$id]);
     }
     /**
      * Gets a service definition.
      *
-     * @return Definition A Definition instance
+     * @return Definition
      *
      * @throws ServiceNotFoundException if the service definition does not exist
-     * @param string $id
      */
-    public function getDefinition($id)
+    public function getDefinition(string $id)
     {
         if (!isset($this->definitions[$id])) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException($id);
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException($id);
         }
         return $this->definitions[$id];
     }
@@ -873,12 +857,11 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      *
      * The method "unaliases" recursively to return a Definition instance.
      *
-     * @return Definition A Definition instance
+     * @return Definition
      *
      * @throws ServiceNotFoundException if the service definition does not exist
-     * @param string $id
      */
-    public function findDefinition($id)
+    public function findDefinition(string $id)
     {
         $seen = [];
         while (isset($this->aliasDefinitions[$id])) {
@@ -887,7 +870,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
                 $seen = \array_values($seen);
                 $seen = \array_slice($seen, \array_search($id, $seen));
                 $seen[] = $id;
-                throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException($id, $seen);
+                throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException($id, $seen);
             }
             $seen[$id] = $id;
         }
@@ -896,28 +879,28 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Creates a service for a service definition.
      *
-     * @return mixed The service described by the service definition
+     * @return mixed
      *
      * @throws RuntimeException         When the factory definition is incomplete
      * @throws RuntimeException         When the service is a synthetic service
      * @throws InvalidArgumentException When configure callable is not callable
      */
-    private function createService(\RectorPrefix20211110\Symfony\Component\DependencyInjection\Definition $definition, array &$inlineServices, bool $isConstructorArgument = \false, string $id = null, bool $tryProxy = \true)
+    private function createService(\RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition $definition, array &$inlineServices, bool $isConstructorArgument = \false, string $id = null, bool $tryProxy = \true)
     {
         if (null === $id && isset($inlineServices[$h = \spl_object_hash($definition)])) {
             return $inlineServices[$h];
         }
-        if ($definition instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\ChildDefinition) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\RuntimeException(\sprintf('Constructing service "%s" from a parent definition is not supported at build time.', $id));
+        if ($definition instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\ChildDefinition) {
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\RuntimeException(\sprintf('Constructing service "%s" from a parent definition is not supported at build time.', $id));
         }
         if ($definition->isSynthetic()) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\RuntimeException(\sprintf('You have requested a synthetic service ("%s"). The DIC does not know how to construct this service.', $id));
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\RuntimeException(\sprintf('You have requested a synthetic service ("%s"). The DIC does not know how to construct this service.', $id));
         }
         if ($definition->isDeprecated()) {
             $deprecation = $definition->getDeprecation($id);
             trigger_deprecation($deprecation['package'], $deprecation['version'], $deprecation['message']);
         }
-        if ($tryProxy && $definition->isLazy() && !($tryProxy = !($proxy = $this->proxyInstantiator) || $proxy instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\LazyProxy\Instantiator\RealServiceInstantiator)) {
+        if ($tryProxy && $definition->isLazy() && !($tryProxy = !($proxy = $this->proxyInstantiator) || $proxy instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\LazyProxy\Instantiator\RealServiceInstantiator)) {
             $proxy = $proxy->instantiateProxy($this, $definition, $id, function () use($definition, &$inlineServices, $id) {
                 return $this->createService($definition, $inlineServices, \true, $id, \false);
             });
@@ -933,7 +916,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
             if (\is_array($factory)) {
                 $factory = [$this->doResolveServices($parameterBag->resolveValue($factory[0]), $inlineServices, $isConstructorArgument), $factory[1]];
             } elseif (!\is_string($factory)) {
-                throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\RuntimeException(\sprintf('Cannot create service "%s" because of invalid factory.', $id));
+                throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\RuntimeException(\sprintf('Cannot create service "%s" because of invalid factory.', $id));
             }
         }
         if (null !== $id && $definition->isShared() && isset($this->services[$id]) && ($tryProxy || !$definition->isLazy())) {
@@ -978,14 +961,14 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
         if ($callable = $definition->getConfigurator()) {
             if (\is_array($callable)) {
                 $callable[0] = $parameterBag->resolveValue($callable[0]);
-                if ($callable[0] instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Reference) {
+                if ($callable[0] instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Reference) {
                     $callable[0] = $this->doGet((string) $callable[0], $callable[0]->getInvalidBehavior(), $inlineServices);
-                } elseif ($callable[0] instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Definition) {
+                } elseif ($callable[0] instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition) {
                     $callable[0] = $this->createService($callable[0], $inlineServices);
                 }
             }
             if (!\is_callable($callable)) {
-                throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('The configure callable for class "%s" is not a callable.', \get_debug_type($service)));
+                throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('The configure callable for class "%s" is not a callable.', \get_debug_type($service)));
             }
             $callable($service);
         }
@@ -994,7 +977,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Replaces service references by the real service instance and evaluates expressions.
      *
-     * @param mixed $value A value
+     * @param mixed $value
      *
      * @return mixed The same value with all service references replaced by
      *               the real service instances and all expressions evaluated
@@ -1009,13 +992,13 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
             foreach ($value as $k => $v) {
                 $value[$k] = $this->doResolveServices($v, $inlineServices, $isConstructorArgument);
             }
-        } elseif ($value instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument) {
+        } elseif ($value instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument) {
             $reference = $value->getValues()[0];
             $value = function () use($reference) {
                 return $this->resolveServices($reference);
             };
-        } elseif ($value instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Argument\IteratorArgument) {
-            $value = new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Argument\RewindableGenerator(function () use($value, &$inlineServices) {
+        } elseif ($value instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Argument\IteratorArgument) {
+            $value = new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Argument\RewindableGenerator(function () use($value, &$inlineServices) {
                 foreach ($value->getValues() as $k => $v) {
                     foreach (self::getServiceConditionals($v) as $s) {
                         if (!$this->has($s)) {
@@ -1023,7 +1006,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
                         }
                     }
                     foreach (self::getInitializedConditionals($v) as $s) {
-                        if (!$this->doGet($s, \RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE, $inlineServices)) {
+                        if (!$this->doGet($s, \RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE, $inlineServices)) {
                             continue 2;
                         }
                     }
@@ -1038,7 +1021,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
                         }
                     }
                     foreach (self::getInitializedConditionals($v) as $s) {
-                        if (!$this->doGet($s, \RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE)) {
+                        if (!$this->doGet($s, \RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE)) {
                             continue 2;
                         }
                     }
@@ -1046,25 +1029,25 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
                 }
                 return $count;
             });
-        } elseif ($value instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument) {
+        } elseif ($value instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument) {
             $refs = $types = [];
             foreach ($value->getValues() as $k => $v) {
                 if ($v) {
                     $refs[$k] = [$v];
-                    $types[$k] = $v instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\TypedReference ? $v->getType() : '?';
+                    $types[$k] = $v instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\TypedReference ? $v->getType() : '?';
                 }
             }
-            $value = new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Argument\ServiceLocator(\Closure::fromCallable([$this, 'resolveServices']), $refs, $types);
-        } elseif ($value instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Reference) {
+            $value = new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Argument\ServiceLocator(\Closure::fromCallable([$this, 'resolveServices']), $refs, $types);
+        } elseif ($value instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Reference) {
             $value = $this->doGet((string) $value, $value->getInvalidBehavior(), $inlineServices, $isConstructorArgument);
-        } elseif ($value instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Definition) {
+        } elseif ($value instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition) {
             $value = $this->createService($value, $inlineServices, $isConstructorArgument);
-        } elseif ($value instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Parameter) {
+        } elseif ($value instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Parameter) {
             $value = $this->getParameter((string) $value);
-        } elseif ($value instanceof \RectorPrefix20211110\Symfony\Component\ExpressionLanguage\Expression) {
+        } elseif ($value instanceof \RectorPrefix20211213\Symfony\Component\ExpressionLanguage\Expression) {
             $value = $this->getExpressionLanguage()->evaluate($value, ['container' => $this]);
-        } elseif ($value instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Argument\AbstractArgument) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\RuntimeException($value->getTextWithContext());
+        } elseif ($value instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Argument\AbstractArgument) {
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\RuntimeException($value->getTextWithContext());
         }
         return $value;
     }
@@ -1082,18 +1065,16 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      *         }
      *     }
      *
-     * @return array An array of tags with the tagged service as key, holding a list of attribute arrays
-     * @param string $name
-     * @param bool $throwOnAbstract
+     * @return array<string, array> An array of tags with the tagged service as key, holding a list of attribute arrays
      */
-    public function findTaggedServiceIds($name, $throwOnAbstract = \false)
+    public function findTaggedServiceIds(string $name, bool $throwOnAbstract = \false)
     {
         $this->usedTags[] = $name;
         $tags = [];
         foreach ($this->getDefinitions() as $id => $definition) {
             if ($definition->hasTag($name)) {
                 if ($throwOnAbstract && $definition->isAbstract()) {
-                    throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('The service "%s" tagged "%s" must not be abstract.', $id, $name));
+                    throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('The service "%s" tagged "%s" must not be abstract.', $id, $name));
                 }
                 $tags[$id] = $definition->getTag($name);
             }
@@ -1103,29 +1084,26 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     /**
      * Returns all tags the defined services use.
      *
-     * @return array An array of tags
+     * @return string[]
      */
     public function findTags()
     {
         $tags = [];
         foreach ($this->getDefinitions() as $id => $definition) {
-            $tags = \array_merge(\array_keys($definition->getTags()), $tags);
+            $tags[] = \array_keys($definition->getTags());
         }
-        return \array_unique($tags);
+        return \array_unique(\array_merge([], ...$tags));
     }
     /**
      * Returns all tags not queried by findTaggedServiceIds.
      *
-     * @return string[] An array of tags
+     * @return string[]
      */
     public function findUnusedTags()
     {
         return \array_values(\array_diff($this->findTags(), $this->usedTags));
     }
-    /**
-     * @param \Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface $provider
-     */
-    public function addExpressionLanguageProvider($provider)
+    public function addExpressionLanguageProvider(\RectorPrefix20211213\Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface $provider)
     {
         $this->expressionLanguageProviders[] = $provider;
     }
@@ -1140,23 +1118,28 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      * Returns a ChildDefinition that will be used for autoconfiguring the interface/class.
      *
      * @return ChildDefinition
-     * @param string $interface
      */
-    public function registerForAutoconfiguration($interface)
+    public function registerForAutoconfiguration(string $interface)
     {
         if (!isset($this->autoconfiguredInstanceof[$interface])) {
-            $this->autoconfiguredInstanceof[$interface] = new \RectorPrefix20211110\Symfony\Component\DependencyInjection\ChildDefinition('');
+            $this->autoconfiguredInstanceof[$interface] = new \RectorPrefix20211213\Symfony\Component\DependencyInjection\ChildDefinition('');
         }
         return $this->autoconfiguredInstanceof[$interface];
     }
     /**
      * Registers an attribute that will be used for autoconfiguring annotated classes.
      *
-     * The configurator will receive a ChildDefinition instance, an instance of the attribute and the corresponding \ReflectionClass, in that order.
-     * @param string $attributeClass
-     * @param callable $configurator
+     * The third argument passed to the callable is the reflector of the
+     * class/method/property/parameter that the attribute targets. Using one or many of
+     * \ReflectionClass|\ReflectionMethod|\ReflectionProperty|\ReflectionParameter as a type-hint
+     * for this argument allows filtering which attributes should be passed to the callable.
+     *
+     * @template T
+     *
+     * @param class-string<T>                                $attributeClass
+     * @param callable(ChildDefinition, T, \Reflector): void $configurator
      */
-    public function registerAttributeForAutoconfiguration($attributeClass, $configurator) : void
+    public function registerAttributeForAutoconfiguration(string $attributeClass, callable $configurator) : void
     {
         $this->autoconfiguredAttributes[$attributeClass] = $configurator;
     }
@@ -1167,29 +1150,26 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      * using camel case: "foo.bar" or "foo_bar" creates an alias bound to
      * "$fooBar"-named arguments with $type as type-hint. Such arguments will
      * receive the service $id when autowiring is used.
-     * @param string $id
-     * @param string $type
-     * @param string|null $name
      */
-    public function registerAliasForArgument($id, $type, $name = null) : \RectorPrefix20211110\Symfony\Component\DependencyInjection\Alias
+    public function registerAliasForArgument(string $id, string $type, string $name = null) : \RectorPrefix20211213\Symfony\Component\DependencyInjection\Alias
     {
-        $name = (new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Attribute\Target($name ?? $id))->name;
+        $name = (new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Attribute\Target($name ?? $id))->name;
         if (!\preg_match('/^[a-zA-Z_\\x7f-\\xff]/', $name)) {
-            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('Invalid argument name "%s" for service "%s": the first character must be a letter.', $name, $id));
+            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException(\sprintf('Invalid argument name "%s" for service "%s": the first character must be a letter.', $name, $id));
         }
         return $this->setAlias($type . ' $' . $name, $id);
     }
     /**
      * Returns an array of ChildDefinition[] keyed by interface.
      *
-     * @return ChildDefinition[]
+     * @return array<string, ChildDefinition>
      */
     public function getAutoconfiguredInstanceof()
     {
         return $this->autoconfiguredInstanceof;
     }
     /**
-     * @return callable[]
+     * @return array<string, callable>
      */
     public function getAutoconfiguredAttributes() : array
     {
@@ -1206,7 +1186,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      *
      * @return mixed The value with env parameters resolved if a string or an array is passed
      */
-    public function resolveEnvPlaceholders($value, $format = null, &$usedEnvs = null)
+    public function resolveEnvPlaceholders($value, $format = null, array &$usedEnvs = null)
     {
         if (null === $format) {
             $format = '%%env(%s)%%';
@@ -1215,7 +1195,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
         if (\true === $format) {
             $value = $bag->resolveValue($value);
         }
-        if ($value instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Definition) {
+        if ($value instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition) {
             $value = (array) $value;
         }
         if (\is_array($value)) {
@@ -1228,7 +1208,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
         if (!\is_string($value) || 38 > \strlen($value)) {
             return $value;
         }
-        $envPlaceholders = $bag instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag ? $bag->getEnvPlaceholders() : $this->envPlaceholders;
+        $envPlaceholders = $bag instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag ? $bag->getEnvPlaceholders() : $this->envPlaceholders;
         $completed = \false;
         foreach ($envPlaceholders as $env => $placeholders) {
             foreach ($placeholders as $placeholder) {
@@ -1243,7 +1223,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
                         $completed = \true;
                     } else {
                         if (!\is_string($resolved) && !\is_numeric($resolved)) {
-                            throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\RuntimeException(\sprintf('A string value must be composed of strings and/or numbers, but found parameter "env(%s)" of type "%s" inside string value "%s".', $env, \get_debug_type($resolved), $this->resolveEnvPlaceholders($value)));
+                            throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\RuntimeException(\sprintf('A string value must be composed of strings and/or numbers, but found parameter "env(%s)" of type "%s" inside string value "%s".', $env, \get_debug_type($resolved), $this->resolveEnvPlaceholders($value)));
                         }
                         $value = \str_ireplace($placeholder, $resolved, $value);
                     }
@@ -1265,7 +1245,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     public function getEnvCounters()
     {
         $bag = $this->getParameterBag();
-        $envPlaceholders = $bag instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag ? $bag->getEnvPlaceholders() : $this->envPlaceholders;
+        $envPlaceholders = $bag instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag ? $bag->getEnvPlaceholders() : $this->envPlaceholders;
         foreach ($envPlaceholders as $env => $placeholders) {
             if (!isset($this->envCounters[$env])) {
                 $this->envCounters[$env] = 0;
@@ -1275,10 +1255,8 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     }
     /**
      * @final
-     * @param \Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface $pass
-     * @param string $message
      */
-    public function log($pass, $message)
+    public function log(\RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface $pass, string $message)
     {
         $this->getCompiler()->log($pass, $this->resolveEnvPlaceholders($message));
     }
@@ -1287,25 +1265,27 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      *
      * When parent packages are provided and if any of them is in dev-only mode,
      * the class will be considered available even if it is also in dev-only mode.
-     * @param string $package
-     * @param string $class
-     * @param mixed[] $parentPackages
      */
-    public static final function willBeAvailable($package, $class, $parentPackages) : bool
+    public static final function willBeAvailable(string $package, string $class, array $parentPackages) : bool
     {
+        $skipDeprecation = 3 < \func_num_args() && \func_get_arg(3);
+        $hasRuntimeApi = \class_exists(\RectorPrefix20211213\Composer\InstalledVersions::class);
+        if (!$hasRuntimeApi && !$skipDeprecation) {
+            trigger_deprecation('symfony/dependency-injection', '5.4', 'Calling "%s" when dependencies have been installed with Composer 1 is deprecated. Consider upgrading to Composer 2.', __METHOD__);
+        }
         if (!\class_exists($class) && !\interface_exists($class, \false) && !\trait_exists($class, \false)) {
             return \false;
         }
-        if (!\class_exists(\RectorPrefix20211110\Composer\InstalledVersions::class) || !\RectorPrefix20211110\Composer\InstalledVersions::isInstalled($package) || \RectorPrefix20211110\Composer\InstalledVersions::isInstalled($package, \false)) {
+        if (!$hasRuntimeApi || !\RectorPrefix20211213\Composer\InstalledVersions::isInstalled($package) || \RectorPrefix20211213\Composer\InstalledVersions::isInstalled($package, \false)) {
             return \true;
         }
         // the package is installed but in dev-mode only, check if this applies to one of the parent packages too
-        $rootPackage = \RectorPrefix20211110\Composer\InstalledVersions::getRootPackage()['name'] ?? '';
+        $rootPackage = \RectorPrefix20211213\Composer\InstalledVersions::getRootPackage()['name'] ?? '';
         if ('symfony/symfony' === $rootPackage) {
             return \true;
         }
         foreach ($parentPackages as $parentPackage) {
-            if ($rootPackage === $parentPackage || \RectorPrefix20211110\Composer\InstalledVersions::isInstalled($parentPackage) && !\RectorPrefix20211110\Composer\InstalledVersions::isInstalled($parentPackage, \false)) {
+            if ($rootPackage === $parentPackage || \RectorPrefix20211213\Composer\InstalledVersions::isInstalled($parentPackage) && !\RectorPrefix20211213\Composer\InstalledVersions::isInstalled($parentPackage, \false)) {
                 return \true;
             }
         }
@@ -1313,6 +1293,8 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     }
     /**
      * Gets removed binding ids.
+     *
+     * @return array<int, bool>
      *
      * @internal
      */
@@ -1324,9 +1306,8 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      * Removes bindings for a service.
      *
      * @internal
-     * @param string $id
      */
-    public function removeBindings($id)
+    public function removeBindings(string $id)
     {
         if ($this->hasDefinition($id)) {
             foreach ($this->getDefinition($id)->getBindings() as $key => $binding) {
@@ -1340,6 +1321,8 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      *
      * @param mixed $value An array of conditionals to return
      *
+     * @return string[]
+     *
      * @internal
      */
     public static function getServiceConditionals($value) : array
@@ -1349,7 +1332,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
             foreach ($value as $v) {
                 $services = \array_unique(\array_merge($services, self::getServiceConditionals($v)));
             }
-        } elseif ($value instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Reference && \RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_INVALID_REFERENCE === $value->getInvalidBehavior()) {
+        } elseif ($value instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Reference && \RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_INVALID_REFERENCE === $value->getInvalidBehavior()) {
             $services[] = (string) $value;
         }
         return $services;
@@ -1358,6 +1341,8 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      * Returns the initialized conditionals.
      *
      * @param mixed $value An array of conditionals to return
+     *
+     * @return string[]
      *
      * @internal
      */
@@ -1368,7 +1353,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
             foreach ($value as $v) {
                 $services = \array_unique(\array_merge($services, self::getInitializedConditionals($v)));
             }
-        } elseif ($value instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Reference && \RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE === $value->getInvalidBehavior()) {
+        } elseif ($value instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Reference && \RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE === $value->getInvalidBehavior()) {
             $services[] = (string) $value;
         }
         return $services;
@@ -1387,18 +1372,17 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
     }
     /**
      * {@inheritdoc}
-     * @param string $name
      */
-    protected function getEnv($name)
+    protected function getEnv(string $name)
     {
         $value = parent::getEnv($name);
         $bag = $this->getParameterBag();
-        if (!\is_string($value) || !$bag instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag) {
+        if (!\is_string($value) || !$bag instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag) {
             return $value;
         }
         $envPlaceholders = $bag->getEnvPlaceholders();
         if (isset($envPlaceholders[$name][$value])) {
-            $bag = new \RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\ParameterBag($bag->all());
+            $bag = new \RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\ParameterBag($bag->all());
             return $bag->unescapeValue($bag->get("env({$name})"));
         }
         foreach ($envPlaceholders as $env => $placeholders) {
@@ -1424,7 +1408,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
             }
         }
         foreach (self::getInitializedConditionals($call[1]) as $s) {
-            if (!$this->doGet($s, \RectorPrefix20211110\Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE, $inlineServices)) {
+            if (!$this->doGet($s, \RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE, $inlineServices)) {
                 return $service;
             }
         }
@@ -1436,7 +1420,7 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
      *
      * @param mixed $service
      */
-    private function shareService(\RectorPrefix20211110\Symfony\Component\DependencyInjection\Definition $definition, $service, ?string $id, array &$inlineServices)
+    private function shareService(\RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition $definition, $service, ?string $id, array &$inlineServices)
     {
         $inlineServices[$id ?? \spl_object_hash($definition)] = $service;
         if (null !== $id && $definition->isShared()) {
@@ -1444,25 +1428,25 @@ class ContainerBuilder extends \RectorPrefix20211110\Symfony\Component\Dependenc
             unset($this->loading[$id]);
         }
     }
-    private function getExpressionLanguage() : \RectorPrefix20211110\Symfony\Component\DependencyInjection\ExpressionLanguage
+    private function getExpressionLanguage() : \RectorPrefix20211213\Symfony\Component\DependencyInjection\ExpressionLanguage
     {
         if (null === $this->expressionLanguage) {
-            if (!\class_exists(\RectorPrefix20211110\Symfony\Component\ExpressionLanguage\ExpressionLanguage::class)) {
-                throw new \RectorPrefix20211110\Symfony\Component\DependencyInjection\Exception\LogicException('Unable to use expressions as the Symfony ExpressionLanguage component is not installed.');
+            if (!\class_exists(\RectorPrefix20211213\Symfony\Component\ExpressionLanguage\ExpressionLanguage::class)) {
+                throw new \RectorPrefix20211213\Symfony\Component\DependencyInjection\Exception\LogicException('Unable to use expressions as the Symfony ExpressionLanguage component is not installed.');
             }
-            $this->expressionLanguage = new \RectorPrefix20211110\Symfony\Component\DependencyInjection\ExpressionLanguage(null, $this->expressionLanguageProviders);
+            $this->expressionLanguage = new \RectorPrefix20211213\Symfony\Component\DependencyInjection\ExpressionLanguage(null, $this->expressionLanguageProviders);
         }
         return $this->expressionLanguage;
     }
     private function inVendors(string $path) : bool
     {
         if (null === $this->vendors) {
-            $this->vendors = (new \RectorPrefix20211110\Symfony\Component\Config\Resource\ComposerResource())->getVendors();
+            $this->vendors = (new \RectorPrefix20211213\Symfony\Component\Config\Resource\ComposerResource())->getVendors();
         }
         $path = \realpath($path) ?: $path;
         foreach ($this->vendors as $vendor) {
             if (\strncmp($path, $vendor, \strlen($vendor)) === 0 && \false !== \strpbrk(\substr($path, \strlen($vendor), 1), '/' . \DIRECTORY_SEPARATOR)) {
-                $this->addResource(new \RectorPrefix20211110\Symfony\Component\Config\Resource\FileResource($vendor . '/composer/installed.json'));
+                $this->addResource(new \RectorPrefix20211213\Symfony\Component\Config\Resource\FileResource($vendor . '/composer/installed.json'));
                 return \true;
             }
         }

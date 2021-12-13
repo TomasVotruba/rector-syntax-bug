@@ -8,38 +8,28 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Console\Helper;
+namespace RectorPrefix20211213\Symfony\Component\Console\Helper;
 
-use RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatter;
+use RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatter;
 /**
  * The Formatter class provides helpers to format messages.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class FormatterHelper extends \RectorPrefix20211110\Symfony\Component\Console\Helper\Helper
+class FormatterHelper extends \RectorPrefix20211213\Symfony\Component\Console\Helper\Helper
 {
     /**
      * Formats a message within a section.
-     *
-     * @return string The format section
-     * @param string $section
-     * @param string $message
-     * @param string $style
      */
-    public function formatSection($section, $message, $style = 'info')
+    public function formatSection(string $section, string $message, string $style = 'info') : string
     {
         return \sprintf('<%s>[%s]</%s> %s', $style, $section, $style, $message);
     }
     /**
      * Formats a message as a block of text.
-     *
-     * @param string|array $messages The message to write in the block
-     *
-     * @return string The formatter message
-     * @param string $style
-     * @param bool $large
+     * @param mixed[]|string $messages
      */
-    public function formatBlock($messages, $style, $large = \false)
+    public function formatBlock($messages, string $style, bool $large = \false) : string
     {
         if (!\is_array($messages)) {
             $messages = [$messages];
@@ -47,7 +37,7 @@ class FormatterHelper extends \RectorPrefix20211110\Symfony\Component\Console\He
         $len = 0;
         $lines = [];
         foreach ($messages as $message) {
-            $message = \RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatter::escape($message);
+            $message = \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatter::escape($message);
             $lines[] = \sprintf($large ? '  %s  ' : ' %s ', $message);
             $len = \max(self::width($message) + ($large ? 4 : 2), $len);
         }
@@ -65,13 +55,8 @@ class FormatterHelper extends \RectorPrefix20211110\Symfony\Component\Console\He
     }
     /**
      * Truncates a message to the given length.
-     *
-     * @return string
-     * @param string $message
-     * @param int $length
-     * @param string $suffix
      */
-    public function truncate($message, $length, $suffix = '...')
+    public function truncate(string $message, int $length, string $suffix = '...') : string
     {
         $computedLength = $length - self::width($suffix);
         if ($computedLength > self::width($message)) {
@@ -82,7 +67,7 @@ class FormatterHelper extends \RectorPrefix20211110\Symfony\Component\Console\He
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'formatter';
     }

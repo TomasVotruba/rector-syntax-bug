@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Config\Resource;
+namespace RectorPrefix20211213\Symfony\Component\Config\Resource;
 
 /**
  * ClassExistenceResource represents a class existence.
@@ -20,7 +20,7 @@ namespace RectorPrefix20211110\Symfony\Component\Config\Resource;
  *
  * @final
  */
-class ClassExistenceResource implements \RectorPrefix20211110\Symfony\Component\Config\Resource\SelfCheckingResourceInterface
+class ClassExistenceResource implements \RectorPrefix20211213\Symfony\Component\Config\Resource\SelfCheckingResourceInterface
 {
     private $resource;
     private $exists;
@@ -35,16 +35,13 @@ class ClassExistenceResource implements \RectorPrefix20211110\Symfony\Component\
     {
         $this->resource = $resource;
         if (null !== $exists) {
-            $this->exists = [(bool) $exists, null];
+            $this->exists = [$exists, null];
         }
     }
     public function __toString() : string
     {
         return $this->resource;
     }
-    /**
-     * @return string The file path to the resource
-     */
     public function getResource() : string
     {
         return $this->resource;
@@ -53,9 +50,8 @@ class ClassExistenceResource implements \RectorPrefix20211110\Symfony\Component\
      * {@inheritdoc}
      *
      * @throws \ReflectionException when a parent class/interface/trait is not found
-     * @param int $timestamp
      */
-    public function isFresh($timestamp) : bool
+    public function isFresh(int $timestamp) : bool
     {
         $loaded = \class_exists($this->resource, \false) || \interface_exists($this->resource, \false) || \trait_exists($this->resource, \false);
         if (null !== ($exists =& self::$existsCache[$this->resource])) {
@@ -130,10 +126,8 @@ class ClassExistenceResource implements \RectorPrefix20211110\Symfony\Component\
      * @throws \ReflectionException
      *
      * @internal
-     * @param string $class
-     * @param \Exception|null $previous
      */
-    public static function throwOnRequiredClass($class, $previous = null)
+    public static function throwOnRequiredClass(string $class, \Exception $previous = null)
     {
         // If the passed class is the resource being checked, we shouldn't throw.
         if (null === $previous && self::$autoloadedClass === $class) {

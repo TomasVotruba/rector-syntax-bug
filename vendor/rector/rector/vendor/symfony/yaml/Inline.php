@@ -8,11 +8,11 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Yaml;
+namespace RectorPrefix20211213\Symfony\Component\Yaml;
 
-use RectorPrefix20211110\Symfony\Component\Yaml\Exception\DumpException;
-use RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException;
-use RectorPrefix20211110\Symfony\Component\Yaml\Tag\TaggedValue;
+use RectorPrefix20211213\Symfony\Component\Yaml\Exception\DumpException;
+use RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException;
+use RectorPrefix20211213\Symfony\Component\Yaml\Tag\TaggedValue;
 /**
  * Inline implements a YAML parser/dumper for the YAML inline syntax.
  *
@@ -29,17 +29,12 @@ class Inline
     private static $objectSupport = \false;
     private static $objectForMap = \false;
     private static $constantSupport = \false;
-    /**
-     * @param int $flags
-     * @param int|null $parsedLineNumber
-     * @param string|null $parsedFilename
-     */
-    public static function initialize($flags, $parsedLineNumber = null, $parsedFilename = null)
+    public static function initialize(int $flags, int $parsedLineNumber = null, string $parsedFilename = null)
     {
-        self::$exceptionOnInvalidType = (bool) (\RectorPrefix20211110\Symfony\Component\Yaml\Yaml::PARSE_EXCEPTION_ON_INVALID_TYPE & $flags);
-        self::$objectSupport = (bool) (\RectorPrefix20211110\Symfony\Component\Yaml\Yaml::PARSE_OBJECT & $flags);
-        self::$objectForMap = (bool) (\RectorPrefix20211110\Symfony\Component\Yaml\Yaml::PARSE_OBJECT_FOR_MAP & $flags);
-        self::$constantSupport = (bool) (\RectorPrefix20211110\Symfony\Component\Yaml\Yaml::PARSE_CONSTANT & $flags);
+        self::$exceptionOnInvalidType = (bool) (\RectorPrefix20211213\Symfony\Component\Yaml\Yaml::PARSE_EXCEPTION_ON_INVALID_TYPE & $flags);
+        self::$objectSupport = (bool) (\RectorPrefix20211213\Symfony\Component\Yaml\Yaml::PARSE_OBJECT & $flags);
+        self::$objectForMap = (bool) (\RectorPrefix20211213\Symfony\Component\Yaml\Yaml::PARSE_OBJECT_FOR_MAP & $flags);
+        self::$constantSupport = (bool) (\RectorPrefix20211213\Symfony\Component\Yaml\Yaml::PARSE_CONSTANT & $flags);
         self::$parsedFilename = $parsedFilename;
         if (null !== $parsedLineNumber) {
             self::$parsedLineNumber = $parsedLineNumber;
@@ -52,11 +47,11 @@ class Inline
      * @param int    $flags      A bit field of PARSE_* constants to customize the YAML parser behavior
      * @param array  $references Mapping of variable names to values
      *
-     * @return mixed A PHP value
+     * @return mixed
      *
      * @throws ParseException
      */
-    public static function parse($value = null, $flags = 0, &$references = [])
+    public static function parse(string $value = null, int $flags = 0, array &$references = [])
     {
         self::initialize($flags);
         $value = \trim($value);
@@ -84,10 +79,10 @@ class Inline
             }
             // some comments are allowed at the end
             if (\preg_replace('/\\s*#.*$/A', '', \substr($value, $i))) {
-                throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Unexpected characters near "%s".', \substr($value, $i)), self::$parsedLineNumber + 1, $value, self::$parsedFilename);
+                throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Unexpected characters near "%s".', \substr($value, $i)), self::$parsedLineNumber + 1, $value, self::$parsedFilename);
             }
             if (null !== $tag && '' !== $tag) {
-                return new \RectorPrefix20211110\Symfony\Component\Yaml\Tag\TaggedValue($tag, $result);
+                return new \RectorPrefix20211213\Symfony\Component\Yaml\Tag\TaggedValue($tag, $result);
             }
             return $result;
         } finally {
@@ -102,38 +97,38 @@ class Inline
      * @param mixed $value The PHP variable to convert
      * @param int   $flags A bit field of Yaml::DUMP_* constants to customize the dumped YAML string
      *
-     * @return string The YAML string representing the PHP value
+     * @return string
      *
      * @throws DumpException When trying to dump PHP resource
      */
-    public static function dump($value, $flags = 0) : string
+    public static function dump($value, int $flags = 0) : string
     {
         switch (\true) {
             case \is_resource($value):
-                if (\RectorPrefix20211110\Symfony\Component\Yaml\Yaml::DUMP_EXCEPTION_ON_INVALID_TYPE & $flags) {
-                    throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\DumpException(\sprintf('Unable to dump PHP resources in a YAML file ("%s").', \get_resource_type($value)));
+                if (\RectorPrefix20211213\Symfony\Component\Yaml\Yaml::DUMP_EXCEPTION_ON_INVALID_TYPE & $flags) {
+                    throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\DumpException(\sprintf('Unable to dump PHP resources in a YAML file ("%s").', \get_resource_type($value)));
                 }
                 return self::dumpNull($flags);
             case $value instanceof \DateTimeInterface:
                 return $value->format('c');
-            case $value instanceof \RectorPrefix20211110\UnitEnum:
+            case $value instanceof \RectorPrefix20211213\UnitEnum:
                 return \sprintf('!php/const %s::%s', \get_class($value), $value->name);
             case \is_object($value):
-                if ($value instanceof \RectorPrefix20211110\Symfony\Component\Yaml\Tag\TaggedValue) {
+                if ($value instanceof \RectorPrefix20211213\Symfony\Component\Yaml\Tag\TaggedValue) {
                     return '!' . $value->getTag() . ' ' . self::dump($value->getValue(), $flags);
                 }
-                if (\RectorPrefix20211110\Symfony\Component\Yaml\Yaml::DUMP_OBJECT & $flags) {
+                if (\RectorPrefix20211213\Symfony\Component\Yaml\Yaml::DUMP_OBJECT & $flags) {
                     return '!php/object ' . self::dump(\serialize($value));
                 }
-                if (\RectorPrefix20211110\Symfony\Component\Yaml\Yaml::DUMP_OBJECT_AS_MAP & $flags && ($value instanceof \stdClass || $value instanceof \ArrayObject)) {
+                if (\RectorPrefix20211213\Symfony\Component\Yaml\Yaml::DUMP_OBJECT_AS_MAP & $flags && ($value instanceof \stdClass || $value instanceof \ArrayObject)) {
                     $output = [];
                     foreach ($value as $key => $val) {
                         $output[] = \sprintf('%s: %s', self::dump($key, $flags), self::dump($val, $flags));
                     }
                     return \sprintf('{ %s }', \implode(', ', $output));
                 }
-                if (\RectorPrefix20211110\Symfony\Component\Yaml\Yaml::DUMP_EXCEPTION_ON_INVALID_TYPE & $flags) {
-                    throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\DumpException('Object support when dumping a YAML file has been disabled.');
+                if (\RectorPrefix20211213\Symfony\Component\Yaml\Yaml::DUMP_EXCEPTION_ON_INVALID_TYPE & $flags) {
+                    throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\DumpException('Object support when dumping a YAML file has been disabled.');
                 }
                 return self::dumpNull($flags);
             case \is_array($value):
@@ -157,7 +152,9 @@ class Inline
                         $repr = \str_ireplace('INF', '.Inf', $repr);
                     } elseif (\floor($value) == $value && $repr == $value) {
                         // Preserve float data type since storing a whole number will result in integer value.
-                        $repr = '!!float ' . $repr;
+                        if (\false === \strpos($repr, 'E')) {
+                            $repr = $repr . '.0';
+                        }
                     }
                 } else {
                     $repr = \is_string($value) ? "'{$value}'" : (string) $value;
@@ -170,13 +167,13 @@ class Inline
                 return "''";
             case self::isBinaryString($value):
                 return '!!binary ' . \base64_encode($value);
-            case \RectorPrefix20211110\Symfony\Component\Yaml\Escaper::requiresDoubleQuoting($value):
-                return \RectorPrefix20211110\Symfony\Component\Yaml\Escaper::escapeWithDoubleQuotes($value);
-            case \RectorPrefix20211110\Symfony\Component\Yaml\Escaper::requiresSingleQuoting($value):
-            case \RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match('{^[0-9]+[_0-9]*$}', $value):
-            case \RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match(self::getHexRegex(), $value):
-            case \RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match(self::getTimestampRegex(), $value):
-                return \RectorPrefix20211110\Symfony\Component\Yaml\Escaper::escapeWithSingleQuotes($value);
+            case \RectorPrefix20211213\Symfony\Component\Yaml\Escaper::requiresDoubleQuoting($value):
+                return \RectorPrefix20211213\Symfony\Component\Yaml\Escaper::escapeWithDoubleQuotes($value);
+            case \RectorPrefix20211213\Symfony\Component\Yaml\Escaper::requiresSingleQuoting($value):
+            case \RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match('{^[0-9]+[_0-9]*$}', $value):
+            case \RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match(self::getHexRegex(), $value):
+            case \RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match(self::getTimestampRegex(), $value):
+                return \RectorPrefix20211213\Symfony\Component\Yaml\Escaper::escapeWithSingleQuotes($value);
             default:
                 return $value;
         }
@@ -186,7 +183,7 @@ class Inline
      *
      * @param array|\ArrayObject|\stdClass $value The PHP array or array-like object to check
      *
-     * @return bool true if value is hash array, false otherwise
+     * @return bool
      */
     public static function isHash($value) : bool
     {
@@ -207,12 +204,12 @@ class Inline
      * @param array $value The PHP array to dump
      * @param int   $flags A bit field of Yaml::DUMP_* constants to customize the dumped YAML string
      *
-     * @return string The YAML string representing the PHP array
+     * @return string
      */
     private static function dumpArray(array $value, int $flags) : string
     {
         // array
-        if (($value || \RectorPrefix20211110\Symfony\Component\Yaml\Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE & $flags) && !self::isHash($value)) {
+        if (($value || \RectorPrefix20211213\Symfony\Component\Yaml\Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE & $flags) && !self::isHash($value)) {
             $output = [];
             foreach ($value as $val) {
                 $output[] = self::dump($val, $flags);
@@ -228,7 +225,7 @@ class Inline
     }
     private static function dumpNull(int $flags) : string
     {
-        if (\RectorPrefix20211110\Symfony\Component\Yaml\Yaml::DUMP_NULL_AS_TILDE & $flags) {
+        if (\RectorPrefix20211213\Symfony\Component\Yaml\Yaml::DUMP_NULL_AS_TILDE & $flags) {
             return '~';
         }
         return 'null';
@@ -239,49 +236,45 @@ class Inline
      * @return mixed
      *
      * @throws ParseException When malformed inline YAML string is parsed
-     * @param string $scalar
-     * @param int $flags
-     * @param mixed[]|null $delimiters
-     * @param int $i
-     * @param bool $evaluate
-     * @param mixed[] $references
      */
-    public static function parseScalar($scalar, $flags = 0, $delimiters = null, &$i = 0, $evaluate = \true, &$references = [])
+    public static function parseScalar(string $scalar, int $flags = 0, array $delimiters = null, int &$i = 0, bool $evaluate = \true, array &$references = [], bool &$isQuoted = null)
     {
         if (\in_array($scalar[$i], ['"', "'"], \true)) {
             // quoted scalar
+            $isQuoted = \true;
             $output = self::parseQuotedScalar($scalar, $i);
             if (null !== $delimiters) {
                 $tmp = \ltrim(\substr($scalar, $i), " \n");
                 if ('' === $tmp) {
-                    throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Unexpected end of line, expected one of "%s".', \implode('', $delimiters)), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
+                    throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Unexpected end of line, expected one of "%s".', \implode('', $delimiters)), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
                 }
                 if (!\in_array($tmp[0], $delimiters)) {
-                    throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Unexpected characters (%s).', \substr($scalar, $i)), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
+                    throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Unexpected characters (%s).', \substr($scalar, $i)), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
                 }
             }
         } else {
             // "normal" string
+            $isQuoted = \false;
             if (!$delimiters) {
                 $output = \substr($scalar, $i);
                 $i += \strlen($output);
                 // remove comments
-                if (\RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match('/[ \\t]+#/', $output, $match, \PREG_OFFSET_CAPTURE)) {
+                if (\RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match('/[ \\t]+#/', $output, $match, \PREG_OFFSET_CAPTURE)) {
                     $output = \substr($output, 0, $match[0][1]);
                 }
-            } elseif (\RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match('/^(.*?)(' . \implode('|', $delimiters) . ')/', \substr($scalar, $i), $match)) {
+            } elseif (\RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match('/^(.*?)(' . \implode('|', $delimiters) . ')/', \substr($scalar, $i), $match)) {
                 $output = $match[1];
                 $i += \strlen($output);
                 $output = \trim($output);
             } else {
-                throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Malformed inline YAML string: "%s".', $scalar), self::$parsedLineNumber + 1, null, self::$parsedFilename);
+                throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Malformed inline YAML string: "%s".', $scalar), self::$parsedLineNumber + 1, null, self::$parsedFilename);
             }
             // a non-quoted string cannot start with @ or ` (reserved) nor with a scalar indicator (| or >)
             if ($output && ('@' === $output[0] || '`' === $output[0] || '|' === $output[0] || '>' === $output[0] || '%' === $output[0])) {
-                throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The reserved indicator "%s" cannot start a plain scalar; you need to quote the scalar.', $output[0]), self::$parsedLineNumber + 1, $output, self::$parsedFilename);
+                throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The reserved indicator "%s" cannot start a plain scalar; you need to quote the scalar.', $output[0]), self::$parsedLineNumber + 1, $output, self::$parsedFilename);
             }
             if ($evaluate) {
-                $output = self::evaluateScalar($output, $flags, $references);
+                $output = self::evaluateScalar($output, $flags, $references, $isQuoted);
             }
         }
         return $output;
@@ -291,13 +284,13 @@ class Inline
      *
      * @throws ParseException When malformed inline YAML string is parsed
      */
-    private static function parseQuotedScalar(string $scalar, int &$i) : string
+    private static function parseQuotedScalar(string $scalar, int &$i = 0) : string
     {
-        if (!\RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match('/' . self::REGEX_QUOTED_STRING . '/Au', \substr($scalar, $i), $match)) {
-            throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Malformed inline YAML string: "%s".', \substr($scalar, $i)), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
+        if (!\RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match('/' . self::REGEX_QUOTED_STRING . '/Au', \substr($scalar, $i), $match)) {
+            throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Malformed inline YAML string: "%s".', \substr($scalar, $i)), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
         }
         $output = \substr($match[0], 1, -1);
-        $unescaper = new \RectorPrefix20211110\Symfony\Component\Yaml\Unescaper();
+        $unescaper = new \RectorPrefix20211213\Symfony\Component\Yaml\Unescaper();
         if ('"' == $scalar[$i]) {
             $output = $unescaper->unescapeDoubleQuotedString($output);
         } else {
@@ -336,8 +329,7 @@ class Inline
                     $value = self::parseMapping($sequence, $flags, $i, $references);
                     break;
                 default:
-                    $isQuoted = \in_array($sequence[$i], ['"', "'"], \true);
-                    $value = self::parseScalar($sequence, $flags, [',', ']'], $i, null === $tag, $references);
+                    $value = self::parseScalar($sequence, $flags, [',', ']'], $i, null === $tag, $references, $isQuoted);
                     // the value can be an array if a reference has been resolved to an array var
                     if (\is_string($value) && !$isQuoted && \false !== \strpos($value, ': ')) {
                         // embedded mapping?
@@ -348,19 +340,19 @@ class Inline
                             // no, it's not
                         }
                     }
-                    if (\is_string($value) && '' !== $value && '&' === $value[0] && \RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match(\RectorPrefix20211110\Symfony\Component\Yaml\Parser::REFERENCE_PATTERN, $value, $matches)) {
+                    if (!$isQuoted && \is_string($value) && '' !== $value && '&' === $value[0] && \RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match(\RectorPrefix20211213\Symfony\Component\Yaml\Parser::REFERENCE_PATTERN, $value, $matches)) {
                         $references[$matches['ref']] = $matches['value'];
                         $value = $matches['value'];
                     }
                     --$i;
             }
             if (null !== $tag && '' !== $tag) {
-                $value = new \RectorPrefix20211110\Symfony\Component\Yaml\Tag\TaggedValue($tag, $value);
+                $value = new \RectorPrefix20211213\Symfony\Component\Yaml\Tag\TaggedValue($tag, $value);
             }
             $output[] = $value;
             ++$i;
         }
-        throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Malformed inline YAML string: "%s".', $sequence), self::$parsedLineNumber + 1, null, self::$parsedFilename);
+        throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Malformed inline YAML string: "%s".', $sequence), self::$parsedLineNumber + 1, null, self::$parsedFilename);
     }
     /**
      * Parses a YAML mapping.
@@ -394,7 +386,7 @@ class Inline
             $isKeyQuoted = \in_array($mapping[$i], ['"', "'"], \true);
             $key = self::parseScalar($mapping, $flags, [':', ' '], $i, \false);
             if ($offsetBeforeKeyParsing === $i) {
-                throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException('Missing mapping key.', self::$parsedLineNumber + 1, $mapping);
+                throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException('Missing mapping key.', self::$parsedLineNumber + 1, $mapping);
             }
             if ('!php/const' === $key) {
                 $key .= ' ' . self::parseScalar($mapping, $flags, [':'], $i, \false);
@@ -406,11 +398,11 @@ class Inline
             if (!$isKeyQuoted) {
                 $evaluatedKey = self::evaluateScalar($key, $flags, $references);
                 if ('' !== $key && $evaluatedKey !== $key && !\is_string($evaluatedKey) && !\is_int($evaluatedKey)) {
-                    throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException('Implicit casting of incompatible mapping keys to strings is not supported. Quote your evaluable mapping keys instead.', self::$parsedLineNumber + 1, $mapping);
+                    throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException('Implicit casting of incompatible mapping keys to strings is not supported. Quote your evaluable mapping keys instead.', self::$parsedLineNumber + 1, $mapping);
                 }
             }
             if (!$isKeyQuoted && (!isset($mapping[$i + 1]) || !\in_array($mapping[$i + 1], [' ', ',', '[', ']', '{', '}', "\n"], \true))) {
-                throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException('Colons must be followed by a space or an indication character (i.e. " ", ",", "[", "]", "{", "}").', self::$parsedLineNumber + 1, $mapping);
+                throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException('Colons must be followed by a space or an indication character (i.e. " ", ",", "[", "]", "{", "}").', self::$parsedLineNumber + 1, $mapping);
             }
             if ('<<' === $key) {
                 $allowOverwrite = \true;
@@ -435,12 +427,12 @@ class Inline
                             }
                         } elseif ($allowOverwrite || !isset($output[$key])) {
                             if (null !== $tag) {
-                                $output[$key] = new \RectorPrefix20211110\Symfony\Component\Yaml\Tag\TaggedValue($tag, $value);
+                                $output[$key] = new \RectorPrefix20211213\Symfony\Component\Yaml\Tag\TaggedValue($tag, $value);
                             } else {
                                 $output[$key] = $value;
                             }
                         } elseif (isset($output[$key])) {
-                            throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Duplicate key "%s" detected.', $key), self::$parsedLineNumber + 1, $mapping);
+                            throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Duplicate key "%s" detected.', $key), self::$parsedLineNumber + 1, $mapping);
                         }
                         break;
                     case '{':
@@ -454,16 +446,16 @@ class Inline
                             $output += $value;
                         } elseif ($allowOverwrite || !isset($output[$key])) {
                             if (null !== $tag) {
-                                $output[$key] = new \RectorPrefix20211110\Symfony\Component\Yaml\Tag\TaggedValue($tag, $value);
+                                $output[$key] = new \RectorPrefix20211213\Symfony\Component\Yaml\Tag\TaggedValue($tag, $value);
                             } else {
                                 $output[$key] = $value;
                             }
                         } elseif (isset($output[$key])) {
-                            throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Duplicate key "%s" detected.', $key), self::$parsedLineNumber + 1, $mapping);
+                            throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Duplicate key "%s" detected.', $key), self::$parsedLineNumber + 1, $mapping);
                         }
                         break;
                     default:
-                        $value = self::parseScalar($mapping, $flags, [',', '}', "\n"], $i, null === $tag, $references);
+                        $value = self::parseScalar($mapping, $flags, [',', '}', "\n"], $i, null === $tag, $references, $isValueQuoted);
                         // Spec: Keys MUST be unique; first one wins.
                         // Parser cannot abort this mapping earlier, since lines
                         // are processed sequentially.
@@ -471,17 +463,17 @@ class Inline
                         if ('<<' === $key) {
                             $output += $value;
                         } elseif ($allowOverwrite || !isset($output[$key])) {
-                            if (\is_string($value) && '' !== $value && '&' === $value[0] && \RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match(\RectorPrefix20211110\Symfony\Component\Yaml\Parser::REFERENCE_PATTERN, $value, $matches)) {
+                            if (!$isValueQuoted && \is_string($value) && '' !== $value && '&' === $value[0] && \RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match(\RectorPrefix20211213\Symfony\Component\Yaml\Parser::REFERENCE_PATTERN, $value, $matches)) {
                                 $references[$matches['ref']] = $matches['value'];
                                 $value = $matches['value'];
                             }
                             if (null !== $tag) {
-                                $output[$key] = new \RectorPrefix20211110\Symfony\Component\Yaml\Tag\TaggedValue($tag, $value);
+                                $output[$key] = new \RectorPrefix20211213\Symfony\Component\Yaml\Tag\TaggedValue($tag, $value);
                             } else {
                                 $output[$key] = $value;
                             }
                         } elseif (isset($output[$key])) {
-                            throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Duplicate key "%s" detected.', $key), self::$parsedLineNumber + 1, $mapping);
+                            throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Duplicate key "%s" detected.', $key), self::$parsedLineNumber + 1, $mapping);
                         }
                         --$i;
                 }
@@ -489,17 +481,18 @@ class Inline
                 continue 2;
             }
         }
-        throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Malformed inline YAML string: "%s".', $mapping), self::$parsedLineNumber + 1, null, self::$parsedFilename);
+        throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Malformed inline YAML string: "%s".', $mapping), self::$parsedLineNumber + 1, null, self::$parsedFilename);
     }
     /**
      * Evaluates scalars and replaces magic values.
      *
-     * @return mixed The evaluated YAML string
+     * @return mixed
      *
      * @throws ParseException when object parsing support was disabled and the parser detected a PHP object or when a reference could not be resolved
      */
-    private static function evaluateScalar(string $scalar, int $flags, array &$references = [])
+    private static function evaluateScalar(string $scalar, int $flags, array &$references = [], bool &$isQuotedString = null)
     {
+        $isQuotedString = \false;
         $scalar = \trim($scalar);
         if (0 === \strpos($scalar, '*')) {
             if (\false !== ($pos = \strpos($scalar, '#'))) {
@@ -509,10 +502,10 @@ class Inline
             }
             // an unquoted *
             if (\false === $value || '' === $value) {
-                throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException('A reference must contain at least one character.', self::$parsedLineNumber + 1, $value, self::$parsedFilename);
+                throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException('A reference must contain at least one character.', self::$parsedLineNumber + 1, $value, self::$parsedFilename);
             }
             if (!\array_key_exists($value, $references)) {
-                throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Reference "%s" does not exist.', $value), self::$parsedLineNumber + 1, $value, self::$parsedFilename);
+                throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Reference "%s" does not exist.', $value), self::$parsedLineNumber + 1, $value, self::$parsedFilename);
             }
             return $references[$value];
         }
@@ -529,7 +522,12 @@ class Inline
             case '!' === $scalar[0]:
                 switch (\true) {
                     case 0 === \strpos($scalar, '!!str '):
-                        return (string) \substr($scalar, 6);
+                        $s = (string) \substr($scalar, 6);
+                        if (\in_array($s[0] ?? '', ['"', "'"], \true)) {
+                            $isQuotedString = \true;
+                            $s = self::parseQuotedScalar($s);
+                        }
+                        return $s;
                     case 0 === \strpos($scalar, '! '):
                         return \substr($scalar, 2);
                     case 0 === \strpos($scalar, '!php/object'):
@@ -541,7 +539,7 @@ class Inline
                             return \unserialize(self::parseScalar(\substr($scalar, 12)));
                         }
                         if (self::$exceptionOnInvalidType) {
-                            throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException('Object support when parsing a YAML file has been disabled.', self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
+                            throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException('Object support when parsing a YAML file has been disabled.', self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
                         }
                         return null;
                     case 0 === \strpos($scalar, '!php/const'):
@@ -554,10 +552,10 @@ class Inline
                             if (\defined($const = self::parseScalar(\substr($scalar, 11), 0, null, $i, \false))) {
                                 return \constant($const);
                             }
-                            throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The constant "%s" is not defined.', $const), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
+                            throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The constant "%s" is not defined.', $const), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
                         }
                         if (self::$exceptionOnInvalidType) {
-                            throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The string "%s" could not be parsed as a constant. Did you forget to pass the "Yaml::PARSE_CONSTANT" flag to the parser?', $scalar), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
+                            throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The string "%s" could not be parsed as a constant. Did you forget to pass the "Yaml::PARSE_CONSTANT" flag to the parser?', $scalar), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
                         }
                         return null;
                     case 0 === \strpos($scalar, '!!float '):
@@ -565,7 +563,7 @@ class Inline
                     case 0 === \strpos($scalar, '!!binary '):
                         return self::evaluateBinaryScalar(\substr($scalar, 9));
                     default:
-                        throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The string "%s" could not be parsed as it uses an unsupported built-in tag.', $scalar), self::$parsedLineNumber, $scalar, self::$parsedFilename);
+                        throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The string "%s" could not be parsed as it uses an unsupported built-in tag.', $scalar), self::$parsedLineNumber, $scalar, self::$parsedFilename);
                 }
             // no break
             case \preg_match('/^(?:\\+|-)?0o(?P<value>[0-7_]++)$/', $scalar, $matches):
@@ -578,8 +576,8 @@ class Inline
             // Optimize for returning strings.
             // no break
             case \in_array($scalar[0], ['+', '-', '.'], \true) || \is_numeric($scalar[0]):
-                if (\RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match('{^[+-]?[0-9][0-9_]*$}', $scalar)) {
-                    $scalar = \str_replace('_', '', (string) $scalar);
+                if (\RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match('{^[+-]?[0-9][0-9_]*$}', $scalar)) {
+                    $scalar = \str_replace('_', '', $scalar);
                 }
                 switch (\true) {
                     case \ctype_digit($scalar):
@@ -597,7 +595,7 @@ class Inline
                         $cast = (int) $scalar;
                         return $scalar === (string) $cast ? $cast : $scalar;
                     case \is_numeric($scalar):
-                    case \RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match(self::getHexRegex(), $scalar):
+                    case \RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match(self::getHexRegex(), $scalar):
                         $scalar = \str_replace('_', '', $scalar);
                         return '0x' === $scalar[0] . $scalar[1] ? \hexdec($scalar) : (float) $scalar;
                     case '.inf' === $scalarLower:
@@ -605,12 +603,12 @@ class Inline
                         return -\log(0);
                     case '-.inf' === $scalarLower:
                         return \log(0);
-                    case \RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match('/^(-|\\+)?[0-9][0-9_]*(\\.[0-9_]+)?$/', $scalar):
+                    case \RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match('/^(-|\\+)?[0-9][0-9_]*(\\.[0-9_]+)?$/', $scalar):
                         return (float) \str_replace('_', '', $scalar);
-                    case \RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match(self::getTimestampRegex(), $scalar):
+                    case \RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match(self::getTimestampRegex(), $scalar):
                         // When no timezone is provided in the parsed date, YAML spec says we must assume UTC.
                         $time = new \DateTime($scalar, new \DateTimeZone('UTC'));
-                        if (\RectorPrefix20211110\Symfony\Component\Yaml\Yaml::PARSE_DATETIME & $flags) {
+                        if (\RectorPrefix20211213\Symfony\Component\Yaml\Yaml::PARSE_DATETIME & $flags) {
                             return $time;
                         }
                         try {
@@ -635,7 +633,7 @@ class Inline
         $nextOffset = $i + $tagLength + 1;
         $nextOffset += \strspn($value, ' ', $nextOffset);
         if ('' === $tag && (!isset($value[$nextOffset]) || \in_array($value[$nextOffset], [']', '}', ','], \true))) {
-            throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException('Using the unquoted scalar value "!" is not supported. You must quote it.', self::$parsedLineNumber + 1, $value, self::$parsedFilename);
+            throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException('Using the unquoted scalar value "!" is not supported. You must quote it.', self::$parsedLineNumber + 1, $value, self::$parsedFilename);
         }
         // Is followed by a scalar and is a built-in tag
         if ('' !== $tag && (!isset($value[$nextOffset]) || !\in_array($value[$nextOffset], ['[', '{'], \true)) && ('!' === $tag[0] || 'str' === $tag || 'php/const' === $tag || 'php/object' === $tag)) {
@@ -645,27 +643,24 @@ class Inline
         $i = $nextOffset;
         // Built-in tags
         if ('' !== $tag && '!' === $tag[0]) {
-            throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The built-in tag "!%s" is not implemented.', $tag), self::$parsedLineNumber + 1, $value, self::$parsedFilename);
+            throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The built-in tag "!%s" is not implemented.', $tag), self::$parsedLineNumber + 1, $value, self::$parsedFilename);
         }
         if ('' !== $tag && !isset($value[$i])) {
-            throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Missing value for tag "%s".', $tag), self::$parsedLineNumber + 1, $value, self::$parsedFilename);
+            throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Missing value for tag "%s".', $tag), self::$parsedLineNumber + 1, $value, self::$parsedFilename);
         }
-        if ('' === $tag || \RectorPrefix20211110\Symfony\Component\Yaml\Yaml::PARSE_CUSTOM_TAGS & $flags) {
+        if ('' === $tag || \RectorPrefix20211213\Symfony\Component\Yaml\Yaml::PARSE_CUSTOM_TAGS & $flags) {
             return $tag;
         }
-        throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Tags support is not enabled. Enable the "Yaml::PARSE_CUSTOM_TAGS" flag to use "!%s".', $tag), self::$parsedLineNumber + 1, $value, self::$parsedFilename);
+        throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('Tags support is not enabled. Enable the "Yaml::PARSE_CUSTOM_TAGS" flag to use "!%s".', $tag), self::$parsedLineNumber + 1, $value, self::$parsedFilename);
     }
-    /**
-     * @param string $scalar
-     */
-    public static function evaluateBinaryScalar($scalar) : string
+    public static function evaluateBinaryScalar(string $scalar) : string
     {
         $parsedBinaryData = self::parseScalar(\preg_replace('/\\s/', '', $scalar));
         if (0 !== \strlen($parsedBinaryData) % 4) {
-            throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The normalized base64 encoded data (data without whitespace characters) length must be a multiple of four (%d bytes given).', \strlen($parsedBinaryData)), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
+            throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The normalized base64 encoded data (data without whitespace characters) length must be a multiple of four (%d bytes given).', \strlen($parsedBinaryData)), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
         }
-        if (!\RectorPrefix20211110\Symfony\Component\Yaml\Parser::preg_match('#^[A-Z0-9+/]+={0,2}$#i', $parsedBinaryData)) {
-            throw new \RectorPrefix20211110\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The base64 encoded data (%s) contains invalid characters.', $parsedBinaryData), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
+        if (!\RectorPrefix20211213\Symfony\Component\Yaml\Parser::preg_match('#^[A-Z0-9+/]+={0,2}$#i', $parsedBinaryData)) {
+            throw new \RectorPrefix20211213\Symfony\Component\Yaml\Exception\ParseException(\sprintf('The base64 encoded data (%s) contains invalid characters.', $parsedBinaryData), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
         }
         return \base64_decode($parsedBinaryData, \true);
     }
@@ -676,7 +671,7 @@ class Inline
     /**
      * Gets a regex that matches a YAML date.
      *
-     * @return string The regular expression
+     * @return string
      *
      * @see http://www.yaml.org/spec/1.2/spec.html#id2761573
      */

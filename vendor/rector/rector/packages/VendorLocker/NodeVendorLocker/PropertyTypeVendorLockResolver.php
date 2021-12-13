@@ -14,10 +14,12 @@ use Rector\NodeTypeResolver\Node\AttributeKey;
 final class PropertyTypeVendorLockResolver
 {
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\FamilyTree\Reflection\FamilyRelationsAnalyzer
      */
     private $familyRelationsAnalyzer;
@@ -55,7 +57,7 @@ final class PropertyTypeVendorLockResolver
             if (!$parentClassReflection->hasProperty($propertyName)) {
                 continue;
             }
-            if ($parentClassReflection->getfileName() === $fileName) {
+            if ($parentClassReflection->getFileName() === $fileName) {
                 continue;
             }
             $property = $parentClassReflection->getProperty($propertyName, $scope);
@@ -68,7 +70,6 @@ final class PropertyTypeVendorLockResolver
                 // validate parent not typed yet → it's not ok
                 return \true;
             }
-            continue;
         }
         return \false;
     }

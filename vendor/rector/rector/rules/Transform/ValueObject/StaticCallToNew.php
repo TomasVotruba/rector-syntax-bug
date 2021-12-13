@@ -3,13 +3,16 @@
 declare (strict_types=1);
 namespace Rector\Transform\ValueObject;
 
+use Rector\Core\Validation\RectorAssert;
 final class StaticCallToNew
 {
     /**
+     * @readonly
      * @var string
      */
     private $class;
     /**
+     * @readonly
      * @var string
      */
     private $method;
@@ -17,6 +20,7 @@ final class StaticCallToNew
     {
         $this->class = $class;
         $this->method = $method;
+        \Rector\Core\Validation\RectorAssert::className($class);
     }
     public function getClass() : string
     {

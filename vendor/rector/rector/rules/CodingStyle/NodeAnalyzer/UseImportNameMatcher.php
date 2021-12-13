@@ -3,11 +3,12 @@
 declare (strict_types=1);
 namespace Rector\CodingStyle\NodeAnalyzer;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Use_;
 use PhpParser\Node\Stmt\UseUse;
 use Rector\Core\PhpParser\Node\BetterNodeFinder;
+use Rector\Core\Util\StringUtils;
 final class UseImportNameMatcher
 {
     /**
@@ -18,6 +19,7 @@ final class UseImportNameMatcher
      */
     private const SHORT_NAME_REGEX = '#^%s(\\\\[\\w]+)?$#i';
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
@@ -54,14 +56,14 @@ final class UseImportNameMatcher
         $shortName = $useUse->alias !== null ? $useUse->alias->name : $useUse->name->getLast();
         $shortNamePattern = \preg_quote($shortName, '#');
         $pattern = \sprintf(self::SHORT_NAME_REGEX, $shortNamePattern);
-        return (bool) \RectorPrefix20211110\Nette\Utils\Strings::match($tag, $pattern);
+        return \Rector\Core\Util\StringUtils::isMatch($tag, $pattern);
     }
     private function resolveName(string $tag, \PhpParser\Node\Stmt\UseUse $useUse) : string
     {
         if ($useUse->alias === null) {
             return $useUse->name->toString();
         }
-        $unaliasedShortClass = \RectorPrefix20211110\Nette\Utils\Strings::substring($tag, \RectorPrefix20211110\Nette\Utils\Strings::length($useUse->alias->toString()));
+        $unaliasedShortClass = \RectorPrefix20211213\Nette\Utils\Strings::substring($tag, \RectorPrefix20211213\Nette\Utils\Strings::length($useUse->alias->toString()));
         if (\strncmp($unaliasedShortClass, '\\', \strlen('\\')) === 0) {
             return $useUse->name . $unaliasedShortClass;
         }

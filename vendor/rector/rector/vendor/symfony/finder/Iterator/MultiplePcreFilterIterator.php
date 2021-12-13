@@ -8,12 +8,17 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Finder\Iterator;
+namespace RectorPrefix20211213\Symfony\Component\Finder\Iterator;
 
 /**
  * MultiplePcreFilterIterator filters files using patterns (regexps, globs or strings).
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @template-covariant TKey
+ * @template-covariant TValue
+ *
+ * @extends \FilterIterator<TKey, TValue>
  */
 abstract class MultiplePcreFilterIterator extends \FilterIterator
 {
@@ -40,11 +45,8 @@ abstract class MultiplePcreFilterIterator extends \FilterIterator
      * If there is no regexps defined in the class, this method will accept the string.
      * Such case can be handled by child classes before calling the method if they want to
      * apply a different behavior.
-     *
-     * @return bool
-     * @param string $string
      */
-    protected function isAccepted($string)
+    protected function isAccepted(string $string) : bool
     {
         // should at least not match one rule to exclude
         foreach ($this->noMatchRegexps as $regex) {
@@ -66,11 +68,8 @@ abstract class MultiplePcreFilterIterator extends \FilterIterator
     }
     /**
      * Checks whether the string is a regex.
-     *
-     * @return bool
-     * @param string $str
      */
-    protected function isRegex($str)
+    protected function isRegex(string $str) : bool
     {
         if (\preg_match('/^(.{3,}?)[imsxuADU]*$/', $str, $m)) {
             $start = \substr($m[1], 0, 1);
@@ -88,9 +87,6 @@ abstract class MultiplePcreFilterIterator extends \FilterIterator
     }
     /**
      * Converts string into regexp.
-     *
-     * @return string
-     * @param string $str
      */
-    protected abstract function toRegex($str);
+    protected abstract function toRegex(string $str) : string;
 }

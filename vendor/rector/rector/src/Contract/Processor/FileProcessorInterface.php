@@ -7,16 +7,11 @@ use Rector\Core\ValueObject\Application\File;
 use Rector\Core\ValueObject\Configuration;
 interface FileProcessorInterface
 {
+    public function supports(\Rector\Core\ValueObject\Application\File $file, \Rector\Core\ValueObject\Configuration $configuration) : bool;
     /**
-     * @param \Rector\Core\ValueObject\Application\File $file
-     * @param \Rector\Core\ValueObject\Configuration $configuration
+     * @return mixed[]|void
      */
-    public function supports($file, $configuration) : bool;
-    /**
-     * @param \Rector\Core\ValueObject\Application\File $file
-     * @param \Rector\Core\ValueObject\Configuration $configuration
-     */
-    public function process($file, $configuration) : void;
+    public function process(\Rector\Core\ValueObject\Application\File $file, \Rector\Core\ValueObject\Configuration $configuration);
     /**
      * @return string[]
      */

@@ -12,6 +12,7 @@ use PhpParser\Node\Param;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Enum_;
 use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Property;
@@ -20,6 +21,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\FunctionReflection;
 use PHPStan\Reflection\MethodReflection;
+use PHPStan\Reflection\Php\PhpPropertyReflection;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Type\TypeWithClassName;
 use Rector\Core\PhpParser\Node\BetterNodeFinder;
@@ -29,10 +31,8 @@ use Rector\Core\ValueObject\MethodName;
 use Rector\NodeNameResolver\NodeNameResolver;
 use Rector\NodeTypeResolver\NodeScopeAndMetadataDecorator;
 use Rector\NodeTypeResolver\NodeTypeResolver;
-use ReflectionProperty;
-use RectorPrefix20211110\Symplify\Astral\PhpParser\SmartPhpParser;
+use RectorPrefix20211213\Symplify\Astral\PhpParser\SmartPhpParser;
 use Symplify\SmartFileSystem\SmartFileInfo;
-use RectorPrefix20211110\Symplify\SmartFileSystem\SmartFileSystem;
 /**
  * The nodes provided by this resolver is for read-only analysis only!
  * They are not part of node tree processed by Rector, so any changes will not make effect in final printed file.
@@ -54,45 +54,48 @@ final class AstResolver
      */
     private $functionsByName = [];
     /**
+     * @readonly
      * @var \Symplify\Astral\PhpParser\SmartPhpParser
      */
     private $smartPhpParser;
     /**
-     * @var \Symplify\SmartFileSystem\SmartFileSystem
-     */
-    private $smartFileSystem;
-    /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeScopeAndMetadataDecorator
      */
     private $nodeScopeAndMetadataDecorator;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
+     * @readonly
      * @var \Rector\Core\Reflection\ReflectionResolver
      */
     private $reflectionResolver;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeTypeResolver
      */
     private $nodeTypeResolver;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\ClassLikeAstResolver
      */
     private $classLikeAstResolver;
-    public function __construct(\RectorPrefix20211110\Symplify\Astral\PhpParser\SmartPhpParser $smartPhpParser, \RectorPrefix20211110\Symplify\SmartFileSystem\SmartFileSystem $smartFileSystem, \Rector\NodeTypeResolver\NodeScopeAndMetadataDecorator $nodeScopeAndMetadataDecorator, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\Core\Reflection\ReflectionResolver $reflectionResolver, \Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver, \Rector\Core\PhpParser\ClassLikeAstResolver $classLikeAstResolver)
+    public function __construct(\RectorPrefix20211213\Symplify\Astral\PhpParser\SmartPhpParser $smartPhpParser, \Rector\NodeTypeResolver\NodeScopeAndMetadataDecorator $nodeScopeAndMetadataDecorator, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\Core\Reflection\ReflectionResolver $reflectionResolver, \Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver, \Rector\Core\PhpParser\ClassLikeAstResolver $classLikeAstResolver)
     {
         $this->smartPhpParser = $smartPhpParser;
-        $this->smartFileSystem = $smartFileSystem;
         $this->nodeScopeAndMetadataDecorator = $nodeScopeAndMetadataDecorator;
         $this->betterNodeFinder = $betterNodeFinder;
         $this->nodeNameResolver = $nodeNameResolver;
@@ -102,7 +105,7 @@ final class AstResolver
         $this->classLikeAstResolver = $classLikeAstResolver;
     }
     /**
-     * @return \PhpParser\Node\Stmt\Class_|\PhpParser\Node\Stmt\Interface_|\PhpParser\Node\Stmt\Trait_|null
+     * @return \PhpParser\Node\Stmt\Class_|\PhpParser\Node\Stmt\Enum_|\PhpParser\Node\Stmt\Interface_|\PhpParser\Node\Stmt\Trait_|null
      */
     public function resolveClassFromName(string $className)
     {
@@ -113,7 +116,7 @@ final class AstResolver
         return $this->resolveClassFromClassReflection($classReflection, $className);
     }
     /**
-     * @return \PhpParser\Node\Stmt\Class_|\PhpParser\Node\Stmt\Interface_|\PhpParser\Node\Stmt\Trait_|null
+     * @return \PhpParser\Node\Stmt\Class_|\PhpParser\Node\Stmt\Enum_|\PhpParser\Node\Stmt\Interface_|\PhpParser\Node\Stmt\Trait_|null
      */
     public function resolveClassFromObjectType(\PHPStan\Type\TypeWithClassName $typeWithClassName)
     {
@@ -128,12 +131,6 @@ final class AstResolver
         $fileName = $classReflection->getFileName();
         // probably native PHP method → un-parseable
         if ($fileName === null) {
-            return null;
-        }
-        $fileContent = $this->smartFileSystem->readFile($fileName);
-        if (!\is_string($fileContent)) {
-            // avoids parsing again falsy file
-            $this->classMethodsByClassAndMethod[$classReflection->getName()][$methodReflection->getName()] = null;
             return null;
         }
         $nodes = $this->parseFileNameToDecoratedNodes($fileName);
@@ -168,12 +165,6 @@ final class AstResolver
         }
         $fileName = $functionReflection->getFileName();
         if ($fileName === null) {
-            return null;
-        }
-        $fileContent = $this->smartFileSystem->readFile($fileName);
-        if (!\is_string($fileContent)) {
-            // to avoid parsing missing function again
-            $this->functionsByName[$functionReflection->getName()] = null;
             return null;
         }
         $nodes = $this->parseFileNameToDecoratedNodes($fileName);
@@ -233,7 +224,7 @@ final class AstResolver
         return $this->resolveClassMethod($callerStaticType->getClassName(), $methodName);
     }
     /**
-     * @return \PhpParser\Node\Stmt\Class_|\PhpParser\Node\Stmt\Interface_|\PhpParser\Node\Stmt\Trait_|null
+     * @return \PhpParser\Node\Stmt\Class_|\PhpParser\Node\Stmt\Enum_|\PhpParser\Node\Stmt\Interface_|\PhpParser\Node\Stmt\Trait_|null
      */
     public function resolveClassFromClassReflection(\PHPStan\Reflection\ClassReflection $classReflection, string $className)
     {
@@ -244,11 +235,12 @@ final class AstResolver
      */
     public function parseClassReflectionTraits(\PHPStan\Reflection\ClassReflection $classReflection) : array
     {
+        /** @var ClassReflection[] $classLikes */
         $classLikes = $classReflection->getTraits(\true);
         $traits = [];
         foreach ($classLikes as $classLike) {
             $fileName = $classLike->getFileName();
-            if (!$fileName) {
+            if ($fileName === null) {
                 continue;
             }
             $nodes = $this->parseFileNameToDecoratedNodes($fileName);
@@ -269,18 +261,19 @@ final class AstResolver
     /**
      * @return \PhpParser\Node\Param|\PhpParser\Node\Stmt\Property|null
      */
-    public function resolvePropertyFromPropertyReflection(\ReflectionProperty $reflectionProperty)
+    public function resolvePropertyFromPropertyReflection(\PHPStan\Reflection\Php\PhpPropertyReflection $phpPropertyReflection)
     {
-        $reflectionClass = $reflectionProperty->getDeclaringClass();
-        $fileName = $reflectionClass->getFileName();
-        if ($fileName === \false) {
+        $classReflection = $phpPropertyReflection->getDeclaringClass();
+        $fileName = $classReflection->getFileName();
+        if ($fileName === null) {
             return null;
         }
         $nodes = $this->parseFileNameToDecoratedNodes($fileName);
         if ($nodes === null) {
             return null;
         }
-        $desiredPropertyName = $reflectionProperty->name;
+        $nativeReflectionProperty = $phpPropertyReflection->getNativeReflection();
+        $desiredPropertyName = $nativeReflectionProperty->getName();
         /** @var Property[] $properties */
         $properties = $this->betterNodeFinder->findInstanceOf($nodes, \PhpParser\Node\Stmt\Property::class);
         foreach ($properties as $property) {

@@ -11,13 +11,14 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Removing\ValueObject\RemoveFuncCallArg;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Removing\Rector\FuncCall\RemoveFuncCallArgRector\RemoveFuncCallArgRectorTest
  */
 final class RemoveFuncCallArgRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const REMOVED_FUNCTION_ARGUMENTS = 'removed_function_arguments';
@@ -33,7 +34,7 @@ CODE_SAMPLE
 , <<<'CODE_SAMPLE'
 remove_last_arg(1);
 CODE_SAMPLE
-, [self::REMOVED_FUNCTION_ARGUMENTS => [new \Rector\Removing\ValueObject\RemoveFuncCallArg('remove_last_arg', 1)]])]);
+, [new \Rector\Removing\ValueObject\RemoveFuncCallArg('remove_last_arg', 1)])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -64,12 +65,12 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, RemoveFuncCallArg[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $removedFunctionArguments = $configuration[self::REMOVED_FUNCTION_ARGUMENTS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($removedFunctionArguments, \Rector\Removing\ValueObject\RemoveFuncCallArg::class);
+        $removedFunctionArguments = $configuration[self::REMOVED_FUNCTION_ARGUMENTS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($removedFunctionArguments, \Rector\Removing\ValueObject\RemoveFuncCallArg::class);
         $this->removedFunctionArguments = $removedFunctionArguments;
     }
 }

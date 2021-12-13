@@ -4,17 +4,21 @@ declare (strict_types=1);
 namespace Rector\NodeCollector\ValueObject;
 
 use PhpParser\Node\Expr;
+use Rector\Core\Validation\RectorAssert;
 final class ArrayCallable
 {
     /**
+     * @readonly
      * @var \PhpParser\Node\Expr
      */
     private $callerExpr;
     /**
+     * @readonly
      * @var string
      */
     private $class;
     /**
+     * @readonly
      * @var string
      */
     private $method;
@@ -23,6 +27,7 @@ final class ArrayCallable
         $this->callerExpr = $callerExpr;
         $this->class = $class;
         $this->method = $method;
+        \Rector\Core\Validation\RectorAssert::className($class);
     }
     public function getClass() : string
     {

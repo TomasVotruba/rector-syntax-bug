@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\DeadCode\SideEffect;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ArrayDimFetch;
@@ -33,10 +33,12 @@ final class SideEffectNodeDetector
      */
     private const CALL_EXPR_SIDE_EFFECT_NODE_TYPES = [\PhpParser\Node\Expr\MethodCall::class, \PhpParser\Node\Expr\New_::class, \PhpParser\Node\Expr\NullsafeMethodCall::class, \PhpParser\Node\Expr\StaticCall::class];
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeTypeResolver
      */
     private $nodeTypeResolver;
     /**
+     * @readonly
      * @var \Rector\DeadCode\SideEffect\PureFunctionDetector
      */
     private $pureFunctionDetector;
@@ -95,7 +97,7 @@ final class SideEffectNodeDetector
             return \false;
         }
         $className = $new->class->toString();
-        $namespace = \RectorPrefix20211110\Nette\Utils\Strings::before($className, '\\', 1);
+        $namespace = \RectorPrefix20211213\Nette\Utils\Strings::before($className, '\\', 1);
         return $namespace === 'PhpParser';
     }
     private function isClassCallerThrowable(\PhpParser\Node\Expr\StaticCall $staticCall) : bool

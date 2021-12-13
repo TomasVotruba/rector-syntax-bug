@@ -8,10 +8,10 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\String;
+namespace RectorPrefix20211213\Symfony\Component\String;
 
-use RectorPrefix20211110\Symfony\Component\String\Exception\ExceptionInterface;
-use RectorPrefix20211110\Symfony\Component\String\Exception\InvalidArgumentException;
+use RectorPrefix20211213\Symfony\Component\String\Exception\ExceptionInterface;
+use RectorPrefix20211213\Symfony\Component\String\Exception\InvalidArgumentException;
 /**
  * Represents a string of Unicode code points encoded as UTF-8.
  *
@@ -20,34 +20,31 @@ use RectorPrefix20211110\Symfony\Component\String\Exception\InvalidArgumentExcep
  *
  * @throws ExceptionInterface
  */
-class CodePointString extends \RectorPrefix20211110\Symfony\Component\String\AbstractUnicodeString
+class CodePointString extends \RectorPrefix20211213\Symfony\Component\String\AbstractUnicodeString
 {
     public function __construct(string $string = '')
     {
         if ('' !== $string && !\preg_match('//u', $string)) {
-            throw new \RectorPrefix20211110\Symfony\Component\String\Exception\InvalidArgumentException('Invalid UTF-8 string.');
+            throw new \RectorPrefix20211213\Symfony\Component\String\Exception\InvalidArgumentException('Invalid UTF-8 string.');
         }
         $this->string = $string;
     }
     /**
-     * @param string ...$suffix
+     * @return $this
      */
-    public function append(...$suffix) : \RectorPrefix20211110\Symfony\Component\String\AbstractString
+    public function append(string ...$suffix)
     {
         $str = clone $this;
         $str->string .= 1 >= \count($suffix) ? $suffix[0] ?? '' : \implode('', $suffix);
         if (!\preg_match('//u', $str->string)) {
-            throw new \RectorPrefix20211110\Symfony\Component\String\Exception\InvalidArgumentException('Invalid UTF-8 string.');
+            throw new \RectorPrefix20211213\Symfony\Component\String\Exception\InvalidArgumentException('Invalid UTF-8 string.');
         }
         return $str;
     }
-    /**
-     * @param int $length
-     */
-    public function chunk($length = 1) : array
+    public function chunk(int $length = 1) : array
     {
         if (1 > $length) {
-            throw new \RectorPrefix20211110\Symfony\Component\String\Exception\InvalidArgumentException('The chunk length must be greater than zero.');
+            throw new \RectorPrefix20211213\Symfony\Component\String\Exception\InvalidArgumentException('The chunk length must be greater than zero.');
         }
         if ('' === $this->string) {
             return [];
@@ -66,22 +63,20 @@ class CodePointString extends \RectorPrefix20211110\Symfony\Component\String\Abs
         }
         return $chunks;
     }
-    /**
-     * @param int $offset
-     */
-    public function codePointsAt($offset) : array
+    public function codePointsAt(int $offset) : array
     {
         $str = $offset ? $this->slice($offset, 1) : $this;
         return '' === $str->string ? [] : [\mb_ord($str->string, 'UTF-8')];
     }
+    /**
+     * @param mixed[]|string|\Symfony\Component\String\AbstractString $suffix
+     */
     public function endsWith($suffix) : bool
     {
-        if ($suffix instanceof \RectorPrefix20211110\Symfony\Component\String\AbstractString) {
+        if ($suffix instanceof \RectorPrefix20211213\Symfony\Component\String\AbstractString) {
             $suffix = $suffix->string;
-        } elseif (\is_array($suffix) || $suffix instanceof \Traversable) {
+        } elseif (!\is_string($suffix)) {
             return parent::endsWith($suffix);
-        } else {
-            $suffix = (string) $suffix;
         }
         if ('' === $suffix || !\preg_match('//u', $suffix)) {
             return \false;
@@ -91,14 +86,15 @@ class CodePointString extends \RectorPrefix20211110\Symfony\Component\String\Abs
         }
         return \strlen($this->string) >= \strlen($suffix) && 0 === \substr_compare($this->string, $suffix, -\strlen($suffix));
     }
+    /**
+     * @param mixed[]|string|\Symfony\Component\String\AbstractString $string
+     */
     public function equalsTo($string) : bool
     {
-        if ($string instanceof \RectorPrefix20211110\Symfony\Component\String\AbstractString) {
+        if ($string instanceof \RectorPrefix20211213\Symfony\Component\String\AbstractString) {
             $string = $string->string;
-        } elseif (\is_array($string) || $string instanceof \Traversable) {
+        } elseif (!\is_string($string)) {
             return parent::equalsTo($string);
-        } else {
-            $string = (string) $string;
         }
         if ('' !== $string && $this->ignoreCase) {
             return \strlen($string) === \strlen($this->string) && 0 === \mb_stripos($this->string, $string, 0, 'UTF-8');
@@ -106,16 +102,14 @@ class CodePointString extends \RectorPrefix20211110\Symfony\Component\String\Abs
         return $string === $this->string;
     }
     /**
-     * @param int $offset
+     * @param mixed[]|string|\Symfony\Component\String\AbstractString $needle
      */
-    public function indexOf($needle, $offset = 0) : ?int
+    public function indexOf($needle, int $offset = 0) : ?int
     {
-        if ($needle instanceof \RectorPrefix20211110\Symfony\Component\String\AbstractString) {
+        if ($needle instanceof \RectorPrefix20211213\Symfony\Component\String\AbstractString) {
             $needle = $needle->string;
-        } elseif (\is_array($needle) || $needle instanceof \Traversable) {
+        } elseif (!\is_string($needle)) {
             return parent::indexOf($needle, $offset);
-        } else {
-            $needle = (string) $needle;
         }
         if ('' === $needle) {
             return null;
@@ -124,16 +118,14 @@ class CodePointString extends \RectorPrefix20211110\Symfony\Component\String\Abs
         return \false === $i ? null : $i;
     }
     /**
-     * @param int $offset
+     * @param mixed[]|string|\Symfony\Component\String\AbstractString $needle
      */
-    public function indexOfLast($needle, $offset = 0) : ?int
+    public function indexOfLast($needle, int $offset = 0) : ?int
     {
-        if ($needle instanceof \RectorPrefix20211110\Symfony\Component\String\AbstractString) {
+        if ($needle instanceof \RectorPrefix20211213\Symfony\Component\String\AbstractString) {
             $needle = $needle->string;
-        } elseif (\is_array($needle) || $needle instanceof \Traversable) {
+        } elseif (!\is_string($needle)) {
             return parent::indexOfLast($needle, $offset);
-        } else {
-            $needle = (string) $needle;
         }
         if ('' === $needle) {
             return null;
@@ -146,29 +138,28 @@ class CodePointString extends \RectorPrefix20211110\Symfony\Component\String\Abs
         return \mb_strlen($this->string, 'UTF-8');
     }
     /**
-     * @param string ...$prefix
+     * @return $this
      */
-    public function prepend(...$prefix) : \RectorPrefix20211110\Symfony\Component\String\AbstractString
+    public function prepend(string ...$prefix)
     {
         $str = clone $this;
         $str->string = (1 >= \count($prefix) ? $prefix[0] ?? '' : \implode('', $prefix)) . $this->string;
         if (!\preg_match('//u', $str->string)) {
-            throw new \RectorPrefix20211110\Symfony\Component\String\Exception\InvalidArgumentException('Invalid UTF-8 string.');
+            throw new \RectorPrefix20211213\Symfony\Component\String\Exception\InvalidArgumentException('Invalid UTF-8 string.');
         }
         return $str;
     }
     /**
-     * @param string $from
-     * @param string $to
+     * @return $this
      */
-    public function replace($from, $to) : \RectorPrefix20211110\Symfony\Component\String\AbstractString
+    public function replace(string $from, string $to)
     {
         $str = clone $this;
         if ('' === $from || !\preg_match('//u', $from)) {
             return $str;
         }
         if ('' !== $to && !\preg_match('//u', $to)) {
-            throw new \RectorPrefix20211110\Symfony\Component\String\Exception\InvalidArgumentException('Invalid UTF-8 string.');
+            throw new \RectorPrefix20211213\Symfony\Component\String\Exception\InvalidArgumentException('Invalid UTF-8 string.');
         }
         if ($this->ignoreCase) {
             $str->string = \implode($to, \preg_split('{' . \preg_quote($from) . '}iuD', $this->string));
@@ -178,24 +169,21 @@ class CodePointString extends \RectorPrefix20211110\Symfony\Component\String\Abs
         return $str;
     }
     /**
-     * @param int $start
-     * @param int|null $length
+     * @return $this
      */
-    public function slice($start = 0, $length = null) : \RectorPrefix20211110\Symfony\Component\String\AbstractString
+    public function slice(int $start = 0, int $length = null)
     {
         $str = clone $this;
         $str->string = \mb_substr($this->string, $start, $length, 'UTF-8');
         return $str;
     }
     /**
-     * @param string $replacement
-     * @param int $start
-     * @param int|null $length
+     * @return $this
      */
-    public function splice($replacement, $start = 0, $length = null) : \RectorPrefix20211110\Symfony\Component\String\AbstractString
+    public function splice(string $replacement, int $start = 0, int $length = null)
     {
         if (!\preg_match('//u', $replacement)) {
-            throw new \RectorPrefix20211110\Symfony\Component\String\Exception\InvalidArgumentException('Invalid UTF-8 string.');
+            throw new \RectorPrefix20211213\Symfony\Component\String\Exception\InvalidArgumentException('Invalid UTF-8 string.');
         }
         $str = clone $this;
         $start = $start ? \strlen(\mb_substr($this->string, 0, $start, 'UTF-8')) : 0;
@@ -203,24 +191,19 @@ class CodePointString extends \RectorPrefix20211110\Symfony\Component\String\Abs
         $str->string = \substr_replace($this->string, $replacement, $start, $length ?? \PHP_INT_MAX);
         return $str;
     }
-    /**
-     * @param string $delimiter
-     * @param int|null $limit
-     * @param int|null $flags
-     */
-    public function split($delimiter, $limit = null, $flags = null) : array
+    public function split(string $delimiter, int $limit = null, int $flags = null) : array
     {
         if (1 > ($limit = $limit ?? \PHP_INT_MAX)) {
-            throw new \RectorPrefix20211110\Symfony\Component\String\Exception\InvalidArgumentException('Split limit must be a positive integer.');
+            throw new \RectorPrefix20211213\Symfony\Component\String\Exception\InvalidArgumentException('Split limit must be a positive integer.');
         }
         if ('' === $delimiter) {
-            throw new \RectorPrefix20211110\Symfony\Component\String\Exception\InvalidArgumentException('Split delimiter is empty.');
+            throw new \RectorPrefix20211213\Symfony\Component\String\Exception\InvalidArgumentException('Split delimiter is empty.');
         }
         if (null !== $flags) {
             return parent::split($delimiter . 'u', $limit, $flags);
         }
         if (!\preg_match('//u', $delimiter)) {
-            throw new \RectorPrefix20211110\Symfony\Component\String\Exception\InvalidArgumentException('Split delimiter is not a valid UTF-8 string.');
+            throw new \RectorPrefix20211213\Symfony\Component\String\Exception\InvalidArgumentException('Split delimiter is not a valid UTF-8 string.');
         }
         $str = clone $this;
         $chunks = $this->ignoreCase ? \preg_split('{' . \preg_quote($delimiter) . '}iuD', $this->string, $limit) : \explode($delimiter, $this->string, $limit);
@@ -230,14 +213,15 @@ class CodePointString extends \RectorPrefix20211110\Symfony\Component\String\Abs
         }
         return $chunks;
     }
+    /**
+     * @param mixed[]|string|\Symfony\Component\String\AbstractString $prefix
+     */
     public function startsWith($prefix) : bool
     {
-        if ($prefix instanceof \RectorPrefix20211110\Symfony\Component\String\AbstractString) {
+        if ($prefix instanceof \RectorPrefix20211213\Symfony\Component\String\AbstractString) {
             $prefix = $prefix->string;
-        } elseif (\is_array($prefix) || $prefix instanceof \Traversable) {
+        } elseif (!\is_string($prefix)) {
             return parent::startsWith($prefix);
-        } else {
-            $prefix = (string) $prefix;
         }
         if ('' === $prefix || !\preg_match('//u', $prefix)) {
             return \false;

@@ -7,16 +7,20 @@ use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\If_;
 use PHPStan\Analyser\Scope;
 use Rector\Core\PhpParser\Node\BetterNodeFinder;
+use Rector\EarlyReturn\Rector\If_\RemoveAlwaysElseRector;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 final class ExprUsedInNextNodeAnalyzer
 {
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\DeadCode\NodeAnalyzer\ExprUsedInNodeAnalyzer
      */
     private $exprUsedInNodeAnalyzer;
@@ -40,7 +44,21 @@ final class ExprUsedInNextNodeAnalyzer
                     return \true;
                 }
             }
-            return $this->exprUsedInNodeAnalyzer->isUsed($node, $expr);
+            if (!$node instanceof \PhpParser\Node\Stmt\If_) {
+                return $this->exprUsedInNodeAnalyzer->isUsed($node, $expr);
+            }
+            /**
+             * handle when used along with RemoveAlwaysElseRector
+             */
+            if (!$this->hasIfChangedByRemoveAlwaysElseRector($node)) {
+                return $this->exprUsedInNodeAnalyzer->isUsed($node, $expr);
+            }
+            return \true;
         });
+    }
+    private function hasIfChangedByRemoveAlwaysElseRector(\PhpParser\Node\Stmt\If_ $if) : bool
+    {
+        $createdByRule = $if->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::CREATED_BY_RULE);
+        return $createdByRule === \Rector\EarlyReturn\Rector\If_\RemoveAlwaysElseRector::class;
     }
 }

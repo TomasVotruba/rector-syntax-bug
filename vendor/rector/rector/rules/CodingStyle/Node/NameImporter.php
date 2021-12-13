@@ -15,12 +15,11 @@ use Rector\CodingStyle\ClassNameImport\AliasUsesResolver;
 use Rector\CodingStyle\ClassNameImport\ClassNameImportSkipper;
 use Rector\Core\Configuration\Option;
 use Rector\Core\ValueObject\Application\File;
-use Rector\NodeNameResolver\NodeNameResolver;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\PostRector\Collector\UseNodesToAddCollector;
 use Rector\StaticTypeMapper\StaticTypeMapper;
 use Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType;
-use RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider;
+use RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider;
 final class NameImporter
 {
     /**
@@ -28,38 +27,39 @@ final class NameImporter
      */
     private $aliasedUses = [];
     /**
+     * @readonly
      * @var \Rector\CodingStyle\ClassNameImport\AliasUsesResolver
      */
     private $aliasUsesResolver;
     /**
+     * @readonly
      * @var \Rector\CodingStyle\ClassNameImport\ClassNameImportSkipper
      */
     private $classNameImportSkipper;
     /**
-     * @var \Rector\NodeNameResolver\NodeNameResolver
-     */
-    private $nodeNameResolver;
-    /**
+     * @readonly
      * @var \Symplify\PackageBuilder\Parameter\ParameterProvider
      */
     private $parameterProvider;
     /**
+     * @readonly
      * @var \Rector\StaticTypeMapper\StaticTypeMapper
      */
     private $staticTypeMapper;
     /**
+     * @readonly
      * @var \Rector\PostRector\Collector\UseNodesToAddCollector
      */
     private $useNodesToAddCollector;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
-    public function __construct(\Rector\CodingStyle\ClassNameImport\AliasUsesResolver $aliasUsesResolver, \Rector\CodingStyle\ClassNameImport\ClassNameImportSkipper $classNameImportSkipper, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider, \Rector\StaticTypeMapper\StaticTypeMapper $staticTypeMapper, \Rector\PostRector\Collector\UseNodesToAddCollector $useNodesToAddCollector, \PHPStan\Reflection\ReflectionProvider $reflectionProvider)
+    public function __construct(\Rector\CodingStyle\ClassNameImport\AliasUsesResolver $aliasUsesResolver, \Rector\CodingStyle\ClassNameImport\ClassNameImportSkipper $classNameImportSkipper, \RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider, \Rector\StaticTypeMapper\StaticTypeMapper $staticTypeMapper, \Rector\PostRector\Collector\UseNodesToAddCollector $useNodesToAddCollector, \PHPStan\Reflection\ReflectionProvider $reflectionProvider)
     {
         $this->aliasUsesResolver = $aliasUsesResolver;
         $this->classNameImportSkipper = $classNameImportSkipper;
-        $this->nodeNameResolver = $nodeNameResolver;
         $this->parameterProvider = $parameterProvider;
         $this->staticTypeMapper = $staticTypeMapper;
         $this->useNodesToAddCollector = $useNodesToAddCollector;
@@ -80,12 +80,14 @@ final class NameImporter
         if (!$staticType instanceof \Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType) {
             return null;
         }
-        $this->aliasedUses = $this->aliasUsesResolver->resolveFromStmts($uses);
-        return $this->importNameAndCollectNewUseStatement($file, $name, $staticType);
+        $className = $staticType->getClassName();
+        // class has \, no need to search in aliases, mark aliasedUses as empty
+        $this->aliasedUses = \strpos($className, '\\') !== \false ? [] : $this->aliasUsesResolver->resolveFromStmts($uses);
+        return $this->importNameAndCollectNewUseStatement($file, $name, $staticType, $className);
     }
     private function shouldSkipName(\PhpParser\Node\Name $name) : bool
     {
-        $virtualNode = $name->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::VIRTUAL_NODE);
+        $virtualNode = (bool) $name->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::VIRTUAL_NODE, \false);
         if ($virtualNode) {
             return \true;
         }
@@ -103,14 +105,14 @@ final class NameImporter
         }
         // Importing root namespace classes (like \DateTime) is optional
         if (!$this->parameterProvider->provideBoolParameter(\Rector\Core\Configuration\Option::IMPORT_SHORT_CLASSES)) {
-            $name = $this->nodeNameResolver->getName($name);
-            if ($name !== null && \substr_count($name, '\\') === 0) {
+            $stringName = $name->toString();
+            if (\substr_count($stringName, '\\') === 0) {
                 return \true;
             }
         }
         return \false;
     }
-    private function importNameAndCollectNewUseStatement(\Rector\Core\ValueObject\Application\File $file, \PhpParser\Node\Name $name, \Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType $fullyQualifiedObjectType) : ?\PhpParser\Node\Name
+    private function importNameAndCollectNewUseStatement(\Rector\Core\ValueObject\Application\File $file, \PhpParser\Node\Name $name, \Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType $fullyQualifiedObjectType, string $className) : ?\PhpParser\Node\Name
     {
         // the same end is already imported → skip
         if ($this->classNameImportSkipper->shouldSkipNameForFullyQualifiedObjectType($file, $name, $fullyQualifiedObjectType)) {
@@ -123,9 +125,12 @@ final class NameImporter
             return null;
         }
         $this->addUseImport($file, $name, $fullyQualifiedObjectType);
+        if ($this->aliasedUses === []) {
+            return $fullyQualifiedObjectType->getShortNameNode();
+        }
         // possibly aliased
         foreach ($this->aliasedUses as $aliasedUse) {
-            if ($fullyQualifiedObjectType->getClassName() === $aliasedUse) {
+            if ($className === $aliasedUse) {
                 return null;
             }
         }
@@ -148,7 +153,7 @@ final class NameImporter
     {
         $parentNode = $name->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::PARENT_NODE);
         $fullName = $name->toString();
-        $autoImportNames = $this->parameterProvider->provideParameter(\Rector\Core\Configuration\Option::AUTO_IMPORT_NAMES);
+        $autoImportNames = $this->parameterProvider->provideBoolParameter(\Rector\Core\Configuration\Option::AUTO_IMPORT_NAMES);
         if ($autoImportNames && !$parentNode instanceof \PhpParser\Node && \strpos($fullName, '\\') === \false && $this->reflectionProvider->hasFunction(new \PhpParser\Node\Name($fullName), null)) {
             return \true;
         }

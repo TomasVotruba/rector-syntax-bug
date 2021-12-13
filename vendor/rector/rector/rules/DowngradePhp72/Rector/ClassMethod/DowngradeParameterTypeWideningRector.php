@@ -8,8 +8,7 @@ use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Reflection\ClassReflection;
-use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
-use Rector\Core\Exception\ShouldNotHappenException;
+use Rector\Core\Contract\Rector\AllowEmptyConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Rector\Core\Reflection\ReflectionResolver;
 use Rector\DowngradePhp72\NodeAnalyzer\BuiltInMethodAnalyzer;
@@ -19,52 +18,46 @@ use Rector\DowngradePhp72\PhpDoc\NativeParamToPhpDocDecorator;
 use Rector\TypeDeclaration\NodeAnalyzer\AutowiredClassMethodOrPropertyAnalyzer;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @changelog https://www.php.net/manual/en/migration72.new-features.php#migration72.new-features.param-type-widening
  * @see https://3v4l.org/fOgSE
  *
  * @see \Rector\Tests\DowngradePhp72\Rector\ClassMethod\DowngradeParameterTypeWideningRector\DowngradeParameterTypeWideningRectorTest
  */
-final class DowngradeParameterTypeWideningRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
+final class DowngradeParameterTypeWideningRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\AllowEmptyConfigurableRectorInterface
 {
-    /**
-     * @var string
-     */
-    public const SAFE_TYPES = 'safe_types';
-    /**
-     * @var string
-     */
-    public const SAFE_TYPES_TO_METHODS = 'safe_types_to_methods';
-    /**
-     * @var string[]
-     */
-    private $safeTypes = [];
     /**
      * @var array<string, string[]>
      */
-    private $safeTypesToMethods = [];
+    private $unsafeTypesToMethods = [];
     /**
+     * @readonly
      * @var \Rector\DowngradePhp72\PhpDoc\NativeParamToPhpDocDecorator
      */
     private $nativeParamToPhpDocDecorator;
     /**
+     * @readonly
      * @var \Rector\Core\Reflection\ReflectionResolver
      */
     private $reflectionResolver;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\NodeAnalyzer\AutowiredClassMethodOrPropertyAnalyzer
      */
     private $autowiredClassMethodOrPropertyAnalyzer;
     /**
+     * @readonly
      * @var \Rector\DowngradePhp72\NodeAnalyzer\BuiltInMethodAnalyzer
      */
     private $builtInMethodAnalyzer;
     /**
+     * @readonly
      * @var \Rector\DowngradePhp72\NodeAnalyzer\OverrideFromAnonymousClassMethodAnalyzer
      */
     private $overrideFromAnonymousClassMethodAnalyzer;
     /**
+     * @readonly
      * @var \Rector\DowngradePhp72\NodeAnalyzer\SealedClassAnalyzer
      */
     private $sealedClassAnalyzer;
@@ -108,7 +101,7 @@ final class SomeClass implements SomeInterface
     }
 }
 CODE_SAMPLE
-, [self::SAFE_TYPES => [], self::SAFE_TYPES_TO_METHODS => []])]);
+, ['ContainerInterface' => ['set', 'get', 'has', 'initialized'], 'SomeContainerInterface' => ['set', 'has']])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -131,27 +124,19 @@ CODE_SAMPLE
             return $this->processRemoveParamTypeFromMethod($ancestorOverridableAnonymousClass, $node);
         }
         $classReflection = $this->reflectionResolver->resolveClassAndAnonymousClass($classLike);
-        if (!$classReflection instanceof \PHPStan\Reflection\ClassReflection) {
-            throw new \Rector\Core\Exception\ShouldNotHappenException();
-        }
         return $this->processRemoveParamTypeFromMethod($classReflection, $node);
     }
     /**
-     * @param array<string, mixed> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $safeTypes = $configuration[self::SAFE_TYPES] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::isArray($safeTypes);
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allString($safeTypes);
-        $this->safeTypes = $safeTypes;
-        $safeTypesToMethods = $configuration[self::SAFE_TYPES_TO_METHODS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::isArray($safeTypesToMethods);
-        foreach ($safeTypesToMethods as $key => $value) {
-            \RectorPrefix20211110\Webmozart\Assert\Assert::string($key);
-            \RectorPrefix20211110\Webmozart\Assert\Assert::allString($value);
+        $unsafeTypesToMethods = $configuration;
+        foreach ($unsafeTypesToMethods as $key => $value) {
+            \RectorPrefix20211213\Webmozart\Assert\Assert::string($key);
+            \RectorPrefix20211213\Webmozart\Assert\Assert::allString($value);
         }
-        $this->safeTypesToMethods = $safeTypesToMethods;
+        $this->unsafeTypesToMethods = $unsafeTypesToMethods;
     }
     private function shouldSkip(\PHPStan\Reflection\ClassReflection $classReflection, \PhpParser\Node\Stmt\ClassMethod $classMethod) : bool
     {
@@ -210,28 +195,22 @@ CODE_SAMPLE
     }
     private function isSafeType(\PHPStan\Reflection\ClassReflection $classReflection, \PhpParser\Node\Stmt\ClassMethod $classMethod) : bool
     {
-        $classReflectionName = $classReflection->getName();
-        foreach ($this->safeTypes as $safeType) {
-            if ($classReflection->isSubclassOf($safeType)) {
-                return \true;
-            }
-            // skip self too
-            if ($classReflectionName === $safeType) {
-                return \true;
-            }
+        if ($this->unsafeTypesToMethods === []) {
+            return \false;
         }
-        foreach ($this->safeTypesToMethods as $safeType => $safeMethods) {
-            if (!$this->isNames($classMethod, $safeMethods)) {
+        $classReflectionName = $classReflection->getName();
+        foreach ($this->unsafeTypesToMethods as $unsafeType => $unsafeMethods) {
+            if (!$this->isNames($classMethod, $unsafeMethods)) {
                 continue;
             }
-            if ($classReflection->isSubclassOf($safeType)) {
-                return \true;
+            if ($classReflection->isSubclassOf($unsafeType)) {
+                return \false;
             }
             // skip self too
-            if ($classReflectionName === $safeType) {
-                return \true;
+            if ($classReflectionName === $unsafeType) {
+                return \false;
             }
         }
-        return \false;
+        return \true;
     }
 }

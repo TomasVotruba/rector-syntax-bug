@@ -23,22 +23,27 @@ use Rector\NodeTypeResolver\NodeTypeResolver;
 final class ClassMethodManipulator
 {
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeTypeResolver
      */
     private $nodeTypeResolver;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Comparing\NodeComparator
      */
     private $nodeComparator;
     /**
+     * @readonly
      * @var \Rector\Core\NodeManipulator\FuncCallManipulator
      */
     private $funcCallManipulator;
@@ -125,11 +130,7 @@ final class ClassMethodManipulator
             if (!$this->nodeTypeResolver->isObjectType($paramNode, $objectType)) {
                 continue;
             }
-            $paramName = $this->nodeNameResolver->getName($paramNode);
-            if (!\is_string($paramName)) {
-                throw new \Rector\Core\Exception\ShouldNotHappenException();
-            }
-            return $paramName;
+            return $this->nodeNameResolver->getName($paramNode);
         }
         $paramName = $this->resolveName($classMethod, $possibleNames);
         $classMethod->params[] = new \PhpParser\Node\Param(new \PhpParser\Node\Expr\Variable($paramName), null, new \PhpParser\Node\Name\FullyQualified($objectType->getClassName()));

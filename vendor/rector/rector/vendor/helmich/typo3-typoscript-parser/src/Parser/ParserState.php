@@ -1,12 +1,12 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Helmich\TypoScriptParser\Parser;
+namespace RectorPrefix20211213\Helmich\TypoScriptParser\Parser;
 
 use ArrayObject;
-use RectorPrefix20211110\Helmich\TypoScriptParser\Parser\AST\ObjectPath;
-use RectorPrefix20211110\Helmich\TypoScriptParser\Parser\AST\RootObjectPath;
-use RectorPrefix20211110\Helmich\TypoScriptParser\Tokenizer\TokenInterface;
+use RectorPrefix20211213\Helmich\TypoScriptParser\Parser\AST\ObjectPath;
+use RectorPrefix20211213\Helmich\TypoScriptParser\Parser\AST\RootObjectPath;
+use RectorPrefix20211213\Helmich\TypoScriptParser\Tokenizer\TokenInterface;
 class ParserState
 {
     /** @var ObjectPath */
@@ -15,28 +15,22 @@ class ParserState
     private $statements;
     /** @var TokenStream */
     private $tokens;
-    public function __construct(\RectorPrefix20211110\Helmich\TypoScriptParser\Parser\TokenStream $tokens, \ArrayObject $statements = null)
+    public function __construct(\RectorPrefix20211213\Helmich\TypoScriptParser\Parser\TokenStream $tokens, \ArrayObject $statements = null)
     {
         if ($statements === null) {
             $statements = new \ArrayObject();
         }
         $this->statements = $statements;
         $this->tokens = $tokens;
-        $this->context = new \RectorPrefix20211110\Helmich\TypoScriptParser\Parser\AST\RootObjectPath();
+        $this->context = new \RectorPrefix20211213\Helmich\TypoScriptParser\Parser\AST\RootObjectPath();
     }
-    /**
-     * @param \Helmich\TypoScriptParser\Parser\AST\ObjectPath $context
-     */
-    public function withContext($context) : self
+    public function withContext(\RectorPrefix20211213\Helmich\TypoScriptParser\Parser\AST\ObjectPath $context) : self
     {
         $clone = clone $this;
         $clone->context = $context;
         return $clone;
     }
-    /**
-     * @param \ArrayObject $statements
-     */
-    public function withStatements($statements) : self
+    public function withStatements(\ArrayObject $statements) : self
     {
         $clone = clone $this;
         $clone->statements = $statements;
@@ -46,7 +40,7 @@ class ParserState
      * @param int $lookAhead
      * @return TokenInterface
      */
-    public function token($lookAhead = 0) : \RectorPrefix20211110\Helmich\TypoScriptParser\Tokenizer\TokenInterface
+    public function token(int $lookAhead = 0) : \RectorPrefix20211213\Helmich\TypoScriptParser\Tokenizer\TokenInterface
     {
         return $this->tokens->current($lookAhead);
     }
@@ -54,7 +48,7 @@ class ParserState
      * @param int $increment
      * @return void
      */
-    public function next($increment = 1) : void
+    public function next(int $increment = 1) : void
     {
         $this->tokens->next($increment);
     }
@@ -68,7 +62,7 @@ class ParserState
     /**
      * @return ObjectPath
      */
-    public function context() : \RectorPrefix20211110\Helmich\TypoScriptParser\Parser\AST\ObjectPath
+    public function context() : \RectorPrefix20211213\Helmich\TypoScriptParser\Parser\AST\ObjectPath
     {
         return $this->context;
     }

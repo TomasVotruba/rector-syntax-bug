@@ -15,7 +15,7 @@ use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\CakePHP\Tests\Rector\MethodCall\ArrayToFluentCallRector\ArrayToFluentCallRectorTest
  */
@@ -93,15 +93,17 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, ArrayToFluentCall|FactoryMethod> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
         $arraysToFluentCalls = $configuration[self::ARRAYS_TO_FLUENT_CALLS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($arraysToFluentCalls, \Rector\CakePHP\ValueObject\ArrayToFluentCall::class);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($arraysToFluentCalls);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsInstanceOf($arraysToFluentCalls, \Rector\CakePHP\ValueObject\ArrayToFluentCall::class);
         $this->arraysToFluentCalls = $arraysToFluentCalls;
         $factoryMethods = $configuration[self::FACTORY_METHODS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($factoryMethods, \Rector\CakePHP\ValueObject\FactoryMethod::class);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($factoryMethods);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsInstanceOf($factoryMethods, \Rector\CakePHP\ValueObject\FactoryMethod::class);
         $this->factoryMethods = $factoryMethods;
     }
     private function matchTypeAndMethodName(\PhpParser\Node\Expr\MethodCall $methodCall) : ?\Rector\CakePHP\ValueObject\FactoryMethod

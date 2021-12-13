@@ -20,13 +20,14 @@ use Rector\Renaming\ValueObject\MethodCallRename;
 use Rector\Renaming\ValueObject\MethodCallRenameWithArrayKey;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Renaming\Rector\MethodCall\RenameMethodRector\RenameMethodRectorTest
  */
 final class RenameMethodRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const METHOD_CALL_RENAMES = 'method_call_renames';
@@ -35,10 +36,12 @@ final class RenameMethodRector extends \Rector\Core\Rector\AbstractRector implem
      */
     private $methodCallRenames = [];
     /**
+     * @readonly
      * @var \Rector\Core\NodeManipulator\ClassManipulator
      */
     private $classManipulator;
     /**
+     * @readonly
      * @var \Rector\Renaming\Collector\MethodCallRenameCollector
      */
     private $methodCallRenameCollector;
@@ -57,7 +60,7 @@ CODE_SAMPLE
 $someObject = new SomeExampleClass;
 $someObject->newMethod();
 CODE_SAMPLE
-, [self::METHOD_CALL_RENAMES => [new \Rector\Renaming\ValueObject\MethodCallRename('SomeExampleClass', 'oldMethod', 'newMethod')]])]);
+, [new \Rector\Renaming\ValueObject\MethodCallRename('SomeExampleClass', 'oldMethod', 'newMethod')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -94,12 +97,12 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, MethodCallRenameInterface[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $methodCallRenames = $configuration[self::METHOD_CALL_RENAMES] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($methodCallRenames, \Rector\Renaming\Contract\MethodCallRenameInterface::class);
+        $methodCallRenames = $configuration[self::METHOD_CALL_RENAMES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($methodCallRenames, \Rector\Renaming\Contract\MethodCallRenameInterface::class);
         $this->methodCallRenames = $methodCallRenames;
         $this->methodCallRenameCollector->addMethodCallRenames($methodCallRenames);
     }

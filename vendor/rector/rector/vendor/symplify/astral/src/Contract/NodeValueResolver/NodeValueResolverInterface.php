@@ -1,7 +1,7 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Symplify\Astral\Contract\NodeValueResolver;
+namespace RectorPrefix20211213\Symplify\Astral\Contract\NodeValueResolver;
 
 use PhpParser\Node\Expr;
 /**
@@ -14,9 +14,8 @@ interface NodeValueResolverInterface
      */
     public function getType() : string;
     /**
-     * @param \PhpParser\Node\Expr $expr
+     * @param TExpr $expr
      * @return mixed
-     * @param string $currentFilePath
      */
-    public function resolve($expr, $currentFilePath);
+    public function resolve(\PhpParser\Node\Expr $expr, string $currentFilePath);
 }

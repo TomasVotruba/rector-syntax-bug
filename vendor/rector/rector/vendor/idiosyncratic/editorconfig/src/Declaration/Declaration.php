@@ -1,7 +1,7 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Idiosyncratic\EditorConfig\Declaration;
+namespace RectorPrefix20211213\Idiosyncratic\EditorConfig\Declaration;
 
 use function in_array;
 use function is_numeric;
@@ -48,18 +48,14 @@ abstract class Declaration
     {
         return \sprintf('%s=%s', $this->getName(), $this->getStringValue());
     }
-    /**
-     * @param string $name
-     */
-    protected function setName($name) : void
+    protected function setName(string $name) : void
     {
         $this->name = \strtolower($name);
     }
     /**
      * @return mixed
-     * @param string $value
      */
-    protected function getTypedValue($value)
+    protected function getTypedValue(string $value)
     {
         if (\in_array($value, ['true', 'false']) === \true) {
             return $value === 'true';
@@ -69,10 +65,7 @@ abstract class Declaration
         }
         return $value;
     }
-    /**
-     * @param string $value
-     */
-    protected final function setStringValue($value) : void
+    protected final function setStringValue(string $value) : void
     {
         $this->stringValue = $value;
     }

@@ -1,9 +1,9 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Doctrine\Inflector;
+namespace RectorPrefix20211213\Doctrine\Inflector;
 
-use RectorPrefix20211110\Doctrine\Inflector\Rules\Ruleset;
+use RectorPrefix20211213\Doctrine\Inflector\Rules\Ruleset;
 interface LanguageInflectorFactory
 {
     /**
@@ -12,20 +12,18 @@ interface LanguageInflectorFactory
      * @param bool $reset If true, will unset default inflections for all new rules
      *
      * @return $this
-     * @param \Doctrine\Inflector\Rules\Ruleset|null $singularRules
      */
-    public function withSingularRules($singularRules, $reset = \false) : self;
+    public function withSingularRules(?\RectorPrefix20211213\Doctrine\Inflector\Rules\Ruleset $singularRules, bool $reset = \false) : self;
     /**
      * Applies custom rules for pluralisation
      *
      * @param bool $reset If true, will unset default inflections for all new rules
      *
      * @return $this
-     * @param \Doctrine\Inflector\Rules\Ruleset|null $pluralRules
      */
-    public function withPluralRules($pluralRules, $reset = \false) : self;
+    public function withPluralRules(?\RectorPrefix20211213\Doctrine\Inflector\Rules\Ruleset $pluralRules, bool $reset = \false) : self;
     /**
      * Builds the inflector instance with all applicable rules
      */
-    public function build() : \RectorPrefix20211110\Doctrine\Inflector\Inflector;
+    public function build() : \RectorPrefix20211213\Doctrine\Inflector\Inflector;
 }

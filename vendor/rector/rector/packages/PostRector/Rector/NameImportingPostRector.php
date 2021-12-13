@@ -15,44 +15,52 @@ use Rector\Core\PhpParser\Node\BetterNodeFinder;
 use Rector\Core\Provider\CurrentFileProvider;
 use Rector\Core\ValueObject\Application\File;
 use Rector\NodeTypeResolver\PhpDoc\NodeAnalyzer\DocBlockNameImporter;
-use RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider;
+use RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class NameImportingPostRector extends \Rector\PostRector\Rector\AbstractPostRector
 {
     /**
+     * @readonly
      * @var \Symplify\PackageBuilder\Parameter\ParameterProvider
      */
     private $parameterProvider;
     /**
+     * @readonly
      * @var \Rector\CodingStyle\Node\NameImporter
      */
     private $nameImporter;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PhpDoc\NodeAnalyzer\DocBlockNameImporter
      */
     private $docBlockNameImporter;
     /**
+     * @readonly
      * @var \Rector\CodingStyle\ClassNameImport\ClassNameImportSkipper
      */
     private $classNameImportSkipper;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory
      */
     private $phpDocInfoFactory;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
+     * @readonly
      * @var \Rector\Core\Provider\CurrentFileProvider
      */
     private $currentFileProvider;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
-    public function __construct(\RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider, \Rector\CodingStyle\Node\NameImporter $nameImporter, \Rector\NodeTypeResolver\PhpDoc\NodeAnalyzer\DocBlockNameImporter $docBlockNameImporter, \Rector\CodingStyle\ClassNameImport\ClassNameImportSkipper $classNameImportSkipper, \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory $phpDocInfoFactory, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\Core\Provider\CurrentFileProvider $currentFileProvider, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder)
+    public function __construct(\RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider, \Rector\CodingStyle\Node\NameImporter $nameImporter, \Rector\NodeTypeResolver\PhpDoc\NodeAnalyzer\DocBlockNameImporter $docBlockNameImporter, \Rector\CodingStyle\ClassNameImport\ClassNameImportSkipper $classNameImportSkipper, \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory $phpDocInfoFactory, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\Core\Provider\CurrentFileProvider $currentFileProvider, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder)
     {
         $this->parameterProvider = $parameterProvider;
         $this->nameImporter = $nameImporter;
@@ -69,19 +77,16 @@ final class NameImportingPostRector extends \Rector\PostRector\Rector\AbstractPo
             return null;
         }
         $file = $this->currentFileProvider->getFile();
+        if (!$file instanceof \Rector\Core\ValueObject\Application\File) {
+            return null;
+        }
+        if (!$this->shouldApply($file)) {
+            return null;
+        }
         if ($node instanceof \PhpParser\Node\Name) {
-            if (!$file instanceof \Rector\Core\ValueObject\Application\File) {
-                return null;
-            }
-            if (!$this->shouldApply($file)) {
-                return null;
-            }
             return $this->processNodeName($node, $file);
         }
         if (!$this->parameterProvider->provideBoolParameter(\Rector\Core\Configuration\Option::IMPORT_DOC_BLOCKS)) {
-            return null;
-        }
-        if ($file instanceof \Rector\Core\ValueObject\Application\File && !$this->shouldApply($file)) {
             return null;
         }
         $phpDocInfo = $this->phpDocInfoFactory->createFromNodeOrEmpty($node);

@@ -28,10 +28,12 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class IssetOnPropertyObjectToPropertyExistsRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
+     * @readonly
      * @var \Rector\Core\Reflection\ReflectionResolver
      */
     private $reflectionResolver;
@@ -101,7 +103,7 @@ CODE_SAMPLE
                     continue;
                 }
                 $classReflection = $this->reflectionProvider->getClass($propertyFetchVarType->getClassName());
-                if (!$classReflection->hasProperty($propertyFetchName) || $classReflection->isBuiltIn()) {
+                if (!$classReflection->hasProperty($propertyFetchName) || $classReflection->isBuiltin()) {
                     $newNodes[] = $this->replaceToPropertyExistsWithNullCheck($issetVar->var, $propertyFetchName, $issetVar);
                 } else {
                     $newNodes[] = $this->createNotIdenticalToNull($issetVar);

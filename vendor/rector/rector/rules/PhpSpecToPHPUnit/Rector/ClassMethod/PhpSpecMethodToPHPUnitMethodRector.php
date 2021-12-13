@@ -10,23 +10,32 @@ use Rector\Core\ValueObject\MethodName;
 use Rector\PhpSpecToPHPUnit\Naming\PhpSpecRenaming;
 use Rector\PhpSpecToPHPUnit\PHPUnitTypeDeclarationDecorator;
 use Rector\PhpSpecToPHPUnit\Rector\AbstractPhpSpecToPHPUnitRector;
+use Rector\Privatization\NodeManipulator\VisibilityManipulator;
 /**
  * @see \Rector\Tests\PhpSpecToPHPUnit\Rector\Variable\PhpSpecToPHPUnitRector\PhpSpecToPHPUnitRectorTest
  */
 final class PhpSpecMethodToPHPUnitMethodRector extends \Rector\PhpSpecToPHPUnit\Rector\AbstractPhpSpecToPHPUnitRector
 {
     /**
+     * @readonly
      * @var \Rector\PhpSpecToPHPUnit\PHPUnitTypeDeclarationDecorator
      */
     private $phpUnitTypeDeclarationDecorator;
     /**
+     * @readonly
      * @var \Rector\PhpSpecToPHPUnit\Naming\PhpSpecRenaming
      */
     private $phpSpecRenaming;
-    public function __construct(\Rector\PhpSpecToPHPUnit\PHPUnitTypeDeclarationDecorator $phpUnitTypeDeclarationDecorator, \Rector\PhpSpecToPHPUnit\Naming\PhpSpecRenaming $phpSpecRenaming)
+    /**
+     * @readonly
+     * @var \Rector\Privatization\NodeManipulator\VisibilityManipulator
+     */
+    private $visibilityManipulator;
+    public function __construct(\Rector\PhpSpecToPHPUnit\PHPUnitTypeDeclarationDecorator $phpUnitTypeDeclarationDecorator, \Rector\PhpSpecToPHPUnit\Naming\PhpSpecRenaming $phpSpecRenaming, \Rector\Privatization\NodeManipulator\VisibilityManipulator $visibilityManipulator)
     {
         $this->phpUnitTypeDeclarationDecorator = $phpUnitTypeDeclarationDecorator;
         $this->phpSpecRenaming = $phpSpecRenaming;
+        $this->visibilityManipulator = $visibilityManipulator;
     }
     /**
      * @return array<class-string<Node>>
@@ -69,8 +78,8 @@ final class PhpSpecMethodToPHPUnitMethodRector extends \Rector\PhpSpecToPHPUnit\
         // reorder instantiation + expected exception
         $previousStmt = null;
         foreach ((array) $classMethod->stmts as $key => $stmt) {
-            $printedStmt = $this->print($stmt);
-            if ($previousStmt && \strpos($printedStmt, 'duringInstantiation') !== \false) {
+            $printedStmtContent = $this->print($stmt);
+            if (\strpos($printedStmtContent, 'duringInstantiation') !== \false) {
                 $printedPreviousStmt = $this->print($previousStmt);
                 if (\strpos($printedPreviousStmt, 'beConstructedThrough') !== \false) {
                     $classMethod->stmts[$key - 1] = $stmt;

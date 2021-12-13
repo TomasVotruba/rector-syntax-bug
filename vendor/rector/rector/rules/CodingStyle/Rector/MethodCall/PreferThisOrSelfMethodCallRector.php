@@ -15,7 +15,7 @@ use Rector\Core\PhpParser\AstResolver;
 use Rector\Core\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\CodingStyle\Rector\MethodCall\PreferThisOrSelfMethodCallRector\PreferThisOrSelfMethodCallRectorTest
  */
@@ -23,6 +23,7 @@ final class PreferThisOrSelfMethodCallRector extends \Rector\Core\Rector\Abstrac
 {
     /**
      * @api
+     * @deprecated
      * @var string
      */
     public const TYPE_TO_PREFERENCE = 'type_to_preference';
@@ -31,6 +32,7 @@ final class PreferThisOrSelfMethodCallRector extends \Rector\Core\Rector\Abstrac
      */
     private $typeToPreference = [];
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\AstResolver
      */
     private $astResolver;
@@ -58,7 +60,7 @@ class SomeClass extends \PHPUnit\Framework\TestCase
     }
 }
 CODE_SAMPLE
-, [self::TYPE_TO_PREFERENCE => ['PHPUnit\\Framework\\TestCase' => \Rector\CodingStyle\Enum\PreferenceSelfThis::PREFER_SELF()]])]);
+, ['PHPUnit\\Framework\\TestCase' => \Rector\CodingStyle\Enum\PreferenceSelfThis::PREFER_SELF()])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -85,12 +87,14 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, PreferenceSelfThis[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $typeToPreference = $configuration[self::TYPE_TO_PREFERENCE] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsAOf($typeToPreference, \Rector\CodingStyle\Enum\PreferenceSelfThis::class);
+        $typeToPreference = $configuration[self::TYPE_TO_PREFERENCE] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($typeToPreference);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString(\array_keys($typeToPreference));
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($typeToPreference, \Rector\CodingStyle\Enum\PreferenceSelfThis::class);
         $this->typeToPreference = $typeToPreference;
     }
     /**

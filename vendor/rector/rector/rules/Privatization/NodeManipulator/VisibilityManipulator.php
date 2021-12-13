@@ -9,7 +9,10 @@ use PhpParser\Node\Stmt\ClassConst;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Property;
 use Rector\Core\ValueObject\Visibility;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
+/**
+ * @see \Rector\Tests\Privatization\NodeManipulator\VisibilityManipulatorTest
+ */
 final class VisibilityManipulator
 {
     /**
@@ -85,7 +88,7 @@ final class VisibilityManipulator
      */
     public function changeNodeVisibility($node, int $visibility) : void
     {
-        \RectorPrefix20211110\Webmozart\Assert\Assert::oneOf($visibility, [\Rector\Core\ValueObject\Visibility::PUBLIC, \Rector\Core\ValueObject\Visibility::PROTECTED, \Rector\Core\ValueObject\Visibility::PRIVATE, \Rector\Core\ValueObject\Visibility::STATIC, \Rector\Core\ValueObject\Visibility::ABSTRACT, \Rector\Core\ValueObject\Visibility::FINAL]);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::oneOf($visibility, [\Rector\Core\ValueObject\Visibility::PUBLIC, \Rector\Core\ValueObject\Visibility::PROTECTED, \Rector\Core\ValueObject\Visibility::PRIVATE, \Rector\Core\ValueObject\Visibility::STATIC, \Rector\Core\ValueObject\Visibility::ABSTRACT, \Rector\Core\ValueObject\Visibility::FINAL]);
         $this->replaceVisibilityFlag($node, $visibility);
     }
     /**
@@ -125,7 +128,21 @@ final class VisibilityManipulator
      */
     public function makeReadonly($node) : void
     {
-        $this->addVisibilityFlag($node, \PhpParser\Node\Stmt\Class_::MODIFIER_READONLY);
+        $this->addVisibilityFlag($node, \Rector\Core\ValueObject\Visibility::READONLY);
+    }
+    /**
+     * @param \PhpParser\Node\Param|\PhpParser\Node\Stmt\Property $node
+     */
+    public function isReadonly($node) : bool
+    {
+        return $this->hasVisibility($node, \Rector\Core\ValueObject\Visibility::READONLY);
+    }
+    /**
+     * @param \PhpParser\Node\Param|\PhpParser\Node\Stmt\Property $node
+     */
+    public function removeReadonly($node) : void
+    {
+        $this->removeVisibilityFlag($node, \Rector\Core\ValueObject\Visibility::READONLY);
     }
     /**
      * @param \PhpParser\Node\Param|\PhpParser\Node\Stmt\Class_|\PhpParser\Node\Stmt\ClassConst|\PhpParser\Node\Stmt\ClassMethod|\PhpParser\Node\Stmt\Property $node
@@ -135,13 +152,20 @@ final class VisibilityManipulator
         $node->flags |= $visibility;
     }
     /**
+     * @param \PhpParser\Node\Param|\PhpParser\Node\Stmt\Class_|\PhpParser\Node\Stmt\ClassConst|\PhpParser\Node\Stmt\ClassMethod|\PhpParser\Node\Stmt\Property $node
+     */
+    private function removeVisibilityFlag($node, int $visibility) : void
+    {
+        $node->flags &= ~$visibility;
+    }
+    /**
      * @param \PhpParser\Node\Stmt\ClassConst|\PhpParser\Node\Stmt\ClassMethod|\PhpParser\Node\Stmt\Property $node
      */
     private function replaceVisibilityFlag($node, int $visibility) : void
     {
         $isStatic = $node instanceof \PhpParser\Node\Stmt\ClassMethod && $node->isStatic();
         if ($isStatic) {
-            $this->removeVisibility($node);
+            $this->makeNonStatic($node);
         }
         if ($visibility !== \Rector\Core\ValueObject\Visibility::STATIC && $visibility !== \Rector\Core\ValueObject\Visibility::ABSTRACT && $visibility !== \Rector\Core\ValueObject\Visibility::FINAL) {
             $this->removeVisibility($node);

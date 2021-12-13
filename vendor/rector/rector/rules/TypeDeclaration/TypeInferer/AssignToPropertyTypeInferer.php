@@ -18,38 +18,45 @@ use Rector\TypeDeclaration\AlreadyAssignDetector\ConstructorAssignDetector;
 use Rector\TypeDeclaration\AlreadyAssignDetector\NullTypeAssignDetector;
 use Rector\TypeDeclaration\AlreadyAssignDetector\PropertyDefaultAssignDetector;
 use Rector\TypeDeclaration\Matcher\PropertyAssignMatcher;
-use RectorPrefix20211110\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser;
+use RectorPrefix20211213\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser;
 final class AssignToPropertyTypeInferer
 {
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\AlreadyAssignDetector\ConstructorAssignDetector
      */
     private $constructorAssignDetector;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\Matcher\PropertyAssignMatcher
      */
     private $propertyAssignMatcher;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\AlreadyAssignDetector\PropertyDefaultAssignDetector
      */
     private $propertyDefaultAssignDetector;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\AlreadyAssignDetector\NullTypeAssignDetector
      */
     private $nullTypeAssignDetector;
     /**
+     * @readonly
      * @var \Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser
      */
     private $simpleCallableNodeTraverser;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PHPStan\Type\TypeFactory
      */
     private $typeFactory;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeTypeResolver
      */
     private $nodeTypeResolver;
-    public function __construct(\Rector\TypeDeclaration\AlreadyAssignDetector\ConstructorAssignDetector $constructorAssignDetector, \Rector\TypeDeclaration\Matcher\PropertyAssignMatcher $propertyAssignMatcher, \Rector\TypeDeclaration\AlreadyAssignDetector\PropertyDefaultAssignDetector $propertyDefaultAssignDetector, \Rector\TypeDeclaration\AlreadyAssignDetector\NullTypeAssignDetector $nullTypeAssignDetector, \RectorPrefix20211110\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser $simpleCallableNodeTraverser, \Rector\NodeTypeResolver\PHPStan\Type\TypeFactory $typeFactory, \Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver)
+    public function __construct(\Rector\TypeDeclaration\AlreadyAssignDetector\ConstructorAssignDetector $constructorAssignDetector, \Rector\TypeDeclaration\Matcher\PropertyAssignMatcher $propertyAssignMatcher, \Rector\TypeDeclaration\AlreadyAssignDetector\PropertyDefaultAssignDetector $propertyDefaultAssignDetector, \Rector\TypeDeclaration\AlreadyAssignDetector\NullTypeAssignDetector $nullTypeAssignDetector, \RectorPrefix20211213\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser $simpleCallableNodeTraverser, \Rector\NodeTypeResolver\PHPStan\Type\TypeFactory $typeFactory, \Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver)
     {
         $this->constructorAssignDetector = $constructorAssignDetector;
         $this->propertyAssignMatcher = $propertyAssignMatcher;

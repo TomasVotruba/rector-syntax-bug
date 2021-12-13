@@ -12,34 +12,50 @@ use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\Php\PhpPropertyReflection;
 use PHPStan\Reflection\PropertyReflection;
 use PHPStan\Reflection\ReflectionProvider;
+use PHPStan\Type\ArrayType;
+use PHPStan\Type\Constant\ConstantArrayType;
+use PHPStan\Type\Type;
 use PHPStan\Type\TypeWithClassName;
 use PHPStan\Type\UnionType;
+use Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer;
 use Rector\NodeNameResolver\NodeNameResolver;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\NodeTypeResolver\NodeTypeResolver;
 final class CountableAnalyzer
 {
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeTypeResolver
      */
     private $nodeTypeResolver;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
-    public function __construct(\Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \PHPStan\Reflection\ReflectionProvider $reflectionProvider)
+    /**
+     * @readonly
+     * @var \Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer
+     */
+    private $propertyFetchAnalyzer;
+    public function __construct(\Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer $propertyFetchAnalyzer)
     {
         $this->nodeTypeResolver = $nodeTypeResolver;
         $this->nodeNameResolver = $nodeNameResolver;
         $this->reflectionProvider = $reflectionProvider;
+        $this->propertyFetchAnalyzer = $propertyFetchAnalyzer;
     }
-    public function isCastableArrayType(\PhpParser\Node\Expr $expr) : bool
+    public function isCastableArrayType(\PhpParser\Node\Expr $expr, \PHPStan\Type\ArrayType $arrayType) : bool
     {
         if (!$expr instanceof \PhpParser\Node\Expr\PropertyFetch) {
+            return \false;
+        }
+        if ($arrayType instanceof \PHPStan\Type\Constant\ConstantArrayType) {
             return \false;
         }
         $callerObjectType = $this->nodeTypeResolver->getType($expr->var);
@@ -71,11 +87,18 @@ final class CountableAnalyzer
             return \false;
         }
         $nativeType = $phpPropertyReflection->getNativeType();
-        if ($nativeType->isIterable()->yes()) {
+        if ($this->isIterableOrFilledByConstructParam($nativeType, $expr)) {
             return \false;
         }
         $propertyDefaultValue = $propertiesDefaults[$propertyName];
         return $propertyDefaultValue === null;
+    }
+    private function isIterableOrFilledByConstructParam(\PHPStan\Type\Type $nativeType, \PhpParser\Node\Expr\PropertyFetch $propertyFetch) : bool
+    {
+        if ($nativeType->isIterable()->yes()) {
+            return \true;
+        }
+        return $this->propertyFetchAnalyzer->isFilledByConstructParam($propertyFetch);
     }
     private function resolveProperty(\PhpParser\Node\Expr\PropertyFetch $propertyFetch, \PHPStan\Reflection\ClassReflection $classReflection, string $propertyName) : ?\PHPStan\Reflection\PropertyReflection
     {

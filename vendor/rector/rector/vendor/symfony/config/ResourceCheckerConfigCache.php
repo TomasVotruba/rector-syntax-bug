@@ -8,30 +8,30 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Config;
+namespace RectorPrefix20211213\Symfony\Component\Config;
 
-use RectorPrefix20211110\Symfony\Component\Config\Resource\ResourceInterface;
-use RectorPrefix20211110\Symfony\Component\Filesystem\Exception\IOException;
-use RectorPrefix20211110\Symfony\Component\Filesystem\Filesystem;
+use RectorPrefix20211213\Symfony\Component\Config\Resource\ResourceInterface;
+use RectorPrefix20211213\Symfony\Component\Filesystem\Exception\IOException;
+use RectorPrefix20211213\Symfony\Component\Filesystem\Filesystem;
 /**
  * ResourceCheckerConfigCache uses instances of ResourceCheckerInterface
  * to check whether cached data is still fresh.
  *
  * @author Matthias Pigulla <mp@webfactory.de>
  */
-class ResourceCheckerConfigCache implements \RectorPrefix20211110\Symfony\Component\Config\ConfigCacheInterface
+class ResourceCheckerConfigCache implements \RectorPrefix20211213\Symfony\Component\Config\ConfigCacheInterface
 {
     /**
      * @var string
      */
     private $file;
     /**
-     * @var iterable|ResourceCheckerInterface[]
+     * @var iterable<mixed, ResourceCheckerInterface>
      */
     private $resourceCheckers;
     /**
-     * @param string                              $file             The absolute cache path
-     * @param iterable|ResourceCheckerInterface[] $resourceCheckers The ResourceCheckers to use for the freshness check
+     * @param string                                    $file             The absolute cache path
+     * @param iterable<mixed, ResourceCheckerInterface> $resourceCheckers The ResourceCheckers to use for the freshness check
      */
     public function __construct(string $file, iterable $resourceCheckers = [])
     {
@@ -54,7 +54,7 @@ class ResourceCheckerConfigCache implements \RectorPrefix20211110\Symfony\Compon
      * The first ResourceChecker that supports a given resource is considered authoritative.
      * Resources with no matching ResourceChecker will silently be ignored and considered fresh.
      *
-     * @return bool true if the cache is fresh, false otherwise
+     * @return bool
      */
     public function isFresh()
     {
@@ -78,7 +78,6 @@ class ResourceCheckerConfigCache implements \RectorPrefix20211110\Symfony\Compon
         }
         $time = \filemtime($this->file);
         foreach ($meta as $resource) {
-            /* @var ResourceInterface $resource */
             foreach ($this->resourceCheckers as $checker) {
                 if (!$checker->supports($resource)) {
                     continue;
@@ -103,22 +102,22 @@ class ResourceCheckerConfigCache implements \RectorPrefix20211110\Symfony\Compon
      *
      * @throws \RuntimeException When cache file can't be written
      */
-    public function write($content, $metadata = null)
+    public function write(string $content, array $metadata = null)
     {
         $mode = 0666;
         $umask = \umask();
-        $filesystem = new \RectorPrefix20211110\Symfony\Component\Filesystem\Filesystem();
+        $filesystem = new \RectorPrefix20211213\Symfony\Component\Filesystem\Filesystem();
         $filesystem->dumpFile($this->file, $content);
         try {
             $filesystem->chmod($this->file, $mode, $umask);
-        } catch (\RectorPrefix20211110\Symfony\Component\Filesystem\Exception\IOException $e) {
+        } catch (\RectorPrefix20211213\Symfony\Component\Filesystem\Exception\IOException $e) {
             // discard chmod failure (some filesystem may not support it)
         }
         if (null !== $metadata) {
             $filesystem->dumpFile($this->getMetaFile(), \serialize($metadata));
             try {
                 $filesystem->chmod($this->getMetaFile(), $mode, $umask);
-            } catch (\RectorPrefix20211110\Symfony\Component\Filesystem\Exception\IOException $e) {
+            } catch (\RectorPrefix20211213\Symfony\Component\Filesystem\Exception\IOException $e) {
                 // discard chmod failure (some filesystem may not support it)
             }
         }
@@ -159,9 +158,8 @@ class ResourceCheckerConfigCache implements \RectorPrefix20211110\Symfony\Compon
     }
     /**
      * @internal
-     * @param string $class
      */
-    public static function handleUnserializeCallback($class)
+    public static function handleUnserializeCallback(string $class)
     {
         \trigger_error('Class not found: ' . $class);
     }

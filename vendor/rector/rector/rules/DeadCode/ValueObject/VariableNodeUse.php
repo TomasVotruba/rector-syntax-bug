@@ -6,6 +6,7 @@ namespace Rector\DeadCode\ValueObject;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Variable;
 use Rector\Core\Exception\ShouldNotHappenException;
+use Rector\Core\Validation\RectorAssert;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 final class VariableNodeUse
 {
@@ -18,22 +19,27 @@ final class VariableNodeUse
      */
     public const TYPE_ASSIGN = 'assign';
     /**
+     * @readonly
      * @var int
      */
     private $startTokenPosition;
     /**
+     * @readonly
      * @var string
      */
     private $variableName;
     /**
+     * @readonly
      * @var string
      */
     private $type;
     /**
+     * @readonly
      * @var \PhpParser\Node\Expr\Variable
      */
     private $variable;
     /**
+     * @readonly
      * @var string|null
      */
     private $nestingHash;
@@ -44,6 +50,7 @@ final class VariableNodeUse
         $this->type = $type;
         $this->variable = $variable;
         $this->nestingHash = $nestingHash;
+        \Rector\Core\Validation\RectorAssert::className($type);
     }
     public function isName(string $name) : bool
     {

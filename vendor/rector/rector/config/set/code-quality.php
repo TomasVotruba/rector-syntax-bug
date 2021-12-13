@@ -1,19 +1,21 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110;
+namespace RectorPrefix20211213;
 
 use Rector\CodeQuality\Rector\Array_\ArrayThisCallToThisMethodCallRector;
 use Rector\CodeQuality\Rector\Array_\CallableThisArrayToAnonymousFunctionRector;
 use Rector\CodeQuality\Rector\Assign\CombinedAssignRector;
 use Rector\CodeQuality\Rector\Assign\SplitListAssignToSeparateLineRector;
 use Rector\CodeQuality\Rector\BooleanAnd\SimplifyEmptyArrayCheckRector;
+use Rector\CodeQuality\Rector\BooleanNot\ReplaceMultipleBooleanNotRector;
 use Rector\CodeQuality\Rector\BooleanNot\SimplifyDeMorganBinaryRector;
 use Rector\CodeQuality\Rector\Catch_\ThrowWithPreviousExceptionRector;
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\ClassMethod\DateTimeToDateTimeInterfaceRector;
 use Rector\CodeQuality\Rector\ClassMethod\NarrowUnionTypeDocRector;
 use Rector\CodeQuality\Rector\Concat\JoinStringConcatRector;
+use Rector\CodeQuality\Rector\Do_\DoWhileBreakFalseToIfElseRector;
 use Rector\CodeQuality\Rector\Equal\UseIdenticalOverEqualWithSameTypeRector;
 use Rector\CodeQuality\Rector\Expression\InlineIfToExplicitIfRector;
 use Rector\CodeQuality\Rector\For_\ForRepeatedCountToOwnVariableRector;
@@ -82,6 +84,7 @@ return static function (\Symfony\Component\DependencyInjection\Loader\Configurat
     $services = $containerConfigurator->services();
     $services->set(\Rector\CodeQuality\Rector\Assign\CombinedAssignRector::class);
     $services->set(\Rector\CodeQuality\Rector\BooleanAnd\SimplifyEmptyArrayCheckRector::class);
+    $services->set(\Rector\CodeQuality\Rector\BooleanNot\ReplaceMultipleBooleanNotRector::class);
     $services->set(\Rector\CodeQuality\Rector\Foreach_\ForeachToInArrayRector::class);
     $services->set(\Rector\CodeQuality\Rector\Foreach_\SimplifyForeachToCoalescingRector::class);
     $services->set(\Rector\CodeQuality\Rector\FuncCall\InArrayAndArrayKeysToArrayKeyExistsRector::class);
@@ -136,7 +139,7 @@ return static function (\Symfony\Component\DependencyInjection\Loader\Configurat
     $services->set(\Rector\CodeQuality\Rector\Foreach_\UnusedForeachValueToArrayKeysRector::class);
     $services->set(\Rector\CodeQuality\Rector\Array_\ArrayThisCallToThisMethodCallRector::class);
     $services->set(\Rector\CodeQuality\Rector\NotEqual\CommonNotEqualRector::class);
-    $services->set(\Rector\Renaming\Rector\FuncCall\RenameFunctionRector::class)->call('configure', [[\Rector\Renaming\Rector\FuncCall\RenameFunctionRector::OLD_FUNCTION_TO_NEW_FUNCTION => [
+    $services->set(\Rector\Renaming\Rector\FuncCall\RenameFunctionRector::class)->configure([
         'split' => 'explode',
         'join' => 'implode',
         'sizeof' => 'count',
@@ -160,7 +163,7 @@ return static function (\Symfony\Component\DependencyInjection\Loader\Configurat
         'mbstrpos' => 'mb_strpos',
         'mbstrrpos' => 'mb_strrpos',
         'mbsubstr' => 'mb_substr',
-    ]]]);
+    ]);
     $services->set(\Rector\CodeQuality\Rector\FuncCall\SetTypeToCastRector::class);
     $services->set(\Rector\CodeQuality\Rector\LogicalAnd\LogicalToBooleanRector::class);
     $services->set(\Rector\Php52\Rector\Property\VarToPublicPropertyRector::class);
@@ -178,4 +181,5 @@ return static function (\Symfony\Component\DependencyInjection\Loader\Configurat
     $services->set(\Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector::class);
     $services->set(\Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector::class);
     $services->set(\Rector\CodeQuality\Rector\PropertyFetch\ExplicitMethodCallOverMagicGetSetRector::class);
+    $services->set(\Rector\CodeQuality\Rector\Do_\DoWhileBreakFalseToIfElseRector::class);
 };

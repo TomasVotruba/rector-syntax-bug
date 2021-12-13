@@ -14,7 +14,7 @@ use Rector\Transform\NodeFactory\UnwrapClosureFactory;
 use Rector\Transform\ValueObject\CallableInMethodCallToVariable;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @changelog https://github.com/nette/caching/commit/5ffe263752af5ccf3866a28305e7b2669ab4da82
  *
@@ -23,6 +23,7 @@ use RectorPrefix20211110\Webmozart\Assert\Assert;
 final class CallableInMethodCallToVariableRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const CALLABLE_IN_METHOD_CALL_TO_VARIABLE = 'callable_in_method_call_to_variable';
@@ -31,6 +32,7 @@ final class CallableInMethodCallToVariableRector extends \Rector\Core\Rector\Abs
      */
     private $callableInMethodCallToVariable = [];
     /**
+     * @readonly
      * @var \Rector\Transform\NodeFactory\UnwrapClosureFactory
      */
     private $unwrapClosureFactory;
@@ -63,7 +65,7 @@ final class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::CALLABLE_IN_METHOD_CALL_TO_VARIABLE => [new \Rector\Transform\ValueObject\CallableInMethodCallToVariable('Nette\\Caching\\Cache', 'save', 1)]])]);
+, [new \Rector\Transform\ValueObject\CallableInMethodCallToVariable('Nette\\Caching\\Cache', 'save', 1)])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -102,12 +104,13 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, CallableInMethodCallToVariable[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $callableInMethodCallToVariable = $configuration[self::CALLABLE_IN_METHOD_CALL_TO_VARIABLE] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($callableInMethodCallToVariable, \Rector\Transform\ValueObject\CallableInMethodCallToVariable::class);
+        $callableInMethodCallToVariable = $configuration[self::CALLABLE_IN_METHOD_CALL_TO_VARIABLE] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($callableInMethodCallToVariable);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($callableInMethodCallToVariable, \Rector\Transform\ValueObject\CallableInMethodCallToVariable::class);
         $this->callableInMethodCallToVariable = $callableInMethodCallToVariable;
     }
 }

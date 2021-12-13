@@ -8,9 +8,9 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Config;
+namespace RectorPrefix20211213\Symfony\Component\Config;
 
-use RectorPrefix20211110\Symfony\Component\Config\Resource\ResourceInterface;
+use RectorPrefix20211213\Symfony\Component\Config\Resource\ResourceInterface;
 /**
  * Interface for ResourceCheckers.
  *
@@ -28,17 +28,15 @@ interface ResourceCheckerInterface
      * Queries the ResourceChecker whether it can validate a given
      * resource or not.
      *
-     * @return bool True if the ResourceChecker can handle this resource type, false if not
-     * @param \Symfony\Component\Config\Resource\ResourceInterface $metadata
+     * @return bool
      */
-    public function supports($metadata);
+    public function supports(\RectorPrefix20211213\Symfony\Component\Config\Resource\ResourceInterface $metadata);
     /**
      * Validates the resource.
      *
      * @param int $timestamp The timestamp at which the cache associated with this resource was created
      *
-     * @return bool True if the resource has not changed since the given timestamp, false otherwise
-     * @param \Symfony\Component\Config\Resource\ResourceInterface $resource
+     * @return bool
      */
-    public function isFresh($resource, $timestamp);
+    public function isFresh(\RectorPrefix20211213\Symfony\Component\Config\Resource\ResourceInterface $resource, int $timestamp);
 }

@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Config\Resource;
+namespace RectorPrefix20211213\Symfony\Component\Config\Resource;
 
 /**
  * FileExistenceResource represents a resource stored on the filesystem.
@@ -20,7 +20,7 @@ namespace RectorPrefix20211110\Symfony\Component\Config\Resource;
  *
  * @final
  */
-class FileExistenceResource implements \RectorPrefix20211110\Symfony\Component\Config\Resource\SelfCheckingResourceInterface
+class FileExistenceResource implements \RectorPrefix20211213\Symfony\Component\Config\Resource\SelfCheckingResourceInterface
 {
     private $resource;
     private $exists;
@@ -36,18 +36,14 @@ class FileExistenceResource implements \RectorPrefix20211110\Symfony\Component\C
     {
         return $this->resource;
     }
-    /**
-     * @return string The file path to the resource
-     */
     public function getResource() : string
     {
         return $this->resource;
     }
     /**
      * {@inheritdoc}
-     * @param int $timestamp
      */
-    public function isFresh($timestamp) : bool
+    public function isFresh(int $timestamp) : bool
     {
         return \file_exists($this->resource) === $this->exists;
     }

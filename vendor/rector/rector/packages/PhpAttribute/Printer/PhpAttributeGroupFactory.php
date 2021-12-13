@@ -3,37 +3,57 @@
 declare (strict_types=1);
 namespace Rector\PhpAttribute\Printer;
 
-use PhpParser\BuilderHelpers;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Attribute;
 use PhpParser\Node\AttributeGroup;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\Scalar\String_;
 use Rector\BetterPhpDocParser\PhpDoc\DoctrineAnnotationTagValueNode;
-use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\Php80\ValueObject\AnnotationToAttribute;
+use Rector\PhpAttribute\AnnotationToAttributeMapper;
+use Rector\PhpAttribute\NodeAnalyzer\ExprParameterReflectionTypeCorrector;
 use Rector\PhpAttribute\NodeAnalyzer\NamedArgumentsResolver;
-use Rector\PhpAttribute\Value\ValueNormalizer;
+use Rector\PhpAttribute\NodeFactory\AttributeNameFactory;
+use Rector\PhpAttribute\NodeFactory\NamedArgsFactory;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\PhpAttribute\Printer\PhpAttributeGroupFactoryTest
  */
 final class PhpAttributeGroupFactory
 {
     /**
+     * @readonly
      * @var \Rector\PhpAttribute\NodeAnalyzer\NamedArgumentsResolver
      */
     private $namedArgumentsResolver;
     /**
-     * @var \Rector\PhpAttribute\Value\ValueNormalizer
+     * @readonly
+     * @var \Rector\PhpAttribute\AnnotationToAttributeMapper
      */
-    private $valueNormalizer;
-    public function __construct(\Rector\PhpAttribute\NodeAnalyzer\NamedArgumentsResolver $namedArgumentsResolver, \Rector\PhpAttribute\Value\ValueNormalizer $valueNormalizer)
+    private $annotationToAttributeMapper;
+    /**
+     * @readonly
+     * @var \Rector\PhpAttribute\NodeFactory\AttributeNameFactory
+     */
+    private $attributeNameFactory;
+    /**
+     * @readonly
+     * @var \Rector\PhpAttribute\NodeFactory\NamedArgsFactory
+     */
+    private $namedArgsFactory;
+    /**
+     * @readonly
+     * @var \Rector\PhpAttribute\NodeAnalyzer\ExprParameterReflectionTypeCorrector
+     */
+    private $exprParameterReflectionTypeCorrector;
+    public function __construct(\Rector\PhpAttribute\NodeAnalyzer\NamedArgumentsResolver $namedArgumentsResolver, \Rector\PhpAttribute\AnnotationToAttributeMapper $annotationToAttributeMapper, \Rector\PhpAttribute\NodeFactory\AttributeNameFactory $attributeNameFactory, \Rector\PhpAttribute\NodeFactory\NamedArgsFactory $namedArgsFactory, \Rector\PhpAttribute\NodeAnalyzer\ExprParameterReflectionTypeCorrector $exprParameterReflectionTypeCorrector)
     {
         $this->namedArgumentsResolver = $namedArgumentsResolver;
-        $this->valueNormalizer = $valueNormalizer;
+        $this->annotationToAttributeMapper = $annotationToAttributeMapper;
+        $this->attributeNameFactory = $attributeNameFactory;
+        $this->namedArgsFactory = $namedArgsFactory;
+        $this->exprParameterReflectionTypeCorrector = $exprParameterReflectionTypeCorrector;
     }
     public function createFromSimpleTag(\Rector\Php80\ValueObject\AnnotationToAttribute $annotationToAttribute) : \PhpParser\Node\AttributeGroup
     {
@@ -51,71 +71,30 @@ final class PhpAttributeGroupFactory
     public function createFromClassWithItems(string $attributeClass, array $items) : \PhpParser\Node\AttributeGroup
     {
         $fullyQualified = new \PhpParser\Node\Name\FullyQualified($attributeClass);
-        $args = $this->createArgsFromItems($items);
+        $args = $this->createArgsFromItems($items, $attributeClass);
         $attribute = new \PhpParser\Node\Attribute($fullyQualified, $args);
         return new \PhpParser\Node\AttributeGroup([$attribute]);
     }
     public function create(\Rector\BetterPhpDocParser\PhpDoc\DoctrineAnnotationTagValueNode $doctrineAnnotationTagValueNode, \Rector\Php80\ValueObject\AnnotationToAttribute $annotationToAttribute) : \PhpParser\Node\AttributeGroup
     {
-        $fullyQualified = new \PhpParser\Node\Name\FullyQualified($annotationToAttribute->getAttributeClass());
         $values = $doctrineAnnotationTagValueNode->getValuesWithExplicitSilentAndWithoutQuotes();
-        $args = $this->createArgsFromItems($values);
+        $args = $this->createArgsFromItems($values, $annotationToAttribute->getAttributeClass());
         $argumentNames = $this->namedArgumentsResolver->resolveFromClass($annotationToAttribute->getAttributeClass());
         $this->completeNamedArguments($args, $argumentNames);
-        $attribute = new \PhpParser\Node\Attribute($fullyQualified, $args);
+        $attributeName = $this->attributeNameFactory->create($annotationToAttribute, $doctrineAnnotationTagValueNode);
+        $attribute = new \PhpParser\Node\Attribute($attributeName, $args);
         return new \PhpParser\Node\AttributeGroup([$attribute]);
     }
     /**
      * @param mixed[] $items
      * @return Arg[]
      */
-    public function createArgsFromItems(array $items, ?string $silentKey = null) : array
+    public function createArgsFromItems(array $items, string $attributeClass) : array
     {
-        $args = [];
-        if ($silentKey !== null && isset($items[$silentKey])) {
-            $silentValue = \PhpParser\BuilderHelpers::normalizeValue($items[$silentKey]);
-            $this->normalizeStringDoubleQuote($silentValue);
-            $args[] = new \PhpParser\Node\Arg($silentValue);
-            unset($items[$silentKey]);
-        }
-        foreach ($items as $key => $value) {
-            $value = $this->valueNormalizer->normalize($value);
-            $value = \PhpParser\BuilderHelpers::normalizeValue($value);
-            $this->normalizeStringDoubleQuote($value);
-            $name = null;
-            if (\is_string($key)) {
-                $name = new \PhpParser\Node\Identifier($key);
-            }
-            // resolve argument name
-            $args[] = $this->isArrayArguments($items) ? new \PhpParser\Node\Arg($value, \false, \false, [], $name) : new \PhpParser\Node\Arg($value);
-        }
-        return $args;
-    }
-    /**
-     * @param mixed[] $items
-     */
-    private function isArrayArguments(array $items) : bool
-    {
-        foreach (\array_keys($items) as $key) {
-            if (!\is_int($key)) {
-                return \true;
-            }
-        }
-        return \false;
-    }
-    private function normalizeStringDoubleQuote(\PhpParser\Node\Expr $expr) : void
-    {
-        if (!$expr instanceof \PhpParser\Node\Scalar\String_) {
-            return;
-        }
-        // avoid escaping quotes + preserve newlines
-        if (\strpos($expr->value, "'") === \false) {
-            return;
-        }
-        if (\strpos($expr->value, "\n") !== \false) {
-            return;
-        }
-        $expr->setAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::KIND, \PhpParser\Node\Scalar\String_::KIND_DOUBLE_QUOTED);
+        /** @var Expr[] $items */
+        $items = $this->annotationToAttributeMapper->map($items);
+        $items = $this->exprParameterReflectionTypeCorrector->correctItemsByAttributeClass($items, $attributeClass);
+        return $this->namedArgsFactory->createFromValues($items);
     }
     /**
      * @param Arg[] $args
@@ -123,6 +102,7 @@ final class PhpAttributeGroupFactory
      */
     private function completeNamedArguments(array $args, array $argumentNames) : void
     {
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($args, \PhpParser\Node\Arg::class);
         foreach ($args as $key => $arg) {
             $argumentName = $argumentNames[$key] ?? null;
             if ($argumentName === null) {

@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Nette\Rector\Class_;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\PropertyFetch;
@@ -19,7 +19,7 @@ use Rector\Nette\NodeFactory\ClassWithPublicPropertiesFactory;
 use Rector\Nette\ValueObject\LatteVariableType;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Nette\Tests\Rector\Class_\TemplateTypeBasedOnPresenterTemplateParametersRector\TemplateTypeBasedOnPresenterTemplateParametersRectorTest
  */
@@ -103,18 +103,18 @@ CODE_SAMPLE
         return [\PhpParser\Node\Stmt\Class_::class];
     }
     /**
-     * @param array<string, string|string[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
         if (isset($configuration[self::TEMPLATE_CLASS_PARENT])) {
             $templateClassParent = $configuration[self::TEMPLATE_CLASS_PARENT];
-            \RectorPrefix20211110\Webmozart\Assert\Assert::string($templateClassParent);
+            \RectorPrefix20211213\Webmozart\Assert\Assert::string($templateClassParent);
             $this->templateClassParent = $templateClassParent;
         }
         if (isset($configuration[self::TEMPLATE_CLASS_TRAITS])) {
             $templateClassTraits = $configuration[self::TEMPLATE_CLASS_TRAITS];
-            \RectorPrefix20211110\Webmozart\Assert\Assert::isArray($templateClassTraits);
+            \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($templateClassTraits);
             $this->templateClassTraits = $templateClassTraits;
         }
     }
@@ -131,14 +131,14 @@ CODE_SAMPLE
         }
         $shortClassName = $this->nodeNameResolver->getShortName($node);
         $fullClassName = $this->nodeNameResolver->getName($node);
-        if (!$fullClassName) {
+        if (!\is_string($fullClassName)) {
             return null;
         }
         $presenterName = \str_replace('Presenter', '', $shortClassName);
         $actionVarTypes = [];
         foreach ($node->getMethods() as $method) {
             $fullActionName = $method->name->name;
-            if (!(\strncmp($fullActionName, 'action', \strlen('action')) === 0 || \strncmp($fullActionName, 'render', \strlen('render')) === 0)) {
+            if (\strncmp($fullActionName, 'action', \strlen('action')) !== 0 && \strncmp($fullActionName, 'render', \strlen('render')) !== 0) {
                 continue;
             }
             $actionName = \str_replace(['action', 'render'], '', $fullActionName);
@@ -157,7 +157,10 @@ CODE_SAMPLE
     private function findVarTypesForAction(\PhpParser\Node\Stmt\ClassMethod $method) : array
     {
         $varTypes = [];
-        $stmts = $method->stmts ?: [];
+        $stmts = $method->getStmts();
+        if ($stmts === null) {
+            return [];
+        }
         foreach ($stmts as $stmt) {
             if (!$stmt instanceof \PhpParser\Node\Stmt\Expression) {
                 continue;
@@ -210,7 +213,7 @@ CODE_SAMPLE
         $upperCasedActionName = \ucfirst($actionName);
         $templateClassName = $presenterName . $upperCasedActionName . 'Template';
         $presenterPattern = '#Presenter$#';
-        $fullTemplateClassName = '\\' . \RectorPrefix20211110\Nette\Utils\Strings::replace($fullPresenterName, $presenterPattern, $upperCasedActionName . 'Template');
+        $fullTemplateClassName = '\\' . \RectorPrefix20211213\Nette\Utils\Strings::replace($fullPresenterName, $presenterPattern, $upperCasedActionName . 'Template');
         $templateClass = $this->classWithPublicPropertiesFactory->createNode($fullTemplateClassName, $properties, $this->templateClassParent, $this->templateClassTraits);
         $printedClassContent = "<?php\n\n" . $this->betterStandardPrinter->print($templateClass) . "\n";
         $smartFileInfo = $this->file->getSmartFileInfo();

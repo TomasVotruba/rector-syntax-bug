@@ -10,12 +10,14 @@ use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Renaming\Rector\ConstFetch\RenameConstantRector\RenameConstantRectorTest
  */
 final class RenameConstantRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const OLD_TO_NEW_CONSTANTS = 'old_to_new_constants';
@@ -43,7 +45,7 @@ final class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::OLD_TO_NEW_CONSTANTS => ['MYSQL_ASSOC' => 'MYSQLI_ASSOC', 'OLD_CONSTANT' => 'NEW_CONSTANT']])]);
+, ['MYSQL_ASSOC' => 'MYSQLI_ASSOC', 'OLD_CONSTANT' => 'NEW_CONSTANT'])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -67,10 +69,14 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, array<string, string>> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $this->oldToNewConstants = $configuration[self::OLD_TO_NEW_CONSTANTS] ?? [];
+        $oldToNewConstants = $configuration[self::OLD_TO_NEW_CONSTANTS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString(\array_keys($oldToNewConstants));
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($oldToNewConstants);
+        /** @var array<string, string> $oldToNewConstants */
+        $this->oldToNewConstants = $oldToNewConstants;
     }
 }

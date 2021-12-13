@@ -12,7 +12,7 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Transform\ValueObject\StaticCallToNew;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @changelog https://github.com/symfony/symfony/pull/35308
  *
@@ -21,6 +21,7 @@ use RectorPrefix20211110\Webmozart\Assert\Assert;
 final class StaticCallToNewRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const STATIC_CALLS_TO_NEWS = 'static_calls_to_news';
@@ -35,7 +36,7 @@ class SomeClass
 {
     public function run()
     {
-        $dotenv = JsonResponse::create(true);
+        $dotenv = JsonResponse::create(['foo' => 'bar'], Response::HTTP_OK);
     }
 }
 CODE_SAMPLE
@@ -44,11 +45,11 @@ class SomeClass
 {
     public function run()
     {
-        $dotenv = new JsonResponse();
+        $dotenv = new JsonResponse(['foo' => 'bar'], Response::HTTP_OK);
     }
 }
 CODE_SAMPLE
-, [self::STATIC_CALLS_TO_NEWS => [new \Rector\Transform\ValueObject\StaticCallToNew('JsonResponse', 'create')]])]);
+, [new \Rector\Transform\ValueObject\StaticCallToNew('JsonResponse', 'create')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -73,17 +74,17 @@ CODE_SAMPLE
             if ($class === null) {
                 continue;
             }
-            return new \PhpParser\Node\Expr\New_(new \PhpParser\Node\Name\FullyQualified($class));
+            return new \PhpParser\Node\Expr\New_(new \PhpParser\Node\Name\FullyQualified($class), $node->args);
         }
         return $node;
     }
     /**
-     * @param array<string, StaticCallToNew[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $staticCallsToNews = $configuration[self::STATIC_CALLS_TO_NEWS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsAOf($staticCallsToNews, \Rector\Transform\ValueObject\StaticCallToNew::class);
+        $staticCallsToNews = $configuration[self::STATIC_CALLS_TO_NEWS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($staticCallsToNews, \Rector\Transform\ValueObject\StaticCallToNew::class);
         $this->staticCallsToNews = $staticCallsToNews;
     }
 }

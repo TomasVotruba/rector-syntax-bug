@@ -13,10 +13,13 @@ use PHPStan\Type\UnionType;
 use Rector\NodeTypeResolver\Contract\NodeTypeResolverInterface;
 /**
  * @see \Rector\Tests\NodeTypeResolver\PerNodeTypeResolver\TraitTypeResolver\TraitTypeResolverTest
+ *
+ * @implements NodeTypeResolverInterface<Trait_>
  */
 final class TraitTypeResolver implements \Rector\NodeTypeResolver\Contract\NodeTypeResolverInterface
 {
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
@@ -32,9 +35,9 @@ final class TraitTypeResolver implements \Rector\NodeTypeResolver\Contract\NodeT
         return [\PhpParser\Node\Stmt\Trait_::class];
     }
     /**
-     * @param \PhpParser\Node $node
+     * @param Trait_ $node
      */
-    public function resolve($node) : \PHPStan\Type\Type
+    public function resolve(\PhpParser\Node $node) : \PHPStan\Type\Type
     {
         $traitName = (string) $node->namespacedName;
         if (!$this->reflectionProvider->hasClass($traitName)) {

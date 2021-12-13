@@ -35,26 +35,32 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class ClassPropertyAssignToConstructorPromotionRector extends \Rector\Core\Rector\AbstractRector implements \Rector\VersionBonding\Contract\MinPhpVersionInterface
 {
     /**
+     * @readonly
      * @var \Rector\Php80\NodeAnalyzer\PromotedPropertyCandidateResolver
      */
     private $promotedPropertyCandidateResolver;
     /**
+     * @readonly
      * @var \Rector\Naming\VariableRenamer
      */
     private $variableRenamer;
     /**
+     * @readonly
      * @var \Rector\DeadCode\PhpDoc\TagRemover\VarTagRemover
      */
     private $varTagRemover;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\ParamAnalyzer
      */
     private $paramAnalyzer;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTypeChanger
      */
     private $phpDocTypeChanger;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\PropertyAnalyzer
      */
     private $propertyAnalyzer;
@@ -74,8 +80,9 @@ class SomeClass
 {
     public float $someVariable;
 
-    public function __construct(float $someVariable = 0.0)
-    {
+    public function __construct(
+        float $someVariable = 0.0
+    ) {
         $this->someVariable = $someVariable;
     }
 }
@@ -83,8 +90,9 @@ CODE_SAMPLE
 , <<<'CODE_SAMPLE'
 class SomeClass
 {
-    public function __construct(private float $someVariable = 0.0)
-    {
+    public function __construct(
+        private float $someVariable = 0.0
+    ) {
     }
 }
 CODE_SAMPLE

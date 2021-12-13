@@ -8,14 +8,14 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Yaml\Exception;
+namespace RectorPrefix20211213\Symfony\Component\Yaml\Exception;
 
 /**
  * Exception class thrown when an error occurs during parsing.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class ParseException extends \RectorPrefix20211110\Symfony\Component\Yaml\Exception\RuntimeException
+class ParseException extends \RectorPrefix20211213\Symfony\Component\Yaml\Exception\RuntimeException
 {
     private $parsedFile;
     private $parsedLine;
@@ -39,7 +39,7 @@ class ParseException extends \RectorPrefix20211110\Symfony\Component\Yaml\Except
     /**
      * Gets the snippet of code near the error.
      *
-     * @return string The snippet of code
+     * @return string
      */
     public function getSnippet()
     {
@@ -47,9 +47,8 @@ class ParseException extends \RectorPrefix20211110\Symfony\Component\Yaml\Except
     }
     /**
      * Sets the snippet of code near the error.
-     * @param string $snippet
      */
-    public function setSnippet($snippet)
+    public function setSnippet(string $snippet)
     {
         $this->snippet = $snippet;
         $this->updateRepr();
@@ -59,7 +58,7 @@ class ParseException extends \RectorPrefix20211110\Symfony\Component\Yaml\Except
      *
      * This method returns null if a string is parsed.
      *
-     * @return string The filename
+     * @return string
      */
     public function getParsedFile()
     {
@@ -67,9 +66,8 @@ class ParseException extends \RectorPrefix20211110\Symfony\Component\Yaml\Except
     }
     /**
      * Sets the filename where the error occurred.
-     * @param string $parsedFile
      */
-    public function setParsedFile($parsedFile)
+    public function setParsedFile(string $parsedFile)
     {
         $this->parsedFile = $parsedFile;
         $this->updateRepr();
@@ -77,7 +75,7 @@ class ParseException extends \RectorPrefix20211110\Symfony\Component\Yaml\Except
     /**
      * Gets the line where the error occurred.
      *
-     * @return int The file line
+     * @return int
      */
     public function getParsedLine()
     {
@@ -85,9 +83,8 @@ class ParseException extends \RectorPrefix20211110\Symfony\Component\Yaml\Except
     }
     /**
      * Sets the line where the error occurred.
-     * @param int $parsedLine
      */
-    public function setParsedLine($parsedLine)
+    public function setParsedLine(int $parsedLine)
     {
         $this->parsedLine = $parsedLine;
         $this->updateRepr();

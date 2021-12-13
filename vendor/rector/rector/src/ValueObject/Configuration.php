@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Core\ValueObject;
 
-use RectorPrefix20211110\JetBrains\PhpStorm\Immutable;
+use RectorPrefix20211213\JetBrains\PhpStorm\Immutable;
 use Rector\ChangesReporting\Output\ConsoleOutputFormatter;
 use Rector\Core\ValueObject\Bootstrap\BootstrapConfigs;
 use Symplify\SmartFileSystem\SmartFileInfo;
@@ -11,42 +11,62 @@ use Symplify\SmartFileSystem\SmartFileInfo;
 final class Configuration
 {
     /**
+     * @readonly
      * @var bool
      */
     private $isDryRun = \false;
     /**
+     * @readonly
      * @var bool
      */
     private $showProgressBar = \true;
     /**
+     * @readonly
      * @var bool
      */
     private $shouldClearCache = \false;
     /**
+     * @readonly
      * @var string
      */
     private $outputFormat = \Rector\ChangesReporting\Output\ConsoleOutputFormatter::NAME;
     /**
      * @var string[]
+     * @readonly
      */
     private $fileExtensions = ['php'];
     /**
      * @var string[]
+     * @readonly
      */
     private $paths = [];
     /**
+     * @readonly
      * @var bool
      */
     private $showDiffs = \true;
     /**
+     * @readonly
      * @var \Rector\Core\ValueObject\Bootstrap\BootstrapConfigs|null
      */
     private $bootstrapConfigs;
     /**
+     * @readonly
+     * @var string|null
+     */
+    private $parallelPort = null;
+    /**
+     * @readonly
+     * @var string|null
+     */
+    private $parallelIdentifier = null;
+    /**
      * @param string[] $fileExtensions
      * @param string[] $paths
+     * @param string|null $parallelPort
+     * @param string|null $parallelIdentifier
      */
-    public function __construct(bool $isDryRun = \false, bool $showProgressBar = \true, bool $shouldClearCache = \false, string $outputFormat = \Rector\ChangesReporting\Output\ConsoleOutputFormatter::NAME, array $fileExtensions = ['php'], array $paths = [], bool $showDiffs = \true, ?\Rector\Core\ValueObject\Bootstrap\BootstrapConfigs $bootstrapConfigs = null)
+    public function __construct(bool $isDryRun = \false, bool $showProgressBar = \true, bool $shouldClearCache = \false, string $outputFormat = \Rector\ChangesReporting\Output\ConsoleOutputFormatter::NAME, array $fileExtensions = ['php'], array $paths = [], bool $showDiffs = \true, ?\Rector\Core\ValueObject\Bootstrap\BootstrapConfigs $bootstrapConfigs = null, $parallelPort = null, $parallelIdentifier = null)
     {
         $this->isDryRun = $isDryRun;
         $this->showProgressBar = $showProgressBar;
@@ -56,6 +76,8 @@ final class Configuration
         $this->paths = $paths;
         $this->showDiffs = $showDiffs;
         $this->bootstrapConfigs = $bootstrapConfigs;
+        $this->parallelPort = $parallelPort;
+        $this->parallelIdentifier = $parallelIdentifier;
     }
     public function isDryRun() : bool
     {
@@ -102,5 +124,13 @@ final class Configuration
         }
         $mainConfigFileInfo = new \Symplify\SmartFileSystem\SmartFileInfo($mainConfigFile);
         return $mainConfigFileInfo->getRelativeFilePathFromCwd();
+    }
+    public function getParallelPort() : ?string
+    {
+        return $this->parallelPort;
+    }
+    public function getParallelIdentifier() : ?string
+    {
+        return $this->parallelIdentifier;
     }
 }

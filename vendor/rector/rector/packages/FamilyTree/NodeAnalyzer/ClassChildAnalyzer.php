@@ -9,6 +9,7 @@ use Rector\FamilyTree\Reflection\FamilyRelationsAnalyzer;
 final class ClassChildAnalyzer
 {
     /**
+     * @readonly
      * @var \Rector\FamilyTree\Reflection\FamilyRelationsAnalyzer
      */
     private $familyRelationsAnalyzer;
@@ -20,7 +21,7 @@ final class ClassChildAnalyzer
     {
         $childrenClassReflections = $this->familyRelationsAnalyzer->getChildrenOfClassReflection($classReflection);
         foreach ($childrenClassReflections as $childClassReflection) {
-            if (!$childClassReflection->hasMethod($methodName)) {
+            if (!$childClassReflection->hasNativeMethod($methodName)) {
                 continue;
             }
             $constructorReflectionMethod = $childClassReflection->getNativeMethod($methodName);

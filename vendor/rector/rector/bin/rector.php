@@ -1,9 +1,9 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110;
+namespace RectorPrefix20211213;
 
-use RectorPrefix20211110\Nette\Utils\Json;
+use RectorPrefix20211213\Nette\Utils\Json;
 use Rector\ChangesReporting\Output\JsonOutputFormatter;
 use Rector\Core\Bootstrap\RectorConfigsResolver;
 use Rector\Core\Configuration\Option;
@@ -11,9 +11,9 @@ use Rector\Core\Console\ConsoleApplication;
 use Rector\Core\Console\Style\SymfonyStyleFactory;
 use Rector\Core\DependencyInjection\RectorContainerFactory;
 use Rector\Core\Kernel\RectorKernel;
-use RectorPrefix20211110\Symfony\Component\Console\Command\Command;
-use RectorPrefix20211110\Symfony\Component\Console\Input\ArgvInput;
-use RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesCaller;
+use RectorPrefix20211213\Symfony\Component\Console\Command\Command;
+use RectorPrefix20211213\Symfony\Component\Console\Input\ArgvInput;
+use RectorPrefix20211213\Symplify\PackageBuilder\Reflection\PrivatesCaller;
 // @ intentionally: continue anyway
 @\ini_set('memory_limit', '-1');
 // Performance boost
@@ -22,19 +22,12 @@ use RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesCaller;
 \gc_disable();
 \define('__RECTOR_RUNNING__', \true);
 // Require Composer autoload.php
-$autoloadIncluder = new \RectorPrefix20211110\AutoloadIncluder();
+$autoloadIncluder = new \RectorPrefix20211213\AutoloadIncluder();
 $autoloadIncluder->includeDependencyOrRepositoryVendorAutoloadIfExists();
-// load extracted PHPStan with its own preload.php
-$extractedPhpstanAutoload = __DIR__ . '/../vendor/phpstan/phpstan-extracted/vendor/autoload.php';
-if (\file_exists($extractedPhpstanAutoload)) {
-    require_once $extractedPhpstanAutoload;
-}
 if (\file_exists(__DIR__ . '/../preload.php') && \is_dir(__DIR__ . '/../vendor')) {
     require_once __DIR__ . '/../preload.php';
 }
 require_once __DIR__ . '/../src/constants.php';
-// pre-set for PHP 5.6/7.0 downgraded version
-$autoloadIncluder->loadIfExistsAndNotLoadedYet(__DIR__ . '/../vendor/phpstan/phpstan-extracted/vendor/phpstan-autoload.php');
 $autoloadIncluder->loadIfExistsAndNotLoadedYet(__DIR__ . '/../vendor/scoper-autoload.php');
 $autoloadIncluder->autoloadProjectAutoloaderFile();
 $autoloadIncluder->autoloadFromCommandLine();
@@ -45,18 +38,18 @@ try {
     $container = $rectorContainerFactory->createFromBootstrapConfigs($bootstrapConfigs);
 } catch (\Throwable $throwable) {
     // for json output
-    $argvInput = new \RectorPrefix20211110\Symfony\Component\Console\Input\ArgvInput();
+    $argvInput = new \RectorPrefix20211213\Symfony\Component\Console\Input\ArgvInput();
     $outputFormat = $argvInput->getParameterOption('--' . \Rector\Core\Configuration\Option::OUTPUT_FORMAT);
     // report fatal error in json format
     if ($outputFormat === \Rector\ChangesReporting\Output\JsonOutputFormatter::NAME) {
-        echo \RectorPrefix20211110\Nette\Utils\Json::encode(['fatal_errors' => [$throwable->getMessage()]]);
+        echo \RectorPrefix20211213\Nette\Utils\Json::encode(['fatal_errors' => [$throwable->getMessage()]]);
     } else {
         // report fatal errors in console format
-        $symfonyStyleFactory = new \Rector\Core\Console\Style\SymfonyStyleFactory(new \RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesCaller());
+        $symfonyStyleFactory = new \Rector\Core\Console\Style\SymfonyStyleFactory(new \RectorPrefix20211213\Symplify\PackageBuilder\Reflection\PrivatesCaller());
         $symfonyStyle = $symfonyStyleFactory->create();
         $symfonyStyle->error($throwable->getMessage());
     }
-    exit(\RectorPrefix20211110\Symfony\Component\Console\Command\Command::FAILURE);
+    exit(\RectorPrefix20211213\Symfony\Component\Console\Command\Command::FAILURE);
 }
 /** @var ConsoleApplication $application */
 $application = $container->get(\Rector\Core\Console\ConsoleApplication::class);
@@ -100,7 +93,6 @@ final class AutoloadIncluder
     }
     public function loadIfExistsAndNotLoadedYet(string $filePath) : void
     {
-        // the scoper-autoload.php is exists in phpstan-extracted/vendor/scoper-autoload.php, move the check in :
         if (!\file_exists($filePath)) {
             return;
         }
@@ -111,4 +103,4 @@ final class AutoloadIncluder
         require_once $filePath;
     }
 }
-\class_alias('RectorPrefix20211110\\AutoloadIncluder', 'AutoloadIncluder', \false);
+\class_alias('RectorPrefix20211213\\AutoloadIncluder', 'AutoloadIncluder', \false);

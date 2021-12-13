@@ -12,7 +12,8 @@ use PHPStan\Type\ObjectType;
 use Rector\Core\Configuration\Option;
 use Rector\Core\Rector\AbstractRector;
 use Rector\NodeTypeResolver\Node\AttributeKey;
-use RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider;
+use Rector\Privatization\NodeManipulator\VisibilityManipulator;
+use RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 /**
@@ -24,8 +25,14 @@ final class DesiredPropertyClassMethodTypeToDynamicRector extends \Rector\Core\R
      * @var ObjectType[]
      */
     private $staticObjectTypes = [];
-    public function __construct(\RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider)
+    /**
+     * @readonly
+     * @var \Rector\Privatization\NodeManipulator\VisibilityManipulator
+     */
+    private $visibilityManipulator;
+    public function __construct(\RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider, \Rector\Privatization\NodeManipulator\VisibilityManipulator $visibilityManipulator)
     {
+        $this->visibilityManipulator = $visibilityManipulator;
         $typesToRemoveStaticFrom = $parameterProvider->provideArrayParameter(\Rector\Core\Configuration\Option::TYPES_TO_REMOVE_STATIC_FROM);
         foreach ($typesToRemoveStaticFrom as $typeToRemoveStaticFrom) {
             $this->staticObjectTypes[] = new \PHPStan\Type\ObjectType($typeToRemoveStaticFrom);
@@ -56,7 +63,7 @@ CODE_SAMPLE
 )]);
     }
     /**
-     * @return class-string[]
+     * @return array<class-string<Node>>
      */
     public function getNodeTypes() : array
     {

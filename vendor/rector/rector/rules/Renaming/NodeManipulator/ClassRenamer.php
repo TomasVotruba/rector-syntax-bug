@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Renaming\NodeManipulator;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Identifier;
@@ -30,8 +30,8 @@ use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\NodeTypeResolver\PhpDoc\NodeAnalyzer\DocBlockClassRenamer;
 use Rector\NodeTypeResolver\ValueObject\OldToNewType;
 use Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType;
-use RectorPrefix20211110\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser;
-use RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider;
+use RectorPrefix20211213\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser;
+use RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider;
 final class ClassRenamer
 {
     /**
@@ -39,46 +39,56 @@ final class ClassRenamer
      */
     private $alreadyProcessedClasses = [];
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser
      */
     private $simpleCallableNodeTraverser;
     /**
+     * @readonly
      * @var \Rector\CodingStyle\Naming\ClassNaming
      */
     private $classNaming;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocClassRenamer
      */
     private $phpDocClassRenamer;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory
      */
     private $phpDocInfoFactory;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PhpDoc\NodeAnalyzer\DocBlockClassRenamer
      */
     private $docBlockClassRenamer;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
+     * @readonly
      * @var \Rector\NodeRemoval\NodeRemover
      */
     private $nodeRemover;
     /**
+     * @readonly
      * @var \Symplify\PackageBuilder\Parameter\ParameterProvider
      */
     private $parameterProvider;
-    public function __construct(\Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder, \RectorPrefix20211110\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser $simpleCallableNodeTraverser, \Rector\CodingStyle\Naming\ClassNaming $classNaming, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocClassRenamer $phpDocClassRenamer, \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory $phpDocInfoFactory, \Rector\NodeTypeResolver\PhpDoc\NodeAnalyzer\DocBlockClassRenamer $docBlockClassRenamer, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\NodeRemoval\NodeRemover $nodeRemover, \RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider)
+    public function __construct(\Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder, \RectorPrefix20211213\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser $simpleCallableNodeTraverser, \Rector\CodingStyle\Naming\ClassNaming $classNaming, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocClassRenamer $phpDocClassRenamer, \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory $phpDocInfoFactory, \Rector\NodeTypeResolver\PhpDoc\NodeAnalyzer\DocBlockClassRenamer $docBlockClassRenamer, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\NodeRemoval\NodeRemover $nodeRemover, \RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider)
     {
         $this->betterNodeFinder = $betterNodeFinder;
         $this->simpleCallableNodeTraverser = $simpleCallableNodeTraverser;
@@ -138,7 +148,7 @@ final class ClassRenamer
         if ($parentNode->name !== $name) {
             return \false;
         }
-        $namespaceNewName = \RectorPrefix20211110\Nette\Utils\Strings::before($newName, '\\', -1);
+        $namespaceNewName = \RectorPrefix20211213\Nette\Utils\Strings::before($newName, '\\', -1);
         if ($namespaceNewName === null) {
             return \false;
         }
@@ -151,7 +161,7 @@ final class ClassRenamer
     {
         $stringName = $this->nodeNameResolver->getName($name);
         $newName = $oldToNewClasses[$stringName] ?? null;
-        if (!$newName) {
+        if ($newName === null) {
             return null;
         }
         if (!$this->isClassToInterfaceValidChange($name, $newName)) {
@@ -215,7 +225,7 @@ final class ClassRenamer
         }
         $newNamespace = $this->classNaming->getNamespace($newClassFullyQualified);
         // Renaming to class without namespace (example MyNamespace\DateTime -> DateTimeImmutable)
-        if (!$newNamespace) {
+        if (!\is_string($newNamespace)) {
             $classLike->name = new \PhpParser\Node\Identifier($newClassFullyQualified);
             return $classLike;
         }
@@ -231,7 +241,7 @@ final class ClassRenamer
         $this->renameClassImplements($classLike, $oldToNewClasses);
         $className = (string) $this->nodeNameResolver->getName($classLike);
         $newName = $oldToNewClasses[$className] ?? null;
-        if (!$newName) {
+        if ($newName === null) {
             return null;
         }
         // prevents re-iterating same class in endless loop
@@ -248,7 +258,7 @@ final class ClassRenamer
         $classLike->name = new \PhpParser\Node\Identifier($newClassNamePart);
         $classNamingGetNamespace = $this->classNaming->getNamespace($className);
         // Old class did not have any namespace, we need to wrap class with Namespace_ node
-        if ($newNamespacePart && !$classNamingGetNamespace) {
+        if ($newNamespacePart !== null && $classNamingGetNamespace === null) {
             $this->changeNameToFullyQualifiedName($classLike);
             $name = new \PhpParser\Node\Name($newNamespacePart);
             return new \PhpParser\Node\Stmt\Namespace_($name, [$classLike]);
@@ -313,7 +323,7 @@ final class ClassRenamer
         $scope = $classLike->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::SCOPE);
         $classLike->implements = \array_unique($classLike->implements);
         foreach ($classLike->implements as $key => $implementName) {
-            $virtualNode = $implementName->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::VIRTUAL_NODE);
+            $virtualNode = (bool) $implementName->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::VIRTUAL_NODE, \false);
             if (!$virtualNode) {
                 continue;
             }

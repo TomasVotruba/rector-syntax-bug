@@ -5,30 +5,39 @@ namespace Rector\TypeDeclaration\ValueObject;
 
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
+use Rector\Core\Validation\RectorAssert;
 final class AddParamTypeDeclaration
 {
     /**
+     * @readonly
      * @var string
      */
     private $className;
     /**
+     * @readonly
      * @var string
      */
     private $methodName;
     /**
      * @var int
+     * @readonly
      */
     private $position;
     /**
+     * @readonly
      * @var \PHPStan\Type\Type
      */
     private $paramType;
+    /**
+     * @param int<0, max> $position
+     */
     public function __construct(string $className, string $methodName, int $position, \PHPStan\Type\Type $paramType)
     {
         $this->className = $className;
         $this->methodName = $methodName;
         $this->position = $position;
         $this->paramType = $paramType;
+        \Rector\Core\Validation\RectorAssert::className($className);
     }
     public function getObjectType() : \PHPStan\Type\ObjectType
     {

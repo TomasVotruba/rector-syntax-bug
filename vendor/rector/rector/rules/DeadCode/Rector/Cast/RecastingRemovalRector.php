@@ -14,7 +14,6 @@ use PhpParser\Node\Expr\Cast\Object_;
 use PhpParser\Node\Expr\Cast\String_;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticPropertyFetch;
-use PhpParser\Node\FunctionLike;
 use PHPStan\Reflection\Php\PhpPropertyReflection;
 use PHPStan\Type\ArrayType;
 use PHPStan\Type\BooleanType;
@@ -25,6 +24,7 @@ use PHPStan\Type\ObjectType;
 use PHPStan\Type\StringType;
 use PHPStan\Type\Type;
 use PHPStan\Type\UnionType;
+use Rector\Core\NodeAnalyzer\ExprAnalyzer;
 use Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer;
 use Rector\Core\Rector\AbstractRector;
 use Rector\Core\Reflection\ReflectionResolver;
@@ -40,17 +40,25 @@ final class RecastingRemovalRector extends \Rector\Core\Rector\AbstractRector
      */
     private const CAST_CLASS_TO_NODE_TYPE = [\PhpParser\Node\Expr\Cast\String_::class => \PHPStan\Type\StringType::class, \PhpParser\Node\Expr\Cast\Bool_::class => \PHPStan\Type\BooleanType::class, \PhpParser\Node\Expr\Cast\Array_::class => \PHPStan\Type\ArrayType::class, \PhpParser\Node\Expr\Cast\Int_::class => \PHPStan\Type\IntegerType::class, \PhpParser\Node\Expr\Cast\Object_::class => \PHPStan\Type\ObjectType::class, \PhpParser\Node\Expr\Cast\Double::class => \PHPStan\Type\FloatType::class];
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer
      */
     private $propertyFetchAnalyzer;
     /**
+     * @readonly
      * @var \Rector\Core\Reflection\ReflectionResolver
      */
     private $reflectionResolver;
-    public function __construct(\Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer $propertyFetchAnalyzer, \Rector\Core\Reflection\ReflectionResolver $reflectionResolver)
+    /**
+     * @readonly
+     * @var \Rector\Core\NodeAnalyzer\ExprAnalyzer
+     */
+    private $exprAnalyzer;
+    public function __construct(\Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer $propertyFetchAnalyzer, \Rector\Core\Reflection\ReflectionResolver $reflectionResolver, \Rector\Core\NodeAnalyzer\ExprAnalyzer $exprAnalyzer)
     {
         $this->propertyFetchAnalyzer = $propertyFetchAnalyzer;
         $this->reflectionResolver = $reflectionResolver;
+        $this->exprAnalyzer = $exprAnalyzer;
     }
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
@@ -102,7 +110,7 @@ CODE_SAMPLE
     private function shouldSkip(\PhpParser\Node\Expr $expr) : bool
     {
         if (!$this->propertyFetchAnalyzer->isPropertyFetch($expr)) {
-            return $this->isNonTypedFromParam($expr);
+            return $this->exprAnalyzer->isNonTypedFromParam($expr);
         }
         /** @var PropertyFetch|StaticPropertyFetch $expr */
         $phpPropertyReflection = $this->reflectionResolver->resolvePropertyReflectionFromPropertyFetch($expr);
@@ -115,20 +123,5 @@ CODE_SAMPLE
         }
         $nativeType = $phpPropertyReflection->getNativeType();
         return $nativeType instanceof \PHPStan\Type\MixedType;
-    }
-    private function isNonTypedFromParam(\PhpParser\Node\Expr $expr) : bool
-    {
-        $functionLike = $this->betterNodeFinder->findParentType($expr, \PhpParser\Node\FunctionLike::class);
-        if (!$functionLike instanceof \PhpParser\Node\FunctionLike) {
-            return \false;
-        }
-        $params = $functionLike->getParams();
-        foreach ($params as $param) {
-            if (!$this->nodeComparator->areNodesEqual($param->var, $expr)) {
-                continue;
-            }
-            return $param->type === null;
-        }
-        return \false;
     }
 }

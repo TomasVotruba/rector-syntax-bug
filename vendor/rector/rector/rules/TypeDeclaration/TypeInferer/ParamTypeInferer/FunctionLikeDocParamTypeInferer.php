@@ -17,14 +17,17 @@ use Rector\TypeDeclaration\Contract\TypeInferer\ParamTypeInfererInterface;
 final class FunctionLikeDocParamTypeInferer implements \Rector\TypeDeclaration\Contract\TypeInferer\ParamTypeInfererInterface
 {
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory
      */
     private $phpDocInfoFactory;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
@@ -34,10 +37,7 @@ final class FunctionLikeDocParamTypeInferer implements \Rector\TypeDeclaration\C
         $this->phpDocInfoFactory = $phpDocInfoFactory;
         $this->betterNodeFinder = $betterNodeFinder;
     }
-    /**
-     * @param \PhpParser\Node\Param $param
-     */
-    public function inferParam($param) : \PHPStan\Type\Type
+    public function inferParam(\PhpParser\Node\Param $param) : \PHPStan\Type\Type
     {
         $functionLike = $this->resolveScopeNode($param);
         if (!$functionLike instanceof \PhpParser\Node\FunctionLike) {

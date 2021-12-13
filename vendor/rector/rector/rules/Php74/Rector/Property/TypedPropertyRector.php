@@ -4,20 +4,20 @@ declare (strict_types=1);
 namespace Rector\Php74\Rector\Property;
 
 use PhpParser\Node;
+use PhpParser\Node\ComplexType;
 use PhpParser\Node\Name;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\Trait_;
-use PhpParser\Node\UnionType as PhpParserUnionType;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Type\Generic\TemplateType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\NullType;
 use PHPStan\Type\Type;
 use PHPStan\Type\UnionType;
-use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
+use Rector\Core\Contract\Rector\AllowEmptyConfigurableRectorInterface;
 use Rector\Core\NodeAnalyzer\PropertyAnalyzer;
 use Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer;
 use Rector\Core\PhpParser\AstResolver;
@@ -26,11 +26,11 @@ use Rector\Core\ValueObject\PhpVersionFeature;
 use Rector\DeadCode\PhpDoc\TagRemover\VarTagRemover;
 use Rector\FamilyTree\Reflection\FamilyRelationsAnalyzer;
 use Rector\NodeTypeResolver\Node\AttributeKey;
+use Rector\Php74\TypeAnalyzer\ObjectTypeAnalyzer;
 use Rector\Php74\TypeAnalyzer\PropertyUnionTypeResolver;
 use Rector\PHPStanStaticTypeMapper\DoctrineTypeAnalyzer;
 use Rector\PHPStanStaticTypeMapper\Enum\TypeKind;
 use Rector\StaticTypeMapper\ValueObject\Type\AliasedObjectType;
-use Rector\StaticTypeMapper\ValueObject\Type\NonExistingObjectType;
 use Rector\TypeDeclaration\TypeInferer\PropertyTypeInferer;
 use Rector\VendorLocker\VendorLockResolver;
 use Rector\VersionBonding\Contract\MinPhpVersionInterface;
@@ -45,7 +45,7 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
  * @see \Rector\Tests\Php74\Rector\Property\TypedPropertyRector\ImportedTest
  * @see \Rector\Tests\Php74\Rector\Property\TypedPropertyRector\UnionTypedPropertyRectorTest
  */
-final class TypedPropertyRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface, \Rector\VersionBonding\Contract\MinPhpVersionInterface
+final class TypedPropertyRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\AllowEmptyConfigurableRectorInterface, \Rector\VersionBonding\Contract\MinPhpVersionInterface
 {
     /**
      * @var string
@@ -67,46 +67,61 @@ final class TypedPropertyRector extends \Rector\Core\Rector\AbstractRector imple
      */
     private $privatePropertyOnly = \false;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\TypeInferer\PropertyTypeInferer
      */
     private $propertyTypeInferer;
     /**
+     * @readonly
      * @var \Rector\VendorLocker\VendorLockResolver
      */
     private $vendorLockResolver;
     /**
+     * @readonly
      * @var \Rector\PHPStanStaticTypeMapper\DoctrineTypeAnalyzer
      */
     private $doctrineTypeAnalyzer;
     /**
+     * @readonly
      * @var \Rector\DeadCode\PhpDoc\TagRemover\VarTagRemover
      */
     private $varTagRemover;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer
      */
     private $propertyFetchAnalyzer;
     /**
+     * @readonly
      * @var \Rector\FamilyTree\Reflection\FamilyRelationsAnalyzer
      */
     private $familyRelationsAnalyzer;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\PropertyAnalyzer
      */
     private $propertyAnalyzer;
     /**
+     * @readonly
      * @var \Rector\Php74\TypeAnalyzer\PropertyUnionTypeResolver
      */
     private $propertyUnionTypeResolver;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\AstResolver
      */
     private $astResolver;
-    public function __construct(\Rector\TypeDeclaration\TypeInferer\PropertyTypeInferer $propertyTypeInferer, \Rector\VendorLocker\VendorLockResolver $vendorLockResolver, \Rector\PHPStanStaticTypeMapper\DoctrineTypeAnalyzer $doctrineTypeAnalyzer, \Rector\DeadCode\PhpDoc\TagRemover\VarTagRemover $varTagRemover, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer $propertyFetchAnalyzer, \Rector\FamilyTree\Reflection\FamilyRelationsAnalyzer $familyRelationsAnalyzer, \Rector\Core\NodeAnalyzer\PropertyAnalyzer $propertyAnalyzer, \Rector\Php74\TypeAnalyzer\PropertyUnionTypeResolver $propertyUnionTypeResolver, \Rector\Core\PhpParser\AstResolver $astResolver)
+    /**
+     * @readonly
+     * @var \Rector\Php74\TypeAnalyzer\ObjectTypeAnalyzer
+     */
+    private $objectTypeAnalyzer;
+    public function __construct(\Rector\TypeDeclaration\TypeInferer\PropertyTypeInferer $propertyTypeInferer, \Rector\VendorLocker\VendorLockResolver $vendorLockResolver, \Rector\PHPStanStaticTypeMapper\DoctrineTypeAnalyzer $doctrineTypeAnalyzer, \Rector\DeadCode\PhpDoc\TagRemover\VarTagRemover $varTagRemover, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer $propertyFetchAnalyzer, \Rector\FamilyTree\Reflection\FamilyRelationsAnalyzer $familyRelationsAnalyzer, \Rector\Core\NodeAnalyzer\PropertyAnalyzer $propertyAnalyzer, \Rector\Php74\TypeAnalyzer\PropertyUnionTypeResolver $propertyUnionTypeResolver, \Rector\Core\PhpParser\AstResolver $astResolver, \Rector\Php74\TypeAnalyzer\ObjectTypeAnalyzer $objectTypeAnalyzer)
     {
         $this->propertyTypeInferer = $propertyTypeInferer;
         $this->vendorLockResolver = $vendorLockResolver;
@@ -118,6 +133,7 @@ final class TypedPropertyRector extends \Rector\Core\Rector\AbstractRector imple
         $this->propertyAnalyzer = $propertyAnalyzer;
         $this->propertyUnionTypeResolver = $propertyUnionTypeResolver;
         $this->astResolver = $astResolver;
+        $this->objectTypeAnalyzer = $objectTypeAnalyzer;
     }
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
@@ -165,8 +181,7 @@ CODE_SAMPLE
                 return $node;
             }
         }
-        // we are not sure what object type this is
-        if ($varType instanceof \Rector\StaticTypeMapper\ValueObject\Type\NonExistingObjectType) {
+        if ($this->objectTypeAnalyzer->isSpecial($varType)) {
             return null;
         }
         $propertyTypeNode = $this->staticTypeMapper->mapPHPStanTypeToPhpParserNode($varType, \Rector\PHPStanStaticTypeMapper\Enum\TypeKind::PROPERTY());
@@ -184,7 +199,7 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, bool> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
@@ -196,7 +211,7 @@ CODE_SAMPLE
         return \Rector\Core\ValueObject\PhpVersionFeature::TYPED_PROPERTIES;
     }
     /**
-     * @param \PhpParser\Node\Name|\PhpParser\Node\NullableType|PhpParserUnionType|null $node
+     * @param \PhpParser\Node\ComplexType|\PhpParser\Node\Name|null $node
      */
     private function isNullOrNonClassLikeTypeOrMixedOrVendorLockedIn($node, \PhpParser\Node\Stmt\Property $property, \PHPStan\Type\Type $type) : bool
     {
@@ -218,7 +233,7 @@ CODE_SAMPLE
         return \true;
     }
     /**
-     * @param \PhpParser\Node\Name|\PhpParser\Node\NullableType|PhpParserUnionType $node
+     * @param \PhpParser\Node\ComplexType|\PhpParser\Node\Name $node
      */
     private function shouldSkipNonClassLikeType($node, \PHPStan\Type\Type $type) : bool
     {

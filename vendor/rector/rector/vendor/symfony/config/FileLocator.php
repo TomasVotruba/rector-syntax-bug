@@ -8,15 +8,15 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Config;
+namespace RectorPrefix20211213\Symfony\Component\Config;
 
-use RectorPrefix20211110\Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
+use RectorPrefix20211213\Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
 /**
  * FileLocator uses an array of pre-defined paths to find files.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class FileLocator implements \RectorPrefix20211110\Symfony\Component\Config\FileLocatorInterface
+class FileLocator implements \RectorPrefix20211213\Symfony\Component\Config\FileLocatorInterface
 {
     protected $paths;
     /**
@@ -28,18 +28,15 @@ class FileLocator implements \RectorPrefix20211110\Symfony\Component\Config\File
     }
     /**
      * {@inheritdoc}
-     * @param string $name
-     * @param string|null $currentPath
-     * @param bool $first
      */
-    public function locate($name, $currentPath = null, $first = \true)
+    public function locate(string $name, string $currentPath = null, bool $first = \true)
     {
         if ('' === $name) {
             throw new \InvalidArgumentException('An empty file name is not valid to be located.');
         }
         if ($this->isAbsolutePath($name)) {
             if (!\file_exists($name)) {
-                throw new \RectorPrefix20211110\Symfony\Component\Config\Exception\FileLocatorFileNotFoundException(\sprintf('The file "%s" does not exist.', $name), 0, null, [$name]);
+                throw new \RectorPrefix20211213\Symfony\Component\Config\Exception\FileLocatorFileNotFoundException(\sprintf('The file "%s" does not exist.', $name), 0, null, [$name]);
             }
             return $name;
         }
@@ -60,7 +57,7 @@ class FileLocator implements \RectorPrefix20211110\Symfony\Component\Config\File
             }
         }
         if (!$filepaths) {
-            throw new \RectorPrefix20211110\Symfony\Component\Config\Exception\FileLocatorFileNotFoundException(\sprintf('The file "%s" does not exist (in: "%s").', $name, \implode('", "', $paths)), 0, null, $notfound);
+            throw new \RectorPrefix20211213\Symfony\Component\Config\Exception\FileLocatorFileNotFoundException(\sprintf('The file "%s" does not exist (in: "%s").', $name, \implode('", "', $paths)), 0, null, $notfound);
         }
         return $filepaths;
     }

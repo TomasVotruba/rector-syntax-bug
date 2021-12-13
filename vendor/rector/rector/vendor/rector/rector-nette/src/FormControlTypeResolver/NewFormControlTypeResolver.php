@@ -5,12 +5,13 @@ namespace Rector\Nette\FormControlTypeResolver;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Stmt\ClassMethod;
 use Rector\Core\PhpParser\AstResolver;
 use Rector\Core\ValueObject\MethodName;
 use Rector\Nette\Contract\FormControlTypeResolverInterface;
 use Rector\Nette\NodeResolver\MethodNamesByInputNamesResolver;
 use Rector\NodeNameResolver\NodeNameResolver;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
 final class NewFormControlTypeResolver implements \Rector\Nette\Contract\FormControlTypeResolverInterface
 {
     /**
@@ -33,15 +34,14 @@ final class NewFormControlTypeResolver implements \Rector\Nette\Contract\FormCon
     /**
      * @required
      */
-    public function autowireNewFormControlTypeResolver(\Rector\Nette\NodeResolver\MethodNamesByInputNamesResolver $methodNamesByInputNamesResolver) : void
+    public function autowire(\Rector\Nette\NodeResolver\MethodNamesByInputNamesResolver $methodNamesByInputNamesResolver) : void
     {
         $this->methodNamesByInputNamesResolver = $methodNamesByInputNamesResolver;
     }
     /**
      * @return array<string, string>
-     * @param \PhpParser\Node $node
      */
-    public function resolve($node) : array
+    public function resolve(\PhpParser\Node $node) : array
     {
         if (!$node instanceof \PhpParser\Node\Expr\New_) {
             return [];
@@ -51,7 +51,7 @@ final class NewFormControlTypeResolver implements \Rector\Nette\Contract\FormCon
             return [];
         }
         $classMethod = $this->astResolver->resolveClassMethod($className, \Rector\Core\ValueObject\MethodName::CONSTRUCT);
-        if ($classMethod === null) {
+        if (!$classMethod instanceof \PhpParser\Node\Stmt\ClassMethod) {
             return [];
         }
         return $this->methodNamesByInputNamesResolver->resolveExpr($classMethod);

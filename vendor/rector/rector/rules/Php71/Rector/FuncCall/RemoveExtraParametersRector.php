@@ -29,10 +29,12 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class RemoveExtraParametersRector extends \Rector\Core\Rector\AbstractRector implements \Rector\VersionBonding\Contract\MinPhpVersionInterface
 {
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\VariadicAnalyzer
      */
     private $variadicAnalyzer;
     /**
+     * @readonly
      * @var \Rector\Core\Reflection\ReflectionResolver
      */
     private $reflectionResolver;
@@ -79,7 +81,7 @@ final class RemoveExtraParametersRector extends \Rector\Core\Rector\AbstractRect
             }
         }
         $maximumAllowedParameterCount = $this->resolveMaximumAllowedParameterCount($functionLikeReflection);
-        $numberOfArguments = \count($node->args);
+        $numberOfArguments = \count($node->getRawArgs());
         if ($numberOfArguments <= $maximumAllowedParameterCount) {
             return null;
         }

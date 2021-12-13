@@ -11,7 +11,7 @@ use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @changelog https://php.watch/versions/8.1/version_compare-operator-restrictions
  * @changelog https://github.com/rectorphp/rector/issues/6271
@@ -21,6 +21,7 @@ use RectorPrefix20211110\Webmozart\Assert\Assert;
 final class FunctionArgumentDefaultValueReplacerRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const REPLACED_ARGUMENTS = 'replaced_arguments';
@@ -29,6 +30,7 @@ final class FunctionArgumentDefaultValueReplacerRector extends \Rector\Core\Rect
      */
     private $replacedArguments = [];
     /**
+     * @readonly
      * @var \Rector\Arguments\ArgumentDefaultValueReplacer
      */
     private $argumentDefaultValueReplacer;
@@ -44,7 +46,7 @@ CODE_SAMPLE
 , <<<'CODE_SAMPLE'
 version_compare(PHP_VERSION, '5.6', 'ge');
 CODE_SAMPLE
-, [self::REPLACED_ARGUMENTS => [new \Rector\Arguments\ValueObject\ReplaceFuncCallArgumentDefaultValue('version_compare', 2, 'gte', 'ge')]])]);
+, [new \Rector\Arguments\ValueObject\ReplaceFuncCallArgumentDefaultValue('version_compare', 2, 'gte', 'ge')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -67,12 +69,12 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, ReplaceFuncCallArgumentDefaultValue[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $replacedArguments = $configuration[self::REPLACED_ARGUMENTS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($replacedArguments, \Rector\Arguments\ValueObject\ReplaceFuncCallArgumentDefaultValue::class);
+        $replacedArguments = $configuration[self::REPLACED_ARGUMENTS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($replacedArguments, \Rector\Arguments\ValueObject\ReplaceFuncCallArgumentDefaultValue::class);
         $this->replacedArguments = $replacedArguments;
     }
 }

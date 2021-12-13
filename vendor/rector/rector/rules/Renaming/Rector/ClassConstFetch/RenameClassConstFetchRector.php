@@ -14,13 +14,14 @@ use Rector\Renaming\ValueObject\RenameClassAndConstFetch;
 use Rector\Renaming\ValueObject\RenameClassConstFetch;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Renaming\Rector\ClassConstFetch\RenameClassConstFetchRector\RenameClassConstFetchRectorTest
  */
 final class RenameClassConstFetchRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const CLASS_CONSTANT_RENAME = 'constant_rename';
@@ -30,7 +31,6 @@ final class RenameClassConstFetchRector extends \Rector\Core\Rector\AbstractRect
     private $renameClassConstFetches = [];
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
-        $configuration = [self::CLASS_CONSTANT_RENAME => [new \Rector\Renaming\ValueObject\RenameClassConstFetch('SomeClass', 'OLD_CONSTANT', 'NEW_CONSTANT'), new \Rector\Renaming\ValueObject\RenameClassAndConstFetch('SomeClass', 'OTHER_OLD_CONSTANT', 'DifferentClass', 'NEW_CONSTANT')]];
         return new \Symplify\RuleDocGenerator\ValueObject\RuleDefinition('Replaces defined class constants in their calls.', [new \Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample(<<<'CODE_SAMPLE'
 $value = SomeClass::OLD_CONSTANT;
 $value = SomeClass::OTHER_OLD_CONSTANT;
@@ -39,7 +39,7 @@ CODE_SAMPLE
 $value = SomeClass::NEW_CONSTANT;
 $value = DifferentClass::NEW_CONSTANT;
 CODE_SAMPLE
-, $configuration)]);
+, [new \Rector\Renaming\ValueObject\RenameClassConstFetch('SomeClass', 'OLD_CONSTANT', 'NEW_CONSTANT'), new \Rector\Renaming\ValueObject\RenameClassAndConstFetch('SomeClass', 'OTHER_OLD_CONSTANT', 'DifferentClass', 'NEW_CONSTANT')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -69,12 +69,12 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, RenameClassConstFetchInterface[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $renameClassConstFetches = $configuration[self::CLASS_CONSTANT_RENAME] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($renameClassConstFetches, \Rector\Renaming\Contract\RenameClassConstFetchInterface::class);
+        $renameClassConstFetches = $configuration[self::CLASS_CONSTANT_RENAME] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($renameClassConstFetches, \Rector\Renaming\Contract\RenameClassConstFetchInterface::class);
         $this->renameClassConstFetches = $renameClassConstFetches;
     }
     private function createClassAndConstFetch(\Rector\Renaming\ValueObject\RenameClassAndConstFetch $renameClassAndConstFetch) : \PhpParser\Node\Expr\ClassConstFetch

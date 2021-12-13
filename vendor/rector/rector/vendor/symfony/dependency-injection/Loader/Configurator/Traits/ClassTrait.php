@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\DependencyInjection\Loader\Configurator\Traits;
+namespace RectorPrefix20211213\Symfony\Component\DependencyInjection\Loader\Configurator\Traits;
 
 trait ClassTrait
 {
@@ -16,9 +16,8 @@ trait ClassTrait
      * Sets the service class.
      *
      * @return $this
-     * @param string|null $class
      */
-    public final function class($class) : self
+    public final function class(?string $class) : self
     {
         $this->definition->setClass($class);
         return $this;

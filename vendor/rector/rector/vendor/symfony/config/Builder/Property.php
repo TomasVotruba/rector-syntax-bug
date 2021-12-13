@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Config\Builder;
+namespace RectorPrefix20211213\Symfony\Component\Config\Builder;
 
 /**
  * Represents a property when building classes.
@@ -37,10 +37,7 @@ class Property
     {
         return $this->originalName;
     }
-    /**
-     * @param string $type
-     */
-    public function setType($type) : void
+    public function setType(string $type) : void
     {
         $this->array = \false;
         $this->type = $type;
@@ -57,10 +54,7 @@ class Property
     {
         return $this->content;
     }
-    /**
-     * @param string $content
-     */
-    public function setContent($content) : void
+    public function setContent(string $content) : void
     {
         $this->content = $content;
     }

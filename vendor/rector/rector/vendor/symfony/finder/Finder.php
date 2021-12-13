@@ -8,20 +8,20 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Finder;
+namespace RectorPrefix20211213\Symfony\Component\Finder;
 
-use RectorPrefix20211110\Symfony\Component\Finder\Comparator\DateComparator;
-use RectorPrefix20211110\Symfony\Component\Finder\Comparator\NumberComparator;
-use RectorPrefix20211110\Symfony\Component\Finder\Exception\DirectoryNotFoundException;
-use RectorPrefix20211110\Symfony\Component\Finder\Iterator\CustomFilterIterator;
-use RectorPrefix20211110\Symfony\Component\Finder\Iterator\DateRangeFilterIterator;
-use RectorPrefix20211110\Symfony\Component\Finder\Iterator\DepthRangeFilterIterator;
-use RectorPrefix20211110\Symfony\Component\Finder\Iterator\ExcludeDirectoryFilterIterator;
-use RectorPrefix20211110\Symfony\Component\Finder\Iterator\FilecontentFilterIterator;
-use RectorPrefix20211110\Symfony\Component\Finder\Iterator\FilenameFilterIterator;
-use RectorPrefix20211110\Symfony\Component\Finder\Iterator\LazyIterator;
-use RectorPrefix20211110\Symfony\Component\Finder\Iterator\SizeRangeFilterIterator;
-use RectorPrefix20211110\Symfony\Component\Finder\Iterator\SortableIterator;
+use RectorPrefix20211213\Symfony\Component\Finder\Comparator\DateComparator;
+use RectorPrefix20211213\Symfony\Component\Finder\Comparator\NumberComparator;
+use RectorPrefix20211213\Symfony\Component\Finder\Exception\DirectoryNotFoundException;
+use RectorPrefix20211213\Symfony\Component\Finder\Iterator\CustomFilterIterator;
+use RectorPrefix20211213\Symfony\Component\Finder\Iterator\DateRangeFilterIterator;
+use RectorPrefix20211213\Symfony\Component\Finder\Iterator\DepthRangeFilterIterator;
+use RectorPrefix20211213\Symfony\Component\Finder\Iterator\ExcludeDirectoryFilterIterator;
+use RectorPrefix20211213\Symfony\Component\Finder\Iterator\FilecontentFilterIterator;
+use RectorPrefix20211213\Symfony\Component\Finder\Iterator\FilenameFilterIterator;
+use RectorPrefix20211213\Symfony\Component\Finder\Iterator\LazyIterator;
+use RectorPrefix20211213\Symfony\Component\Finder\Iterator\SizeRangeFilterIterator;
+use RectorPrefix20211213\Symfony\Component\Finder\Iterator\SortableIterator;
 /**
  * Finder allows to build rules to find files and directories.
  *
@@ -34,31 +34,93 @@ use RectorPrefix20211110\Symfony\Component\Finder\Iterator\SortableIterator;
  *     $finder = Finder::create()->files()->name('*.php')->in(__DIR__);
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @implements \IteratorAggregate<string, SplFileInfo>
  */
 class Finder implements \IteratorAggregate, \Countable
 {
     public const IGNORE_VCS_FILES = 1;
     public const IGNORE_DOT_FILES = 2;
     public const IGNORE_VCS_IGNORED_FILES = 4;
+    /**
+     * @var int
+     */
     private $mode = 0;
+    /**
+     * @var mixed[]
+     */
     private $names = [];
+    /**
+     * @var mixed[]
+     */
     private $notNames = [];
+    /**
+     * @var mixed[]
+     */
     private $exclude = [];
+    /**
+     * @var mixed[]
+     */
     private $filters = [];
+    /**
+     * @var mixed[]
+     */
     private $depths = [];
+    /**
+     * @var mixed[]
+     */
     private $sizes = [];
+    /**
+     * @var bool
+     */
     private $followLinks = \false;
+    /**
+     * @var bool
+     */
     private $reverseSorting = \false;
+    /**
+     * @var bool|\Closure|int
+     */
     private $sort = \false;
+    /**
+     * @var int
+     */
     private $ignore = 0;
+    /**
+     * @var mixed[]
+     */
     private $dirs = [];
+    /**
+     * @var mixed[]
+     */
     private $dates = [];
+    /**
+     * @var mixed[]
+     */
     private $iterators = [];
+    /**
+     * @var mixed[]
+     */
     private $contains = [];
+    /**
+     * @var mixed[]
+     */
     private $notContains = [];
+    /**
+     * @var mixed[]
+     */
     private $paths = [];
+    /**
+     * @var mixed[]
+     */
     private $notPaths = [];
+    /**
+     * @var bool
+     */
     private $ignoreUnreadableDirs = \false;
+    /**
+     * @var mixed[]
+     */
     private static $vcsPatterns = ['.svn', '_svn', 'CVS', '_darcs', '.arch-params', '.monotone', '.bzr', '.git', '.hg'];
     public function __construct()
     {
@@ -66,8 +128,7 @@ class Finder implements \IteratorAggregate, \Countable
     }
     /**
      * Creates a new Finder.
-     *
-     * @return static
+     * @return $this
      */
     public static function create()
     {
@@ -80,7 +141,7 @@ class Finder implements \IteratorAggregate, \Countable
      */
     public function directories()
     {
-        $this->mode = \RectorPrefix20211110\Symfony\Component\Finder\Iterator\FileTypeFilterIterator::ONLY_DIRECTORIES;
+        $this->mode = \RectorPrefix20211213\Symfony\Component\Finder\Iterator\FileTypeFilterIterator::ONLY_DIRECTORIES;
         return $this;
     }
     /**
@@ -90,7 +151,7 @@ class Finder implements \IteratorAggregate, \Countable
      */
     public function files()
     {
-        $this->mode = \RectorPrefix20211110\Symfony\Component\Finder\Iterator\FileTypeFilterIterator::ONLY_FILES;
+        $this->mode = \RectorPrefix20211213\Symfony\Component\Finder\Iterator\FileTypeFilterIterator::ONLY_FILES;
         return $this;
     }
     /**
@@ -112,7 +173,7 @@ class Finder implements \IteratorAggregate, \Countable
     public function depth($levels)
     {
         foreach ((array) $levels as $level) {
-            $this->depths[] = new \RectorPrefix20211110\Symfony\Component\Finder\Comparator\NumberComparator($level);
+            $this->depths[] = new \RectorPrefix20211213\Symfony\Component\Finder\Comparator\NumberComparator($level);
         }
         return $this;
     }
@@ -138,7 +199,7 @@ class Finder implements \IteratorAggregate, \Countable
     public function date($dates)
     {
         foreach ((array) $dates as $date) {
-            $this->dates[] = new \RectorPrefix20211110\Symfony\Component\Finder\Comparator\DateComparator($date);
+            $this->dates[] = new \RectorPrefix20211213\Symfony\Component\Finder\Comparator\DateComparator($date);
         }
         return $this;
     }
@@ -279,7 +340,7 @@ class Finder implements \IteratorAggregate, \Countable
     public function size($sizes)
     {
         foreach ((array) $sizes as $size) {
-            $this->sizes[] = new \RectorPrefix20211110\Symfony\Component\Finder\Comparator\NumberComparator($size);
+            $this->sizes[] = new \RectorPrefix20211213\Symfony\Component\Finder\Comparator\NumberComparator($size);
         }
         return $this;
     }
@@ -309,9 +370,8 @@ class Finder implements \IteratorAggregate, \Countable
      * @return $this
      *
      * @see ExcludeDirectoryFilterIterator
-     * @param bool $ignoreDotFiles
      */
-    public function ignoreDotFiles($ignoreDotFiles)
+    public function ignoreDotFiles(bool $ignoreDotFiles)
     {
         if ($ignoreDotFiles) {
             $this->ignore |= static::IGNORE_DOT_FILES;
@@ -328,9 +388,8 @@ class Finder implements \IteratorAggregate, \Countable
      * @return $this
      *
      * @see ExcludeDirectoryFilterIterator
-     * @param bool $ignoreVCS
      */
-    public function ignoreVCS($ignoreVCS)
+    public function ignoreVCS(bool $ignoreVCS)
     {
         if ($ignoreVCS) {
             $this->ignore |= static::IGNORE_VCS_FILES;
@@ -345,9 +404,8 @@ class Finder implements \IteratorAggregate, \Countable
      * This option is disabled by default.
      *
      * @return $this
-     * @param bool $ignoreVCSIgnored
      */
-    public function ignoreVCSIgnored($ignoreVCSIgnored)
+    public function ignoreVCSIgnored(bool $ignoreVCSIgnored)
     {
         if ($ignoreVCSIgnored) {
             $this->ignore |= static::IGNORE_VCS_IGNORED_FILES;
@@ -380,9 +438,8 @@ class Finder implements \IteratorAggregate, \Countable
      * @return $this
      *
      * @see SortableIterator
-     * @param \Closure $closure
      */
-    public function sort($closure)
+    public function sort(\Closure $closure)
     {
         $this->sort = $closure;
         return $this;
@@ -395,11 +452,10 @@ class Finder implements \IteratorAggregate, \Countable
      * @return $this
      *
      * @see SortableIterator
-     * @param bool $useNaturalSort
      */
-    public function sortByName($useNaturalSort = \false)
+    public function sortByName(bool $useNaturalSort = \false)
     {
-        $this->sort = $useNaturalSort ? \RectorPrefix20211110\Symfony\Component\Finder\Iterator\SortableIterator::SORT_BY_NAME_NATURAL : \RectorPrefix20211110\Symfony\Component\Finder\Iterator\SortableIterator::SORT_BY_NAME;
+        $this->sort = $useNaturalSort ? \RectorPrefix20211213\Symfony\Component\Finder\Iterator\SortableIterator::SORT_BY_NAME_NATURAL : \RectorPrefix20211213\Symfony\Component\Finder\Iterator\SortableIterator::SORT_BY_NAME;
         return $this;
     }
     /**
@@ -413,7 +469,7 @@ class Finder implements \IteratorAggregate, \Countable
      */
     public function sortByType()
     {
-        $this->sort = \RectorPrefix20211110\Symfony\Component\Finder\Iterator\SortableIterator::SORT_BY_TYPE;
+        $this->sort = \RectorPrefix20211213\Symfony\Component\Finder\Iterator\SortableIterator::SORT_BY_TYPE;
         return $this;
     }
     /**
@@ -429,7 +485,7 @@ class Finder implements \IteratorAggregate, \Countable
      */
     public function sortByAccessedTime()
     {
-        $this->sort = \RectorPrefix20211110\Symfony\Component\Finder\Iterator\SortableIterator::SORT_BY_ACCESSED_TIME;
+        $this->sort = \RectorPrefix20211213\Symfony\Component\Finder\Iterator\SortableIterator::SORT_BY_ACCESSED_TIME;
         return $this;
     }
     /**
@@ -457,7 +513,7 @@ class Finder implements \IteratorAggregate, \Countable
      */
     public function sortByChangedTime()
     {
-        $this->sort = \RectorPrefix20211110\Symfony\Component\Finder\Iterator\SortableIterator::SORT_BY_CHANGED_TIME;
+        $this->sort = \RectorPrefix20211213\Symfony\Component\Finder\Iterator\SortableIterator::SORT_BY_CHANGED_TIME;
         return $this;
     }
     /**
@@ -473,7 +529,7 @@ class Finder implements \IteratorAggregate, \Countable
      */
     public function sortByModifiedTime()
     {
-        $this->sort = \RectorPrefix20211110\Symfony\Component\Finder\Iterator\SortableIterator::SORT_BY_MODIFIED_TIME;
+        $this->sort = \RectorPrefix20211213\Symfony\Component\Finder\Iterator\SortableIterator::SORT_BY_MODIFIED_TIME;
         return $this;
     }
     /**
@@ -485,9 +541,8 @@ class Finder implements \IteratorAggregate, \Countable
      * @return $this
      *
      * @see CustomFilterIterator
-     * @param \Closure $closure
      */
-    public function filter($closure)
+    public function filter(\Closure $closure)
     {
         $this->filters[] = $closure;
         return $this;
@@ -508,9 +563,8 @@ class Finder implements \IteratorAggregate, \Countable
      * By default, scanning unreadable directories content throws an AccessDeniedException.
      *
      * @return $this
-     * @param bool $ignore
      */
-    public function ignoreUnreadableDirs($ignore = \true)
+    public function ignoreUnreadableDirs(bool $ignore = \true)
     {
         $this->ignoreUnreadableDirs = $ignore;
         return $this;
@@ -529,15 +583,15 @@ class Finder implements \IteratorAggregate, \Countable
         $resolvedDirs = [];
         foreach ((array) $dirs as $dir) {
             if (\is_dir($dir)) {
-                $resolvedDirs[] = $this->normalizeDir($dir);
+                $resolvedDirs[] = [$this->normalizeDir($dir)];
             } elseif ($glob = \glob($dir, (\defined('GLOB_BRACE') ? \GLOB_BRACE : 0) | \GLOB_ONLYDIR | \GLOB_NOSORT)) {
                 \sort($glob);
-                $resolvedDirs = \array_merge($resolvedDirs, \array_map([$this, 'normalizeDir'], $glob));
+                $resolvedDirs[] = \array_map([$this, 'normalizeDir'], $glob);
             } else {
-                throw new \RectorPrefix20211110\Symfony\Component\Finder\Exception\DirectoryNotFoundException(\sprintf('The "%s" directory does not exist.', $dir));
+                throw new \RectorPrefix20211213\Symfony\Component\Finder\Exception\DirectoryNotFoundException(\sprintf('The "%s" directory does not exist.', $dir));
             }
         }
-        $this->dirs = \array_merge($this->dirs, $resolvedDirs);
+        $this->dirs = \array_merge($this->dirs, ...$resolvedDirs);
         return $this;
     }
     /**
@@ -545,12 +599,9 @@ class Finder implements \IteratorAggregate, \Countable
      *
      * This method implements the IteratorAggregate interface.
      *
-     * @return \Iterator|SplFileInfo[] An iterator
-     *
      * @throws \LogicException if the in() method has not been called
      */
-    #[\ReturnTypeWillChange]
-    public function getIterator()
+    public function getIterator() : \Iterator
     {
         if (0 === \count($this->dirs) && 0 === \count($this->iterators)) {
             throw new \LogicException('You must call one of in() or append() methods before iterating over a Finder.');
@@ -558,13 +609,13 @@ class Finder implements \IteratorAggregate, \Countable
         if (1 === \count($this->dirs) && 0 === \count($this->iterators)) {
             $iterator = $this->searchInDirectory($this->dirs[0]);
             if ($this->sort || $this->reverseSorting) {
-                $iterator = (new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\SortableIterator($iterator, $this->sort, $this->reverseSorting))->getIterator();
+                $iterator = (new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\SortableIterator($iterator, $this->sort, $this->reverseSorting))->getIterator();
             }
             return $iterator;
         }
         $iterator = new \AppendIterator();
         foreach ($this->dirs as $dir) {
-            $iterator->append(new \IteratorIterator(new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\LazyIterator(function () use($dir) {
+            $iterator->append(new \IteratorIterator(new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\LazyIterator(function () use($dir) {
                 return $this->searchInDirectory($dir);
             })));
         }
@@ -572,7 +623,7 @@ class Finder implements \IteratorAggregate, \Countable
             $iterator->append($it);
         }
         if ($this->sort || $this->reverseSorting) {
-            $iterator = (new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\SortableIterator($iterator, $this->sort, $this->reverseSorting))->getIterator();
+            $iterator = (new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\SortableIterator($iterator, $this->sort, $this->reverseSorting))->getIterator();
         }
         return $iterator;
     }
@@ -584,9 +635,8 @@ class Finder implements \IteratorAggregate, \Countable
      * @return $this
      *
      * @throws \InvalidArgumentException when the given argument is not iterable
-     * @param mixed[] $iterator
      */
-    public function append($iterator)
+    public function append(iterable $iterator)
     {
         if ($iterator instanceof \IteratorAggregate) {
             $this->iterators[] = $iterator->getIterator();
@@ -606,10 +656,8 @@ class Finder implements \IteratorAggregate, \Countable
     }
     /**
      * Check if any results were found.
-     *
-     * @return bool
      */
-    public function hasResults()
+    public function hasResults() : bool
     {
         foreach ($this->getIterator() as $_) {
             return \true;
@@ -618,11 +666,8 @@ class Finder implements \IteratorAggregate, \Countable
     }
     /**
      * Counts all the results collected by the iterators.
-     *
-     * @return int
      */
-    #[\ReturnTypeWillChange]
-    public function count()
+    public function count() : int
     {
         return \iterator_count($this->getIterator());
     }
@@ -635,13 +680,6 @@ class Finder implements \IteratorAggregate, \Countable
         }
         if (static::IGNORE_DOT_FILES === (static::IGNORE_DOT_FILES & $this->ignore)) {
             $notPaths[] = '#(^|/)\\..+(/|$)#';
-        }
-        if (static::IGNORE_VCS_IGNORED_FILES === (static::IGNORE_VCS_IGNORED_FILES & $this->ignore)) {
-            $gitignoreFilePath = \sprintf('%s/.gitignore', $dir);
-            if (!\is_readable($gitignoreFilePath)) {
-                throw new \RuntimeException(\sprintf('The "ignoreVCSIgnored" option cannot be used by the Finder as the "%s" file is not readable.', $gitignoreFilePath));
-            }
-            $notPaths = \array_merge($notPaths, [\RectorPrefix20211110\Symfony\Component\Finder\Gitignore::toRegex(\file_get_contents($gitignoreFilePath))]);
         }
         $minDepth = 0;
         $maxDepth = \PHP_INT_MAX;
@@ -667,34 +705,37 @@ class Finder implements \IteratorAggregate, \Countable
         if ($this->followLinks) {
             $flags |= \RecursiveDirectoryIterator::FOLLOW_SYMLINKS;
         }
-        $iterator = new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator($dir, $flags, $this->ignoreUnreadableDirs);
+        $iterator = new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator($dir, $flags, $this->ignoreUnreadableDirs);
         if ($exclude) {
-            $iterator = new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\ExcludeDirectoryFilterIterator($iterator, $exclude);
+            $iterator = new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\ExcludeDirectoryFilterIterator($iterator, $exclude);
         }
         $iterator = new \RecursiveIteratorIterator($iterator, \RecursiveIteratorIterator::SELF_FIRST);
         if ($minDepth > 0 || $maxDepth < \PHP_INT_MAX) {
-            $iterator = new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\DepthRangeFilterIterator($iterator, $minDepth, $maxDepth);
+            $iterator = new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\DepthRangeFilterIterator($iterator, $minDepth, $maxDepth);
         }
         if ($this->mode) {
-            $iterator = new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\FileTypeFilterIterator($iterator, $this->mode);
+            $iterator = new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\FileTypeFilterIterator($iterator, $this->mode);
         }
         if ($this->names || $this->notNames) {
-            $iterator = new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\FilenameFilterIterator($iterator, $this->names, $this->notNames);
+            $iterator = new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\FilenameFilterIterator($iterator, $this->names, $this->notNames);
         }
         if ($this->contains || $this->notContains) {
-            $iterator = new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\FilecontentFilterIterator($iterator, $this->contains, $this->notContains);
+            $iterator = new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\FilecontentFilterIterator($iterator, $this->contains, $this->notContains);
         }
         if ($this->sizes) {
-            $iterator = new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\SizeRangeFilterIterator($iterator, $this->sizes);
+            $iterator = new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\SizeRangeFilterIterator($iterator, $this->sizes);
         }
         if ($this->dates) {
-            $iterator = new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\DateRangeFilterIterator($iterator, $this->dates);
+            $iterator = new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\DateRangeFilterIterator($iterator, $this->dates);
         }
         if ($this->filters) {
-            $iterator = new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\CustomFilterIterator($iterator, $this->filters);
+            $iterator = new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\CustomFilterIterator($iterator, $this->filters);
         }
         if ($this->paths || $notPaths) {
-            $iterator = new \RectorPrefix20211110\Symfony\Component\Finder\Iterator\PathFilterIterator($iterator, $this->paths, $notPaths);
+            $iterator = new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\PathFilterIterator($iterator, $this->paths, $notPaths);
+        }
+        if (static::IGNORE_VCS_IGNORED_FILES === (static::IGNORE_VCS_IGNORED_FILES & $this->ignore)) {
+            $iterator = new \RectorPrefix20211213\Symfony\Component\Finder\Iterator\VcsIgnoredFilterIterator($iterator, $dir);
         }
         return $iterator;
     }

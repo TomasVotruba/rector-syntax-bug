@@ -15,6 +15,7 @@ use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Param;
+use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Property;
@@ -26,9 +27,10 @@ use Rector\Core\Reflection\ReflectionResolver;
 use Rector\Core\ValueObject\MethodName;
 use Rector\NodeNameResolver\NodeNameResolver;
 use Rector\NodeTypeResolver\Node\AttributeKey;
+use Rector\Php80\NodeAnalyzer\PhpAttributeAnalyzer;
 use Rector\ReadWrite\Guard\VariableToConstantGuard;
 use Rector\ReadWrite\NodeAnalyzer\ReadWritePropertyAnalyzer;
-use RectorPrefix20211110\Symplify\PackageBuilder\Php\TypeChecker;
+use RectorPrefix20211213\Symplify\PackageBuilder\Php\TypeChecker;
 /**
  * For inspiration to improve this service,
  * @see examples of variable modifications in https://wiki.php.net/rfc/readonly_properties_v2#proposal
@@ -36,42 +38,60 @@ use RectorPrefix20211110\Symplify\PackageBuilder\Php\TypeChecker;
 final class PropertyManipulator
 {
     /**
+     * @var string[]
+     */
+    private const ALLOWED_NOT_READONLY_ANNOTATION_CLASS_OR_ATTRIBUTES = ['Doctrine\\ORM\\Mapping\\Entity', 'Doctrine\\ORM\\Mapping\\Table'];
+    /**
+     * @readonly
      * @var \Rector\Core\NodeManipulator\AssignManipulator
      */
     private $assignManipulator;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\ReadWrite\Guard\VariableToConstantGuard
      */
     private $variableToConstantGuard;
     /**
+     * @readonly
      * @var \Rector\ReadWrite\NodeAnalyzer\ReadWritePropertyAnalyzer
      */
     private $readWritePropertyAnalyzer;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory
      */
     private $phpDocInfoFactory;
     /**
+     * @readonly
      * @var \Symplify\PackageBuilder\Php\TypeChecker
      */
     private $typeChecker;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\NodeFinder\PropertyFetchFinder
      */
     private $propertyFetchFinder;
     /**
+     * @readonly
      * @var \Rector\Core\Reflection\ReflectionResolver
      */
     private $reflectionResolver;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
-    public function __construct(\Rector\Core\NodeManipulator\AssignManipulator $assignManipulator, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder, \Rector\ReadWrite\Guard\VariableToConstantGuard $variableToConstantGuard, \Rector\ReadWrite\NodeAnalyzer\ReadWritePropertyAnalyzer $readWritePropertyAnalyzer, \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory $phpDocInfoFactory, \RectorPrefix20211110\Symplify\PackageBuilder\Php\TypeChecker $typeChecker, \Rector\Core\PhpParser\NodeFinder\PropertyFetchFinder $propertyFetchFinder, \Rector\Core\Reflection\ReflectionResolver $reflectionResolver, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver)
+    /**
+     * @readonly
+     * @var \Rector\Php80\NodeAnalyzer\PhpAttributeAnalyzer
+     */
+    private $phpAttributeAnalyzer;
+    public function __construct(\Rector\Core\NodeManipulator\AssignManipulator $assignManipulator, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder, \Rector\ReadWrite\Guard\VariableToConstantGuard $variableToConstantGuard, \Rector\ReadWrite\NodeAnalyzer\ReadWritePropertyAnalyzer $readWritePropertyAnalyzer, \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory $phpDocInfoFactory, \RectorPrefix20211213\Symplify\PackageBuilder\Php\TypeChecker $typeChecker, \Rector\Core\PhpParser\NodeFinder\PropertyFetchFinder $propertyFetchFinder, \Rector\Core\Reflection\ReflectionResolver $reflectionResolver, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \Rector\Php80\NodeAnalyzer\PhpAttributeAnalyzer $phpAttributeAnalyzer)
     {
         $this->assignManipulator = $assignManipulator;
         $this->betterNodeFinder = $betterNodeFinder;
@@ -82,6 +102,7 @@ final class PropertyManipulator
         $this->propertyFetchFinder = $propertyFetchFinder;
         $this->reflectionResolver = $reflectionResolver;
         $this->nodeNameResolver = $nodeNameResolver;
+        $this->phpAttributeAnalyzer = $phpAttributeAnalyzer;
     }
     /**
      * @param \PhpParser\Node\Param|\PhpParser\Node\Stmt\Property $propertyOrPromotedParam
@@ -119,6 +140,16 @@ final class PropertyManipulator
      */
     public function isPropertyChangeableExceptConstructor($propertyOrParam) : bool
     {
+        $class = $this->betterNodeFinder->findParentType($propertyOrParam, \PhpParser\Node\Stmt\Class_::class);
+        if ($class instanceof \PhpParser\Node\Stmt\Class_) {
+            $phpDocInfo = $this->phpDocInfoFactory->createFromNodeOrEmpty($class);
+            if ($phpDocInfo->hasByAnnotationClasses(self::ALLOWED_NOT_READONLY_ANNOTATION_CLASS_OR_ATTRIBUTES)) {
+                return \true;
+            }
+            if ($this->phpAttributeAnalyzer->hasPhpAttributes($class, self::ALLOWED_NOT_READONLY_ANNOTATION_CLASS_OR_ATTRIBUTES)) {
+                return \true;
+            }
+        }
         $propertyFetches = $this->propertyFetchFinder->findPrivatePropertyFetches($propertyOrParam);
         foreach ($propertyFetches as $propertyFetch) {
             if ($this->isChangeableContext($propertyFetch)) {

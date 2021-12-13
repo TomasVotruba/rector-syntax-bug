@@ -24,26 +24,32 @@ use Rector\NodeNameResolver\NodeNameResolver;
 final class IfManipulator
 {
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\Core\NodeManipulator\StmtsManipulator
      */
     private $stmtsManipulator;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\Value\ValueResolver
      */
     private $valueResolver;
     /**
+     * @readonly
      * @var \Rector\EarlyReturn\NodeTransformer\ConditionInverter
      */
     private $conditionInverter;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Comparing\NodeComparator
      */
     private $nodeComparator;
@@ -233,7 +239,7 @@ final class IfManipulator
     public function createIfNegation(\PhpParser\Node\Expr $expr, \PhpParser\Node\Stmt $stmt) : \PhpParser\Node\Stmt\If_
     {
         $expr = $this->conditionInverter->createInvertedCondition($expr);
-        return new \PhpParser\Node\Stmt\If_($expr, ['stmts' => [$stmt]]);
+        return $this->createIfExpr($expr, $stmt);
     }
     public function createIfExpr(\PhpParser\Node\Expr $expr, \PhpParser\Node\Stmt $stmt) : \PhpParser\Node\Stmt\If_
     {

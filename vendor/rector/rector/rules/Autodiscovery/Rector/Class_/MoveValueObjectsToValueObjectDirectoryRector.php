@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Autodiscovery\Rector\Class_;
 
-use RectorPrefix20211110\Controller;
+use RectorPrefix20211213\Controller;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PHPStan\Type\ObjectType;
@@ -14,6 +14,7 @@ use Rector\FileSystemRector\ValueObject\AddedFileWithNodes;
 use Rector\FileSystemRector\ValueObjectFactory\AddedFileWithNodesFactory;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * Inspiration @see https://github.com/rectorphp/rector/pull/1865/files#diff-0d18e660cdb626958662641b491623f8
  * @wip
@@ -44,7 +45,7 @@ final class MoveValueObjectsToValueObjectDirectoryRector extends \Rector\Core\Re
      */
     private $enableValueObjectGuessing = \true;
     /**
-     * @var class-string[]
+     * @var string[]
      */
     private $types = [];
     /**
@@ -52,10 +53,12 @@ final class MoveValueObjectsToValueObjectDirectoryRector extends \Rector\Core\Re
      */
     private $suffixes = [];
     /**
+     * @readonly
      * @var \Rector\FileSystemRector\ValueObjectFactory\AddedFileWithNodesFactory
      */
     private $addedFileWithNodesFactory;
     /**
+     * @readonly
      * @var \Rector\Autodiscovery\Analyzer\ValueObjectClassAnalyzer
      */
     private $valueObjectClassAnalyzer;
@@ -127,13 +130,21 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, mixed> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $this->types = $configuration[self::TYPES] ?? [];
-        $this->suffixes = $configuration[self::SUFFIXES] ?? [];
-        $this->enableValueObjectGuessing = $configuration[self::ENABLE_VALUE_OBJECT_GUESSING] ?? \false;
+        $types = $configuration[self::TYPES] ?? [];
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($types);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($types);
+        $this->types = $types;
+        $suffixes = $configuration[self::SUFFIXES] ?? [];
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($suffixes);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($suffixes);
+        $this->suffixes = $suffixes;
+        $enableValueObjectGuessing = $configuration[self::ENABLE_VALUE_OBJECT_GUESSING] ?? \false;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::boolean($enableValueObjectGuessing);
+        $this->enableValueObjectGuessing = $enableValueObjectGuessing;
     }
     private function isValueObjectMatch(\PhpParser\Node\Stmt\Class_ $class) : bool
     {

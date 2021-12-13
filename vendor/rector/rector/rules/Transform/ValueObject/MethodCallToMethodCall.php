@@ -3,21 +3,26 @@
 declare (strict_types=1);
 namespace Rector\Transform\ValueObject;
 
+use Rector\Core\Validation\RectorAssert;
 final class MethodCallToMethodCall
 {
     /**
      * @var class-string
+     * @readonly
      */
     private $oldType;
     /**
+     * @readonly
      * @var string
      */
     private $oldMethod;
     /**
      * @var class-string
+     * @readonly
      */
     private $newType;
     /**
+     * @readonly
      * @var string
      */
     private $newMethod;
@@ -31,6 +36,8 @@ final class MethodCallToMethodCall
         $this->oldMethod = $oldMethod;
         $this->newType = $newType;
         $this->newMethod = $newMethod;
+        \Rector\Core\Validation\RectorAssert::className($oldType);
+        \Rector\Core\Validation\RectorAssert::className($newType);
     }
     public function getOldType() : string
     {

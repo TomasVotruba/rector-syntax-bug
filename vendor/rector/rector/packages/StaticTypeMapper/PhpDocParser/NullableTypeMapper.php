@@ -13,13 +13,18 @@ use PHPStan\Type\NullType;
 use PHPStan\Type\Type;
 use PHPStan\Type\UnionType;
 use Rector\StaticTypeMapper\Contract\PhpDocParser\PhpDocTypeMapperInterface;
+/**
+ * @implements PhpDocTypeMapperInterface<NullableTypeNode>
+ */
 final class NullableTypeMapper implements \Rector\StaticTypeMapper\Contract\PhpDocParser\PhpDocTypeMapperInterface
 {
     /**
+     * @readonly
      * @var \Rector\StaticTypeMapper\PhpDocParser\IdentifierTypeMapper
      */
     private $identifierTypeMapper;
     /**
+     * @readonly
      * @var \PHPStan\PhpDoc\TypeNodeResolver
      */
     private $typeNodeResolver;
@@ -28,19 +33,11 @@ final class NullableTypeMapper implements \Rector\StaticTypeMapper\Contract\PhpD
         $this->identifierTypeMapper = $identifierTypeMapper;
         $this->typeNodeResolver = $typeNodeResolver;
     }
-    /**
-     * @return class-string<TypeNode>
-     */
     public function getNodeType() : string
     {
         return \PHPStan\PhpDocParser\Ast\Type\NullableTypeNode::class;
     }
-    /**
-     * @param \PHPStan\PhpDocParser\Ast\Type\TypeNode $typeNode
-     * @param \PhpParser\Node $node
-     * @param \PHPStan\Analyser\NameScope $nameScope
-     */
-    public function mapToPHPStanType($typeNode, $node, $nameScope) : \PHPStan\Type\Type
+    public function mapToPHPStanType(\PHPStan\PhpDocParser\Ast\Type\TypeNode $typeNode, \PhpParser\Node $node, \PHPStan\Analyser\NameScope $nameScope) : \PHPStan\Type\Type
     {
         $type = $typeNode->type;
         if ($type instanceof \PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode) {

@@ -21,6 +21,7 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class SpatieEnumClassToEnumRector extends \Rector\Core\Rector\AbstractRector implements \Rector\VersionBonding\Contract\MinPhpVersionInterface
 {
     /**
+     * @readonly
      * @var \Rector\Php81\NodeFactory\EnumFactory
      */
     private $enumFactory;
@@ -47,7 +48,7 @@ class StatusEnum extends Enum
 }
 CODE_SAMPLE
 , <<<'CODE_SAMPLE'
-enum StatusEnum
+enum StatusEnum : string
 {
     case draft = 'draft';
     case published = 'published';

@@ -3,16 +3,14 @@
 declare (strict_types=1);
 namespace Rector\TypeDeclaration\TypeInferer\ReturnTypeInferer;
 
-use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\FunctionLike;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Function_;
 use PHPStan\Type\Type;
 use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory;
 use Rector\TypeDeclaration\Contract\TypeInferer\ReturnTypeInfererInterface;
 final class ReturnTagReturnTypeInferer implements \Rector\TypeDeclaration\Contract\TypeInferer\ReturnTypeInfererInterface
 {
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory
      */
     private $phpDocInfoFactory;
@@ -20,10 +18,7 @@ final class ReturnTagReturnTypeInferer implements \Rector\TypeDeclaration\Contra
     {
         $this->phpDocInfoFactory = $phpDocInfoFactory;
     }
-    /**
-     * @param \PhpParser\Node\FunctionLike $functionLike
-     */
-    public function inferFunctionLike($functionLike) : \PHPStan\Type\Type
+    public function inferFunctionLike(\PhpParser\Node\FunctionLike $functionLike) : \PHPStan\Type\Type
     {
         $phpDocInfo = $this->phpDocInfoFactory->createFromNodeOrEmpty($functionLike);
         return $phpDocInfo->getReturnType();

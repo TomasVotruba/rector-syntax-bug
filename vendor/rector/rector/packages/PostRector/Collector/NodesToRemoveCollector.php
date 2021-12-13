@@ -28,22 +28,27 @@ final class NodesToRemoveCollector implements \Rector\PostRector\Contract\Collec
      */
     private $nodesToRemove = [];
     /**
+     * @readonly
      * @var \Rector\ChangesReporting\Collector\AffectedFilesCollector
      */
     private $affectedFilesCollector;
     /**
+     * @readonly
      * @var \Rector\NodeRemoval\BreakingRemovalGuard
      */
     private $breakingRemovalGuard;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Comparing\NodeComparator
      */
     private $nodeComparator;
     /**
+     * @readonly
      * @var \Rector\Core\Provider\CurrentFileProvider
      */
     private $currentFileProvider;
@@ -55,10 +60,7 @@ final class NodesToRemoveCollector implements \Rector\PostRector\Contract\Collec
         $this->nodeComparator = $nodeComparator;
         $this->currentFileProvider = $currentFileProvider;
     }
-    /**
-     * @param \PhpParser\Node $node
-     */
-    public function addNodeToRemove($node) : void
+    public function addNodeToRemove(\PhpParser\Node $node) : void
     {
         /** Node|null $parentNode */
         $parentNode = $node->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::PARENT_NODE);
@@ -81,10 +83,7 @@ final class NodesToRemoveCollector implements \Rector\PostRector\Contract\Collec
         /** @var Stmt $node */
         $this->nodesToRemove[] = $node;
     }
-    /**
-     * @param \PhpParser\Node $node
-     */
-    public function isNodeRemoved($node) : bool
+    public function isNodeRemoved(\PhpParser\Node $node) : bool
     {
         return \in_array($node, $this->nodesToRemove, \true);
     }
@@ -103,10 +102,7 @@ final class NodesToRemoveCollector implements \Rector\PostRector\Contract\Collec
     {
         return $this->nodesToRemove;
     }
-    /**
-     * @param int $key
-     */
-    public function unset($key) : void
+    public function unset(int $key) : void
     {
         unset($this->nodesToRemove[$key]);
     }

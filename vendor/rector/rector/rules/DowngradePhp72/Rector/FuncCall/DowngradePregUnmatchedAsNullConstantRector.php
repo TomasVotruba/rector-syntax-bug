@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\DowngradePhp72\Rector\FuncCall;
 
-use RectorPrefix20211110\Nette\NotImplementedException;
+use RectorPrefix20211213\Nette\NotImplementedException;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
@@ -42,6 +42,7 @@ final class DowngradePregUnmatchedAsNullConstantRector extends \Rector\Core\Rect
      */
     private const FLAG = 'PREG_UNMATCHED_AS_NULL';
     /**
+     * @readonly
      * @var \Rector\Core\NodeManipulator\IfManipulator
      */
     private $ifManipulator;
@@ -188,10 +189,9 @@ CODE_SAMPLE
     }
     private function assignThirdArgsValue(\PhpParser\Node\Expr\FuncCall $funcCall, \PhpParser\Node\Expr\BinaryOp\BitwiseOr $bitwiseOr) : void
     {
-        if ($bitwiseOr instanceof \PhpParser\Node\Expr\BinaryOp\BitwiseOr && $bitwiseOr->right instanceof \PhpParser\Node\Expr\ConstFetch && $this->isName($bitwiseOr->right, self::FLAG)) {
+        if ($bitwiseOr->right instanceof \PhpParser\Node\Expr\ConstFetch && $this->isName($bitwiseOr->right, self::FLAG)) {
             $bitwiseOr = $bitwiseOr->left;
-        }
-        if ($bitwiseOr instanceof \PhpParser\Node\Expr\BinaryOp\BitwiseOr && $bitwiseOr->left instanceof \PhpParser\Node\Expr\ConstFetch && $this->isName($bitwiseOr->left, self::FLAG)) {
+        } elseif ($bitwiseOr->left instanceof \PhpParser\Node\Expr\ConstFetch && $this->isName($bitwiseOr->left, self::FLAG)) {
             $bitwiseOr = $bitwiseOr->right;
         }
         if (!$funcCall->args[3] instanceof \PhpParser\Node\Arg) {
@@ -224,7 +224,7 @@ CODE_SAMPLE
             return $this->processInIf($parent, $funcCall, $replaceEmptystringToNull);
         }
         if (!$parent instanceof \PhpParser\Node) {
-            throw new \RectorPrefix20211110\Nette\NotImplementedException();
+            throw new \RectorPrefix20211213\Nette\NotImplementedException();
         }
         $if = $parent->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::PARENT_NODE);
         if ($parent instanceof \PhpParser\Node\Expr\BooleanNot) {

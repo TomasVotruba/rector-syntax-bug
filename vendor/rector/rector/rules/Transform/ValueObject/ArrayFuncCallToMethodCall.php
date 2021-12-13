@@ -3,30 +3,43 @@
 declare (strict_types=1);
 namespace Rector\Transform\ValueObject;
 
-final class ArrayFuncCallToMethodCall
+use Rector\Core\Validation\RectorAssert;
+use Rector\Transform\Contract\ValueObject\ArgumentFuncCallToMethodCallInterface;
+final class ArrayFuncCallToMethodCall implements \Rector\Transform\Contract\ValueObject\ArgumentFuncCallToMethodCallInterface
 {
     /**
-     * @var string
+     * @var \non-empty-string
+     * @readonly
      */
     private $function;
     /**
-     * @var string
+     * @var \non-empty-string
+     * @readonly
      */
     private $class;
     /**
-     * @var string
+     * @var \non-empty-string
+     * @readonly
      */
     private $arrayMethod;
     /**
-     * @var string
+     * @var \non-empty-string
+     * @readonly
      */
     private $nonArrayMethod;
+    /**
+     * @param non-empty-string $function
+     * @param non-empty-string $class
+     * @param non-empty-string $arrayMethod
+     * @param non-empty-string $nonArrayMethod
+     */
     public function __construct(string $function, string $class, string $arrayMethod, string $nonArrayMethod)
     {
         $this->function = $function;
         $this->class = $class;
         $this->arrayMethod = $arrayMethod;
         $this->nonArrayMethod = $nonArrayMethod;
+        \Rector\Core\Validation\RectorAssert::className($class);
     }
     public function getFunction() : string
     {

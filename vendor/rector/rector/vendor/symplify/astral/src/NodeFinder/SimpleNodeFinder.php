@@ -1,12 +1,12 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Symplify\Astral\NodeFinder;
+namespace RectorPrefix20211213\Symplify\Astral\NodeFinder;
 
 use PhpParser\Node;
 use PhpParser\NodeFinder;
-use RectorPrefix20211110\Symplify\Astral\ValueObject\AttributeKey;
-use RectorPrefix20211110\Symplify\PackageBuilder\Php\TypeChecker;
+use RectorPrefix20211213\Symplify\Astral\ValueObject\AttributeKey;
+use RectorPrefix20211213\Symplify\PackageBuilder\Php\TypeChecker;
 final class SimpleNodeFinder
 {
     /**
@@ -17,10 +17,19 @@ final class SimpleNodeFinder
      * @var \PhpParser\NodeFinder
      */
     private $nodeFinder;
-    public function __construct(\RectorPrefix20211110\Symplify\PackageBuilder\Php\TypeChecker $typeChecker, \PhpParser\NodeFinder $nodeFinder)
+    public function __construct(\RectorPrefix20211213\Symplify\PackageBuilder\Php\TypeChecker $typeChecker, \PhpParser\NodeFinder $nodeFinder)
     {
         $this->typeChecker = $typeChecker;
         $this->nodeFinder = $nodeFinder;
+    }
+    /**
+     * @template T of Node
+     * @param class-string<T> $nodeClass
+     * @return \PhpParser\Node|null
+     */
+    public function findFirstByType(\PhpParser\Node $node, string $nodeClass)
+    {
+        return $this->nodeFinder->findFirstInstanceOf($node, $nodeClass);
     }
     /**
      * @template T of Node
@@ -54,12 +63,12 @@ final class SimpleNodeFinder
      */
     public function findFirstParentByType(\PhpParser\Node $node, string $nodeClass) : ?\PhpParser\Node
     {
-        $node = $node->getAttribute(\RectorPrefix20211110\Symplify\Astral\ValueObject\AttributeKey::PARENT);
+        $node = $node->getAttribute(\RectorPrefix20211213\Symplify\Astral\ValueObject\AttributeKey::PARENT);
         while ($node) {
             if (\is_a($node, $nodeClass, \true)) {
                 return $node;
             }
-            $node = $node->getAttribute(\RectorPrefix20211110\Symplify\Astral\ValueObject\AttributeKey::PARENT);
+            $node = $node->getAttribute(\RectorPrefix20211213\Symplify\Astral\ValueObject\AttributeKey::PARENT);
         }
         return null;
     }
@@ -70,12 +79,12 @@ final class SimpleNodeFinder
      */
     public function findFirstParentByTypes(\PhpParser\Node $node, array $nodeTypes) : ?\PhpParser\Node
     {
-        $node = $node->getAttribute(\RectorPrefix20211110\Symplify\Astral\ValueObject\AttributeKey::PARENT);
+        $node = $node->getAttribute(\RectorPrefix20211213\Symplify\Astral\ValueObject\AttributeKey::PARENT);
         while ($node) {
             if ($this->typeChecker->isInstanceOf($node, $nodeTypes)) {
                 return $node;
             }
-            $node = $node->getAttribute(\RectorPrefix20211110\Symplify\Astral\ValueObject\AttributeKey::PARENT);
+            $node = $node->getAttribute(\RectorPrefix20211213\Symplify\Astral\ValueObject\AttributeKey::PARENT);
         }
         return null;
     }

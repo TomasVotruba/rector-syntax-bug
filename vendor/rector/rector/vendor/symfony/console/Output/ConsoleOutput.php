@@ -8,9 +8,9 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Console\Output;
+namespace RectorPrefix20211213\Symfony\Component\Console\Output;
 
-use RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterInterface;
+use RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterInterface;
 /**
  * ConsoleOutput is the default class for all CLI output. It uses STDOUT and STDERR.
  *
@@ -25,25 +25,28 @@ use RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterInte
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class ConsoleOutput extends \RectorPrefix20211110\Symfony\Component\Console\Output\StreamOutput implements \RectorPrefix20211110\Symfony\Component\Console\Output\ConsoleOutputInterface
+class ConsoleOutput extends \RectorPrefix20211213\Symfony\Component\Console\Output\StreamOutput implements \RectorPrefix20211213\Symfony\Component\Console\Output\ConsoleOutputInterface
 {
     private $stderr;
+    /**
+     * @var mixed[]
+     */
     private $consoleSectionOutputs = [];
     /**
      * @param int                           $verbosity The verbosity level (one of the VERBOSITY constants in OutputInterface)
      * @param bool|null                     $decorated Whether to decorate messages (null for auto-guessing)
      * @param OutputFormatterInterface|null $formatter Output formatter instance (null to use default OutputFormatter)
      */
-    public function __construct(int $verbosity = self::VERBOSITY_NORMAL, bool $decorated = null, \RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterInterface $formatter = null)
+    public function __construct(int $verbosity = self::VERBOSITY_NORMAL, bool $decorated = null, \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterInterface $formatter = null)
     {
         parent::__construct($this->openOutputStream(), $verbosity, $decorated, $formatter);
         if (null === $formatter) {
             // for BC reasons, stdErr has it own Formatter only when user don't inject a specific formatter.
-            $this->stderr = new \RectorPrefix20211110\Symfony\Component\Console\Output\StreamOutput($this->openErrorStream(), $verbosity, $decorated);
+            $this->stderr = new \RectorPrefix20211213\Symfony\Component\Console\Output\StreamOutput($this->openErrorStream(), $verbosity, $decorated);
             return;
         }
         $actualDecorated = $this->isDecorated();
-        $this->stderr = new \RectorPrefix20211110\Symfony\Component\Console\Output\StreamOutput($this->openErrorStream(), $verbosity, $decorated, $this->getFormatter());
+        $this->stderr = new \RectorPrefix20211213\Symfony\Component\Console\Output\StreamOutput($this->openErrorStream(), $verbosity, $decorated, $this->getFormatter());
         if (null === $decorated) {
             $this->setDecorated($actualDecorated && $this->stderr->isDecorated());
         }
@@ -51,9 +54,9 @@ class ConsoleOutput extends \RectorPrefix20211110\Symfony\Component\Console\Outp
     /**
      * Creates a new output section.
      */
-    public function section() : \RectorPrefix20211110\Symfony\Component\Console\Output\ConsoleSectionOutput
+    public function section() : \RectorPrefix20211213\Symfony\Component\Console\Output\ConsoleSectionOutput
     {
-        return new \RectorPrefix20211110\Symfony\Component\Console\Output\ConsoleSectionOutput($this->getStream(), $this->consoleSectionOutputs, $this->getVerbosity(), $this->isDecorated(), $this->getFormatter());
+        return new \RectorPrefix20211213\Symfony\Component\Console\Output\ConsoleSectionOutput($this->getStream(), $this->consoleSectionOutputs, $this->getVerbosity(), $this->isDecorated(), $this->getFormatter());
     }
     /**
      * {@inheritdoc}
@@ -66,7 +69,7 @@ class ConsoleOutput extends \RectorPrefix20211110\Symfony\Component\Console\Outp
     /**
      * {@inheritdoc}
      */
-    public function setFormatter(\RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterInterface $formatter)
+    public function setFormatter(\RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterInterface $formatter)
     {
         parent::setFormatter($formatter);
         $this->stderr->setFormatter($formatter);
@@ -82,34 +85,30 @@ class ConsoleOutput extends \RectorPrefix20211110\Symfony\Component\Console\Outp
     /**
      * {@inheritdoc}
      */
-    public function getErrorOutput()
+    public function getErrorOutput() : \RectorPrefix20211213\Symfony\Component\Console\Output\OutputInterface
     {
         return $this->stderr;
     }
     /**
      * {@inheritdoc}
      */
-    public function setErrorOutput(\RectorPrefix20211110\Symfony\Component\Console\Output\OutputInterface $error)
+    public function setErrorOutput(\RectorPrefix20211213\Symfony\Component\Console\Output\OutputInterface $error)
     {
         $this->stderr = $error;
     }
     /**
      * Returns true if current environment supports writing console output to
      * STDOUT.
-     *
-     * @return bool
      */
-    protected function hasStdoutSupport()
+    protected function hasStdoutSupport() : bool
     {
         return \false === $this->isRunningOS400();
     }
     /**
      * Returns true if current environment supports writing console output to
      * STDERR.
-     *
-     * @return bool
      */
-    protected function hasStderrSupport()
+    protected function hasStderrSupport() : bool
     {
         return \false === $this->isRunningOS400();
     }

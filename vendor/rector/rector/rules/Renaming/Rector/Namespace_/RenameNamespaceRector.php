@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Renaming\Rector\Namespace_;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Name;
@@ -18,12 +18,14 @@ use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\Renaming\ValueObject\RenamedNamespace;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Renaming\Rector\Namespace_\RenameNamespaceRector\RenameNamespaceRectorTest
  */
 final class RenameNamespaceRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const OLD_TO_NEW_NAMESPACES = 'old_to_new_namespaces';
@@ -36,6 +38,7 @@ final class RenameNamespaceRector extends \Rector\Core\Rector\AbstractRector imp
      */
     private $isChangedInNamespaces = [];
     /**
+     * @readonly
      * @var \Rector\Naming\NamespaceMatcher
      */
     private $namespaceMatcher;
@@ -45,7 +48,7 @@ final class RenameNamespaceRector extends \Rector\Core\Rector\AbstractRector imp
     }
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
-        return new \Symplify\RuleDocGenerator\ValueObject\RuleDefinition('Replaces old namespace by new one.', [new \Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample('$someObject = new SomeOldNamespace\\SomeClass;', '$someObject = new SomeNewNamespace\\SomeClass;', [self::OLD_TO_NEW_NAMESPACES => ['SomeOldNamespace' => 'SomeNewNamespace']])]);
+        return new \Symplify\RuleDocGenerator\ValueObject\RuleDefinition('Replaces old namespace by new one.', [new \Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample('$someObject = new SomeOldNamespace\\SomeClass;', '$someObject = new SomeNewNamespace\\SomeClass;', ['SomeOldNamespace' => 'SomeNewNamespace'])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -95,11 +98,15 @@ final class RenameNamespaceRector extends \Rector\Core\Rector\AbstractRector imp
         return null;
     }
     /**
-     * @param array<string, array<string, string>> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $this->oldToNewNamespaces = $configuration[self::OLD_TO_NEW_NAMESPACES] ?? [];
+        $oldToNewNamespaces = $configuration[self::OLD_TO_NEW_NAMESPACES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString(\array_keys($oldToNewNamespaces));
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($oldToNewNamespaces);
+        /** @var array<string, string> $oldToNewNamespaces */
+        $this->oldToNewNamespaces = $oldToNewNamespaces;
     }
     private function processFullyQualified(\PhpParser\Node\Name $name, \Rector\Renaming\ValueObject\RenamedNamespace $renamedNamespace) : ?\PhpParser\Node\Name\FullyQualified
     {
@@ -146,7 +153,7 @@ final class RenameNamespaceRector extends \Rector\Core\Rector\AbstractRector imp
     {
         $nameInNewNamespace = $renamedNamespace->getNameInNewNamespace();
         // first dummy implementation - improve
-        $cutOffFromTheLeft = \RectorPrefix20211110\Nette\Utils\Strings::length($nameInNewNamespace) - \RectorPrefix20211110\Nette\Utils\Strings::length($name->toString());
-        return \RectorPrefix20211110\Nette\Utils\Strings::substring($nameInNewNamespace, $cutOffFromTheLeft);
+        $cutOffFromTheLeft = \RectorPrefix20211213\Nette\Utils\Strings::length($nameInNewNamespace) - \RectorPrefix20211213\Nette\Utils\Strings::length($name->toString());
+        return \RectorPrefix20211213\Nette\Utils\Strings::substring($nameInNewNamespace, $cutOffFromTheLeft);
     }
 }

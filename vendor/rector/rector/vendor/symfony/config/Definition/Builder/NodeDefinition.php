@@ -8,17 +8,17 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Config\Definition\Builder;
+namespace RectorPrefix20211213\Symfony\Component\Config\Definition\Builder;
 
-use RectorPrefix20211110\Symfony\Component\Config\Definition\BaseNode;
-use RectorPrefix20211110\Symfony\Component\Config\Definition\Exception\InvalidDefinitionException;
-use RectorPrefix20211110\Symfony\Component\Config\Definition\NodeInterface;
+use RectorPrefix20211213\Symfony\Component\Config\Definition\BaseNode;
+use RectorPrefix20211213\Symfony\Component\Config\Definition\Exception\InvalidDefinitionException;
+use RectorPrefix20211213\Symfony\Component\Config\Definition\NodeInterface;
 /**
  * This class provides a fluent interface for defining a node.
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
-abstract class NodeDefinition implements \RectorPrefix20211110\Symfony\Component\Config\Definition\Builder\NodeParentInterface
+abstract class NodeDefinition implements \RectorPrefix20211213\Symfony\Component\Config\Definition\Builder\NodeParentInterface
 {
     protected $name;
     protected $normalization;
@@ -32,10 +32,10 @@ abstract class NodeDefinition implements \RectorPrefix20211110\Symfony\Component
     protected $nullEquivalent;
     protected $trueEquivalent = \true;
     protected $falseEquivalent = \false;
-    protected $pathSeparator = \RectorPrefix20211110\Symfony\Component\Config\Definition\BaseNode::DEFAULT_PATH_SEPARATOR;
+    protected $pathSeparator = \RectorPrefix20211213\Symfony\Component\Config\Definition\BaseNode::DEFAULT_PATH_SEPARATOR;
     protected $parent;
     protected $attributes = [];
-    public function __construct(?string $name, \RectorPrefix20211110\Symfony\Component\Config\Definition\Builder\NodeParentInterface $parent = null)
+    public function __construct(?string $name, \RectorPrefix20211213\Symfony\Component\Config\Definition\Builder\NodeParentInterface $parent = null)
     {
         $this->parent = $parent;
         $this->name = $name;
@@ -44,9 +44,8 @@ abstract class NodeDefinition implements \RectorPrefix20211110\Symfony\Component
      * Sets the parent node.
      *
      * @return $this
-     * @param \Symfony\Component\Config\Definition\Builder\NodeParentInterface $parent
      */
-    public function setParent($parent)
+    public function setParent(\RectorPrefix20211213\Symfony\Component\Config\Definition\Builder\NodeParentInterface $parent)
     {
         $this->parent = $parent;
         return $this;
@@ -55,9 +54,8 @@ abstract class NodeDefinition implements \RectorPrefix20211110\Symfony\Component
      * Sets info message.
      *
      * @return $this
-     * @param string $info
      */
-    public function info($info)
+    public function info(string $info)
     {
         return $this->attribute('info', $info);
     }
@@ -78,9 +76,8 @@ abstract class NodeDefinition implements \RectorPrefix20211110\Symfony\Component
      * @param mixed $value
      *
      * @return $this
-     * @param string $key
      */
-    public function attribute($key, $value)
+    public function attribute(string $key, $value)
     {
         $this->attributes[$key] = $value;
         return $this;
@@ -88,7 +85,7 @@ abstract class NodeDefinition implements \RectorPrefix20211110\Symfony\Component
     /**
      * Returns the parent node.
      *
-     * @return NodeParentInterface|NodeBuilder|NodeDefinition|ArrayNodeDefinition|VariableNodeDefinition|null The builder of the parent node
+     * @return NodeParentInterface|NodeBuilder|NodeDefinition|ArrayNodeDefinition|VariableNodeDefinition|null
      */
     public function end()
     {
@@ -98,21 +95,20 @@ abstract class NodeDefinition implements \RectorPrefix20211110\Symfony\Component
      * Creates the node.
      *
      * @return NodeInterface
-     * @param bool $forceRootNode
      */
-    public function getNode($forceRootNode = \false)
+    public function getNode(bool $forceRootNode = \false)
     {
         if ($forceRootNode) {
             $this->parent = null;
         }
         if (null !== $this->normalization) {
-            $this->normalization->before = \RectorPrefix20211110\Symfony\Component\Config\Definition\Builder\ExprBuilder::buildExpressions($this->normalization->before);
+            $this->normalization->before = \RectorPrefix20211213\Symfony\Component\Config\Definition\Builder\ExprBuilder::buildExpressions($this->normalization->before);
         }
         if (null !== $this->validation) {
-            $this->validation->rules = \RectorPrefix20211110\Symfony\Component\Config\Definition\Builder\ExprBuilder::buildExpressions($this->validation->rules);
+            $this->validation->rules = \RectorPrefix20211213\Symfony\Component\Config\Definition\Builder\ExprBuilder::buildExpressions($this->validation->rules);
         }
         $node = $this->createNode();
-        if ($node instanceof \RectorPrefix20211110\Symfony\Component\Config\Definition\BaseNode) {
+        if ($node instanceof \RectorPrefix20211213\Symfony\Component\Config\Definition\BaseNode) {
             $node->setAttributes($this->attributes);
         }
         return $node;
@@ -266,9 +262,8 @@ abstract class NodeDefinition implements \RectorPrefix20211110\Symfony\Component
      * Sets whether the node can be overwritten.
      *
      * @return $this
-     * @param bool $deny
      */
-    public function cannotBeOverwritten($deny = \true)
+    public function cannotBeOverwritten(bool $deny = \true)
     {
         $this->merge()->denyOverwrite($deny);
         return $this;
@@ -281,7 +276,7 @@ abstract class NodeDefinition implements \RectorPrefix20211110\Symfony\Component
     protected function validation()
     {
         if (null === $this->validation) {
-            $this->validation = new \RectorPrefix20211110\Symfony\Component\Config\Definition\Builder\ValidationBuilder($this);
+            $this->validation = new \RectorPrefix20211213\Symfony\Component\Config\Definition\Builder\ValidationBuilder($this);
         }
         return $this->validation;
     }
@@ -293,7 +288,7 @@ abstract class NodeDefinition implements \RectorPrefix20211110\Symfony\Component
     protected function merge()
     {
         if (null === $this->merge) {
-            $this->merge = new \RectorPrefix20211110\Symfony\Component\Config\Definition\Builder\MergeBuilder($this);
+            $this->merge = new \RectorPrefix20211213\Symfony\Component\Config\Definition\Builder\MergeBuilder($this);
         }
         return $this->merge;
     }
@@ -305,14 +300,14 @@ abstract class NodeDefinition implements \RectorPrefix20211110\Symfony\Component
     protected function normalization()
     {
         if (null === $this->normalization) {
-            $this->normalization = new \RectorPrefix20211110\Symfony\Component\Config\Definition\Builder\NormalizationBuilder($this);
+            $this->normalization = new \RectorPrefix20211213\Symfony\Component\Config\Definition\Builder\NormalizationBuilder($this);
         }
         return $this->normalization;
     }
     /**
      * Instantiate and configure the node according to this definition.
      *
-     * @return NodeInterface The node instance
+     * @return NodeInterface
      *
      * @throws InvalidDefinitionException When the definition is invalid
      */
@@ -321,11 +316,10 @@ abstract class NodeDefinition implements \RectorPrefix20211110\Symfony\Component
      * Set PathSeparator to use.
      *
      * @return $this
-     * @param string $separator
      */
-    public function setPathSeparator($separator)
+    public function setPathSeparator(string $separator)
     {
-        if ($this instanceof \RectorPrefix20211110\Symfony\Component\Config\Definition\Builder\ParentNodeDefinitionInterface) {
+        if ($this instanceof \RectorPrefix20211213\Symfony\Component\Config\Definition\Builder\ParentNodeDefinitionInterface) {
             foreach ($this->getChildNodeDefinitions() as $child) {
                 $child->setPathSeparator($separator);
             }

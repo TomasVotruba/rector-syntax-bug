@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\BetterPhpDocParser\Printer;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node\Stmt\InlineHTML;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ParamTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocChildNode;
@@ -21,7 +21,8 @@ use Rector\BetterPhpDocParser\PhpDocNodeVisitor\ChangedPhpDocNodeVisitor;
 use Rector\BetterPhpDocParser\ValueObject\PhpDocAttributeKey;
 use Rector\BetterPhpDocParser\ValueObject\StartAndEnd;
 use Rector\Core\Exception\ShouldNotHappenException;
-use RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser;
+use Rector\Core\Util\StringUtils;
+use RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser;
 /**
  * @see \Rector\Tests\BetterPhpDocParser\PhpDocInfo\PhpDocInfoPrinter\PhpDocInfoPrinterTest
  */
@@ -73,22 +74,27 @@ final class PhpDocInfoPrinter
      */
     private $phpDocInfo;
     /**
+     * @readonly
      * @var \Symplify\SimplePhpDocParser\PhpDocNodeTraverser
      */
     private $changedPhpDocNodeTraverser;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\Printer\EmptyPhpDocDetector
      */
     private $emptyPhpDocDetector;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\Printer\DocBlockInliner
      */
     private $docBlockInliner;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\Printer\RemoveNodesStartAndEndResolver
      */
     private $removeNodesStartAndEndResolver;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocNodeVisitor\ChangedPhpDocNodeVisitor
      */
     private $changedPhpDocNodeVisitor;
@@ -140,7 +146,7 @@ final class PhpDocInfoPrinter
         $this->currentTokenPosition = 0;
         $phpDocString = $this->printPhpDocNode($phpDocNode);
         // hotfix of extra space with callable ()
-        return \RectorPrefix20211110\Nette\Utils\Strings::replace($phpDocString, self::CALLABLE_REGEX, 'callable(');
+        return \RectorPrefix20211213\Nette\Utils\Strings::replace($phpDocString, self::CALLABLE_REGEX, 'callable(');
     }
     public function getCurrentPhpDocInfo() : \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo
     {
@@ -163,11 +169,11 @@ final class PhpDocInfoPrinter
         }
         $output = $this->printEnd($output);
         // fix missing start
-        if (!\RectorPrefix20211110\Nette\Utils\Strings::match($output, self::DOCBLOCK_START_REGEX) && $output) {
+        if (!\Rector\Core\Util\StringUtils::isMatch($output, self::DOCBLOCK_START_REGEX) && $output !== '') {
             $output = '/**' . $output;
         }
         // fix missing end
-        if (\RectorPrefix20211110\Nette\Utils\Strings::match($output, self::OPENING_DOCBLOCK_REGEX) && $output && !\RectorPrefix20211110\Nette\Utils\Strings::match($output, self::CLOSING_DOCBLOCK_REGEX)) {
+        if (\Rector\Core\Util\StringUtils::isMatch($output, self::OPENING_DOCBLOCK_REGEX) && !\Rector\Core\Util\StringUtils::isMatch($output, self::CLOSING_DOCBLOCK_REGEX)) {
             $output .= ' */';
         }
         return $output;
@@ -189,7 +195,7 @@ final class PhpDocInfoPrinter
             if ($phpDocChildNode->value instanceof \Rector\BetterPhpDocParser\PhpDoc\DoctrineAnnotationTagValueNode && $shouldReprintChildNode) {
                 $printedNode = (string) $phpDocChildNode;
                 // remove extra space between tags
-                $printedNode = \RectorPrefix20211110\Nette\Utils\Strings::replace($printedNode, self::TAG_AND_SPACE_REGEX, '$1(');
+                $printedNode = \RectorPrefix20211213\Nette\Utils\Strings::replace($printedNode, self::TAG_AND_SPACE_REGEX, '$1(');
                 return self::NEWLINE_WITH_ASTERISK . ($printedNode === '' ? '' : ' ' . $printedNode);
             }
         }
@@ -211,7 +217,10 @@ final class PhpDocInfoPrinter
     }
     private function printEnd(string $output) : string
     {
-        $lastTokenPosition = $this->getCurrentPhpDocInfo()->getPhpDocNode()->getAttribute(\Rector\BetterPhpDocParser\ValueObject\PhpDocAttributeKey::LAST_PHP_DOC_TOKEN_POSITION) ?: $this->currentTokenPosition;
+        $lastTokenPosition = $this->getCurrentPhpDocInfo()->getPhpDocNode()->getAttribute(\Rector\BetterPhpDocParser\ValueObject\PhpDocAttributeKey::LAST_PHP_DOC_TOKEN_POSITION);
+        if ($lastTokenPosition === null) {
+            $lastTokenPosition = $this->currentTokenPosition;
+        }
         if ($lastTokenPosition === 0) {
             $lastTokenPosition = 1;
         }
@@ -243,7 +252,6 @@ final class PhpDocInfoPrinter
         for ($i = $from; $i < $to; ++$i) {
             while (isset($positionJumpSet[$i])) {
                 $i = $positionJumpSet[$i];
-                continue;
             }
             $output .= $this->tokens[$i][0] ?? '';
         }

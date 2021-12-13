@@ -3,48 +3,53 @@
 declare (strict_types=1);
 namespace Rector\Core\ValueObject;
 
-use Rector\Core\ValueObject\Application\RectorError;
+use Rector\Core\ValueObject\Application\SystemError;
 use Rector\Core\ValueObject\Reporting\FileDiff;
 use Symplify\SmartFileSystem\SmartFileInfo;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Core\ValueObjectFactory\ProcessResultFactory
  */
 final class ProcessResult
 {
     /**
-     * @var FileDiff[]
+     * @var \Rector\Core\ValueObject\Application\SystemError[]
+     * @readonly
      */
-    private $fileDiffs = [];
+    private $systemErrors;
     /**
-     * @var RectorError[]
+     * @var \Rector\Core\ValueObject\Reporting\FileDiff[]
+     * @readonly
      */
-    private $errors = [];
+    private $fileDiffs;
     /**
+     * @readonly
      * @var int
      */
     private $addedFilesCount;
     /**
+     * @readonly
      * @var int
      */
     private $removedFilesCount;
     /**
+     * @readonly
      * @var int
      */
     private $removedNodeCount;
     /**
      * @param FileDiff[] $fileDiffs
-     * @param RectorError[] $errors
+     * @param SystemError[] $systemErrors
      */
-    public function __construct(array $fileDiffs, array $errors, int $addedFilesCount, int $removedFilesCount, int $removedNodeCount)
+    public function __construct(array $systemErrors, array $fileDiffs, int $addedFilesCount, int $removedFilesCount, int $removedNodeCount)
     {
+        $this->systemErrors = $systemErrors;
+        $this->fileDiffs = $fileDiffs;
         $this->addedFilesCount = $addedFilesCount;
         $this->removedFilesCount = $removedFilesCount;
         $this->removedNodeCount = $removedNodeCount;
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsAOf($fileDiffs, \Rector\Core\ValueObject\Reporting\FileDiff::class);
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsAOf($errors, \Rector\Core\ValueObject\Application\RectorError::class);
-        $this->fileDiffs = $fileDiffs;
-        $this->errors = $errors;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($fileDiffs, \Rector\Core\ValueObject\Reporting\FileDiff::class);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($systemErrors, \Rector\Core\ValueObject\Application\SystemError::class);
     }
     /**
      * @return FileDiff[]
@@ -54,11 +59,11 @@ final class ProcessResult
         return $this->fileDiffs;
     }
     /**
-     * @return RectorError[]
+     * @return SystemError[]
      */
     public function getErrors() : array
     {
-        return $this->errors;
+        return $this->systemErrors;
     }
     public function getAddedFilesCount() : int
     {

@@ -38,17 +38,21 @@ final class FormFieldsFinder
     public function find(\PhpParser\Node\Stmt\Class_ $class, \PhpParser\Node\Expr\Variable $form) : array
     {
         $formFields = [];
-        foreach ($class->getMethods() as $method) {
-            foreach ($method->stmts ?: [] as $stmt) {
+        foreach ($class->getMethods() as $classMethod) {
+            $stmts = $classMethod->getStmts();
+            if ($stmts === null) {
+                continue;
+            }
+            foreach ($stmts as $stmt) {
                 if (!$stmt instanceof \PhpParser\Node\Stmt\Expression) {
                     continue;
                 }
                 $methodCall = $this->findMethodCall($stmt);
-                if ($methodCall === null) {
+                if (!$methodCall instanceof \PhpParser\Node\Expr\MethodCall) {
                     continue;
                 }
                 $addFieldMethodCall = $this->findAddFieldMethodCall($methodCall);
-                if (!$addFieldMethodCall) {
+                if (!$addFieldMethodCall instanceof \PhpParser\Node\Expr\MethodCall) {
                     continue;
                 }
                 if (!$this->isFormAddFieldMethodCall($addFieldMethodCall, $form)) {
@@ -93,7 +97,7 @@ final class FormFieldsFinder
     private function isFormAddFieldMethodCall(\PhpParser\Node\Expr\MethodCall $addFieldMethodCall, \PhpParser\Node\Expr\Variable $form) : bool
     {
         $methodCallVariable = $this->findMethodCallVariable($addFieldMethodCall);
-        if ($methodCallVariable === null) {
+        if (!$methodCallVariable instanceof \PhpParser\Node\Expr\Variable) {
             return \false;
         }
         if ($methodCallVariable->name !== $form->name) {

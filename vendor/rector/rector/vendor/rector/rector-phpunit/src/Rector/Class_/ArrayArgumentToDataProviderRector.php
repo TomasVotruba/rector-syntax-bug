@@ -17,7 +17,7 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\Type\Type;
 use PHPStan\Type\UnionType;
-use RectorPrefix20211110\PHPUnit\Framework\TestCase;
+use RectorPrefix20211213\PHPUnit\Framework\TestCase;
 use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Exception\ShouldNotHappenException;
 use Rector\Core\Rector\AbstractRector;
@@ -30,7 +30,7 @@ use Rector\PHPUnit\ValueObject\DataProviderClassMethodRecipe;
 use Rector\PHPUnit\ValueObject\ParamAndArg;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\PHPUnit\Tests\Rector\Class_\ArrayArgumentToDataProviderRector\ArrayArgumentToDataProviderRectorTest
  *
@@ -103,7 +103,7 @@ class SomeServiceTest extends TestCase
     }
 }
 CODE_SAMPLE
-, [self::ARRAY_ARGUMENTS_TO_DATA_PROVIDERS => [new \Rector\PHPUnit\ValueObject\ArrayArgumentToDataProvider(\RectorPrefix20211110\PHPUnit\Framework\TestCase::class, 'doTestMultiple', 'doTestSingle', 'number')]])]);
+, [self::ARRAY_ARGUMENTS_TO_DATA_PROVIDERS => [new \Rector\PHPUnit\ValueObject\ArrayArgumentToDataProvider(\RectorPrefix20211213\PHPUnit\Framework\TestCase::class, 'doTestMultiple', 'doTestSingle', 'number')]])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -138,12 +138,13 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, ArrayArgumentToDataProvider[]> $arrayArgumentsToDataProviders
+     * @param mixed[] $configuration
      */
-    public function configure(array $arrayArgumentsToDataProviders) : void
+    public function configure(array $configuration) : void
     {
-        $arrayArgumentsToDataProviders = $arrayArgumentsToDataProviders[self::ARRAY_ARGUMENTS_TO_DATA_PROVIDERS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($arrayArgumentsToDataProviders, \Rector\PHPUnit\ValueObject\ArrayArgumentToDataProvider::class);
+        $arrayArgumentsToDataProviders = $configuration[self::ARRAY_ARGUMENTS_TO_DATA_PROVIDERS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($arrayArgumentsToDataProviders);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($arrayArgumentsToDataProviders, \Rector\PHPUnit\ValueObject\ArrayArgumentToDataProvider::class);
         $this->arrayArgumentsToDataProviders = $arrayArgumentsToDataProviders;
     }
     private function refactorMethodCallWithConfiguration(\PhpParser\Node\Expr\MethodCall $methodCall, \Rector\PHPUnit\ValueObject\ArrayArgumentToDataProvider $arrayArgumentToDataProvider) : void

@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Renaming\Rector\FileWithoutNamespace;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Identifier;
@@ -21,13 +21,14 @@ use Rector\NodeTypeResolver\PhpDoc\PhpDocTypeRenamer;
 use Rector\Renaming\ValueObject\PseudoNamespaceToNamespace;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Renaming\Rector\FileWithoutNamespace\PseudoNamespaceToNamespaceRector\PseudoNamespaceToNamespaceRectorTest
  */
 final class PseudoNamespaceToNamespaceRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const NAMESPACE_PREFIXES_WITH_EXCLUDED_CLASSES = 'namespace_prefixed_with_excluded_classes';
@@ -45,6 +46,7 @@ final class PseudoNamespaceToNamespaceRector extends \Rector\Core\Rector\Abstrac
      */
     private $newNamespace;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PhpDoc\PhpDocTypeRenamer
      */
     private $phpDocTypeRenamer;
@@ -64,7 +66,7 @@ CODE_SAMPLE
 $someService = new Some\Chicken;
 $someClassToKeep = new Some_Class_To_Keep;
 CODE_SAMPLE
-, [self::NAMESPACE_PREFIXES_WITH_EXCLUDED_CLASSES => [new \Rector\Renaming\ValueObject\PseudoNamespaceToNamespace('Some_', ['Some_Class_To_Keep'])]])]);
+, [new \Rector\Renaming\ValueObject\PseudoNamespaceToNamespace('Some_', ['Some_Class_To_Keep'])])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -84,7 +86,7 @@ CODE_SAMPLE
             $stmts = $this->refactorStmts($node->stmts);
             $node->stmts = $stmts;
             // add a new namespace?
-            if ($this->newNamespace) {
+            if ($this->newNamespace !== null) {
                 $namespace = new \PhpParser\Node\Stmt\Namespace_(new \PhpParser\Node\Name($this->newNamespace));
                 $namespace->stmts = $stmts;
                 return $namespace;
@@ -97,12 +99,12 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, PseudoNamespaceToNamespace[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $namespacePrefixesWithExcludedClasses = $configuration[self::NAMESPACE_PREFIXES_WITH_EXCLUDED_CLASSES] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($namespacePrefixesWithExcludedClasses, \Rector\Renaming\ValueObject\PseudoNamespaceToNamespace::class);
+        $namespacePrefixesWithExcludedClasses = $configuration[self::NAMESPACE_PREFIXES_WITH_EXCLUDED_CLASSES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($namespacePrefixesWithExcludedClasses, \Rector\Renaming\ValueObject\PseudoNamespaceToNamespace::class);
         $this->pseudoNamespacesToNamespaces = $namespacePrefixesWithExcludedClasses;
     }
     /**
@@ -143,7 +145,7 @@ CODE_SAMPLE
                 continue;
             }
             $excludedClasses = $pseudoNamespaceToNamespace->getExcludedClasses();
-            if (\is_array($excludedClasses) && $this->isNames($node, $excludedClasses)) {
+            if ($excludedClasses !== [] && $this->isNames($node, $excludedClasses)) {
                 return null;
             }
             if ($node instanceof \PhpParser\Node\Name) {
@@ -156,9 +158,7 @@ CODE_SAMPLE
     private function processName(\PhpParser\Node\Name $name) : \PhpParser\Node\Name
     {
         $nodeName = $this->getName($name);
-        if ($nodeName !== null) {
-            $name->parts = \explode('_', $nodeName);
-        }
+        $name->parts = \explode('_', $nodeName);
         return $name;
     }
     private function processIdentifier(\PhpParser\Node\Identifier $identifier) : ?\PhpParser\Node\Identifier
@@ -172,10 +172,10 @@ CODE_SAMPLE
             return null;
         }
         /** @var string $namespaceName */
-        $namespaceName = \RectorPrefix20211110\Nette\Utils\Strings::before($name, '_', -1);
+        $namespaceName = \RectorPrefix20211213\Nette\Utils\Strings::before($name, '_', -1);
         /** @var string $lastNewNamePart */
-        $lastNewNamePart = \RectorPrefix20211110\Nette\Utils\Strings::after($name, '_', -1);
-        $newNamespace = \RectorPrefix20211110\Nette\Utils\Strings::replace($namespaceName, self::SPLIT_BY_UNDERSCORE_REGEX, '$1$2\\\\$4');
+        $lastNewNamePart = \RectorPrefix20211213\Nette\Utils\Strings::after($name, '_', -1);
+        $newNamespace = \RectorPrefix20211213\Nette\Utils\Strings::replace($namespaceName, self::SPLIT_BY_UNDERSCORE_REGEX, '$1$2\\\\$4');
         if ($this->newNamespace !== null && $this->newNamespace !== $newNamespace) {
             throw new \Rector\Core\Exception\ShouldNotHappenException('There cannot be 2 different namespaces in one file');
         }

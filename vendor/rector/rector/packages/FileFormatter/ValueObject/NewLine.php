@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\FileFormatter\ValueObject;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use const PHP_EOL;
 use Rector\FileFormatter\Exception\InvalidNewLineStringException;
 use Stringable;
@@ -39,6 +39,7 @@ final class NewLine
      */
     private const VALID_NEWLINE_REGEX = '#^(?>\\r\\n|\\n|\\r)$#';
     /**
+     * @readonly
      * @var string
      */
     private $string;
@@ -50,32 +51,23 @@ final class NewLine
     {
         return $this->string;
     }
-    /**
-     * @param string $content
-     */
-    public static function fromSingleCharacter($content) : self
+    public static function fromSingleCharacter(string $content) : self
     {
-        $matches = \RectorPrefix20211110\Nette\Utils\Strings::match($content, self::VALID_NEWLINE_REGEX);
+        $matches = \RectorPrefix20211213\Nette\Utils\Strings::match($content, self::VALID_NEWLINE_REGEX);
         if ($matches === null) {
             throw \Rector\FileFormatter\Exception\InvalidNewLineStringException::fromString($content);
         }
         return new self($content);
     }
-    /**
-     * @param string $content
-     */
-    public static function fromContent($content) : self
+    public static function fromContent(string $content) : self
     {
-        $match = \RectorPrefix20211110\Nette\Utils\Strings::match($content, self::NEWLINE_REGEX);
+        $match = \RectorPrefix20211213\Nette\Utils\Strings::match($content, self::NEWLINE_REGEX);
         if (isset($match['newLine'])) {
             return self::fromSingleCharacter($match['newLine']);
         }
         return self::fromSingleCharacter(\PHP_EOL);
     }
-    /**
-     * @param string $endOfLine
-     */
-    public static function fromEditorConfig($endOfLine) : self
+    public static function fromEditorConfig(string $endOfLine) : self
     {
         if (!\array_key_exists($endOfLine, self::ALLOWED_END_OF_LINE)) {
             $allowedEndOfLineValues = \array_keys(self::ALLOWED_END_OF_LINE);

@@ -19,13 +19,14 @@ use Rector\PostRector\ValueObject\PropertyMetadata;
 use Rector\Transform\ValueObject\ServiceGetterToConstructorInjection;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\MethodCall\ServiceGetterToConstructorInjectionRector\ServiceGetterToConstructorInjectionRectorTest
  */
 final class ServiceGetterToConstructorInjectionRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const METHOD_CALL_TO_SERVICES = 'method_call_to_services';
@@ -34,14 +35,17 @@ final class ServiceGetterToConstructorInjectionRector extends \Rector\Core\Recto
      */
     private $methodCallToServices = [];
     /**
+     * @readonly
      * @var \Rector\Naming\Naming\PropertyNaming
      */
     private $propertyNaming;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\ClassAnalyzer
      */
     private $classAnalyzer;
     /**
+     * @readonly
      * @var \Rector\PostRector\Collector\PropertyToAddCollector
      */
     private $propertyToAddCollector;
@@ -117,7 +121,7 @@ final class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::METHOD_CALL_TO_SERVICES => [new \Rector\Transform\ValueObject\ServiceGetterToConstructorInjection('FirstService', 'getAnotherService', 'AnotherService')]])]);
+, [new \Rector\Transform\ValueObject\ServiceGetterToConstructorInjection('FirstService', 'getAnotherService', 'AnotherService')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -154,12 +158,13 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, ServiceGetterToConstructorInjection[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $methodCallToServices = $configuration[self::METHOD_CALL_TO_SERVICES] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($methodCallToServices, \Rector\Transform\ValueObject\ServiceGetterToConstructorInjection::class);
+        $methodCallToServices = $configuration[self::METHOD_CALL_TO_SERVICES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($methodCallToServices);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($methodCallToServices, \Rector\Transform\ValueObject\ServiceGetterToConstructorInjection::class);
         $this->methodCallToServices = $methodCallToServices;
     }
 }

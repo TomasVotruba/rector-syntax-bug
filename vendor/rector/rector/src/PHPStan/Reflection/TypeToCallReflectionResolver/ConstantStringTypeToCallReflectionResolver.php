@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Core\PHPStan\Reflection\TypeToCallReflectionResolver;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\FunctionReflection;
@@ -14,6 +14,8 @@ use PHPStan\Type\Type;
 use Rector\Core\Contract\PHPStan\Reflection\TypeToCallReflectionResolver\TypeToCallReflectionResolverInterface;
 /**
  * @see https://github.com/phpstan/phpstan-src/blob/b1fd47bda2a7a7d25091197b125c0adf82af6757/src/Type/Constant/ConstantStringType.php#L147
+ *
+ * @implements TypeToCallReflectionResolverInterface<ConstantStringType>
  */
 final class ConstantStringTypeToCallReflectionResolver implements \Rector\Core\Contract\PHPStan\Reflection\TypeToCallReflectionResolver\TypeToCallReflectionResolverInterface
 {
@@ -34,6 +36,7 @@ final class ConstantStringTypeToCallReflectionResolver implements \Rector\Core\C
      */
     private const METHOD_KEY = 'method';
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
@@ -41,19 +44,15 @@ final class ConstantStringTypeToCallReflectionResolver implements \Rector\Core\C
     {
         $this->reflectionProvider = $reflectionProvider;
     }
-    /**
-     * @param \PHPStan\Type\Type $type
-     */
-    public function supports($type) : bool
+    public function supports(\PHPStan\Type\Type $type) : bool
     {
         return $type instanceof \PHPStan\Type\Constant\ConstantStringType;
     }
     /**
-     * @param \PHPStan\Type\Type $type
+     * @param ConstantStringType $type
      * @return FunctionReflection|MethodReflection|null
-     * @param \PHPStan\Analyser\Scope $scope
      */
-    public function resolve($type, $scope)
+    public function resolve(\PHPStan\Type\Type $type, \PHPStan\Analyser\Scope $scope)
     {
         $value = $type->getValue();
         // 'my_function'
@@ -62,7 +61,7 @@ final class ConstantStringTypeToCallReflectionResolver implements \Rector\Core\C
             return $this->reflectionProvider->getFunction($name, null);
         }
         // 'MyClass::myStaticFunction'
-        $matches = \RectorPrefix20211110\Nette\Utils\Strings::match($value, self::STATIC_METHOD_REGEX);
+        $matches = \RectorPrefix20211213\Nette\Utils\Strings::match($value, self::STATIC_METHOD_REGEX);
         if ($matches === null) {
             return null;
         }

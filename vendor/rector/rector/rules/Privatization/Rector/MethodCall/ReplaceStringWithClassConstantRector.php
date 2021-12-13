@@ -19,6 +19,7 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class ReplaceStringWithClassConstantRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const REPLACE_STRING_WITH_CLASS_CONSTANT = 'replace_string_with_class_constant';
@@ -27,6 +28,7 @@ final class ReplaceStringWithClassConstantRector extends \Rector\Core\Rector\Abs
      */
     private $replaceStringWithClassConstants = [];
     /**
+     * @readonly
      * @var \Rector\Privatization\NodeFactory\ClassConstantFetchValueFactory
      */
     private $classConstantFetchValueFactory;
@@ -54,7 +56,7 @@ class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::REPLACE_STRING_WITH_CLASS_CONSTANT => [new \Rector\Privatization\ValueObject\ReplaceStringWithClassConstant('SomeClass', 'call', 0, 'Placeholder')]])]);
+, [new \Rector\Privatization\ValueObject\ReplaceStringWithClassConstant('SomeClass', 'call', 0, 'Placeholder')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -90,11 +92,11 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, mixed[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $this->replaceStringWithClassConstants = $configuration[self::REPLACE_STRING_WITH_CLASS_CONSTANT] ?? [];
+        $this->replaceStringWithClassConstants = $configuration[self::REPLACE_STRING_WITH_CLASS_CONSTANT] ?? $configuration;
     }
     private function matchArg(\PhpParser\Node\Expr\MethodCall $methodCall, \Rector\Privatization\ValueObject\ReplaceStringWithClassConstant $replaceStringWithClassConstant) : ?\PhpParser\Node\Arg
     {

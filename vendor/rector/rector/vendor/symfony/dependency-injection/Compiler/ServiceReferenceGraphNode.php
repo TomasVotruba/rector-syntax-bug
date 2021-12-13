@@ -8,10 +8,10 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\DependencyInjection\Compiler;
+namespace RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler;
 
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Alias;
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Definition;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Alias;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition;
 /**
  * Represents a node in your service graph.
  *
@@ -34,37 +34,31 @@ class ServiceReferenceGraphNode
         $this->id = $id;
         $this->value = $value;
     }
-    /**
-     * @param \Symfony\Component\DependencyInjection\Compiler\ServiceReferenceGraphEdge $edge
-     */
-    public function addInEdge($edge)
+    public function addInEdge(\RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler\ServiceReferenceGraphEdge $edge)
     {
         $this->inEdges[] = $edge;
     }
-    /**
-     * @param \Symfony\Component\DependencyInjection\Compiler\ServiceReferenceGraphEdge $edge
-     */
-    public function addOutEdge($edge)
+    public function addOutEdge(\RectorPrefix20211213\Symfony\Component\DependencyInjection\Compiler\ServiceReferenceGraphEdge $edge)
     {
         $this->outEdges[] = $edge;
     }
     /**
      * Checks if the value of this node is an Alias.
      *
-     * @return bool True if the value is an Alias instance
+     * @return bool
      */
     public function isAlias()
     {
-        return $this->value instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Alias;
+        return $this->value instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Alias;
     }
     /**
      * Checks if the value of this node is a Definition.
      *
-     * @return bool True if the value is a Definition instance
+     * @return bool
      */
     public function isDefinition()
     {
-        return $this->value instanceof \RectorPrefix20211110\Symfony\Component\DependencyInjection\Definition;
+        return $this->value instanceof \RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition;
     }
     /**
      * Returns the identifier.
@@ -96,7 +90,7 @@ class ServiceReferenceGraphNode
     /**
      * Returns the value of this Node.
      *
-     * @return mixed The value
+     * @return mixed
      */
     public function getValue()
     {

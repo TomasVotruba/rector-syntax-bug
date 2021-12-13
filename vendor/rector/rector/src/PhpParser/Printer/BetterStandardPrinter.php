@@ -3,9 +3,10 @@
 declare (strict_types=1);
 namespace Rector\Core\PhpParser\Printer;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Yield_;
@@ -17,7 +18,6 @@ use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Declare_;
-use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Nop;
 use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\Node\Stmt\Use_;
@@ -25,12 +25,23 @@ use PhpParser\PrettyPrinter\Standard;
 use Rector\Comments\NodeDocBlock\DocBlockUpdater;
 use Rector\Core\PhpParser\Node\CustomNode\FileWithoutNamespace;
 use Rector\Core\PhpParser\Printer\Whitespace\IndentCharacterDetector;
+use Rector\Core\Util\StringUtils;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 /**
  * @see \Rector\Core\Tests\PhpParser\Printer\BetterStandardPrinterTest
  */
 final class BetterStandardPrinter extends \PhpParser\PrettyPrinter\Standard
 {
+    /**
+     * @var string
+     * @see https://regex101.com/r/QA7mai/1
+     */
+    private const EMPTY_STARTING_TAG_REGEX = '/^<\\?php\\s+\\?>\\n?/';
+    /**
+     * @var string
+     * @see https://regex101.com/r/IVNkrt/1
+     */
+    private const EMPTY_ENDING_TAG_REGEX = '/<\\?php$/';
     /**
      * @var string
      * @see https://regex101.com/r/jUFizd/1
@@ -63,10 +74,12 @@ final class BetterStandardPrinter extends \PhpParser\PrettyPrinter\Standard
      */
     private $tabOrSpaceIndentCharacter = ' ';
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Printer\Whitespace\IndentCharacterDetector
      */
     private $indentCharacterDetector;
     /**
+     * @readonly
      * @var \Rector\Comments\NodeDocBlock\DocBlockUpdater
      */
     private $docBlockUpdater;
@@ -96,8 +109,13 @@ final class BetterStandardPrinter extends \PhpParser\PrettyPrinter\Standard
         // detect per print
         $this->tabOrSpaceIndentCharacter = $this->indentCharacterDetector->detect($origTokens);
         $content = parent::printFormatPreserving($newStmts, $origStmts, $origTokens);
+        // strip empty starting/ending php tags
+        if (\array_key_exists(0, $stmts) && $stmts[0] instanceof \Rector\Core\PhpParser\Node\CustomNode\FileWithoutNamespace) {
+            $content = \RectorPrefix20211213\Nette\Utils\Strings::replace($content, self::EMPTY_STARTING_TAG_REGEX, '');
+            $content = \RectorPrefix20211213\Nette\Utils\Strings::replace(\rtrim($content), self::EMPTY_ENDING_TAG_REGEX, '') . "\n";
+        }
         // add new line in case of added stmts
-        if (\count($stmts) !== \count($origStmts) && !(bool) \RectorPrefix20211110\Nette\Utils\Strings::match($content, self::NEWLINE_END_REGEX)) {
+        if (\count($stmts) !== \count($origStmts) && !\Rector\Core\Util\StringUtils::isMatch($content, self::NEWLINE_END_REGEX)) {
             $content .= $this->nl;
         }
         return $content;
@@ -128,6 +146,11 @@ final class BetterStandardPrinter extends \PhpParser\PrettyPrinter\Standard
     {
         $content = $this->pStmts($fileWithoutNamespace->stmts, \false);
         return \ltrim($content);
+    }
+    protected function p(\PhpParser\Node $node, $parentFormatPreserved = \false) : string
+    {
+        $content = parent::p($node, $parentFormatPreserved);
+        return $node->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::WRAPPED_IN_PARENTHESES) === \true ? '(' . $content . ')' : $content;
     }
     /**
      * This allows to use both spaces and tabs vs. original space-only
@@ -180,7 +203,7 @@ final class BetterStandardPrinter extends \PhpParser\PrettyPrinter\Standard
         if (!$this->containsNop($nodes)) {
             return $content;
         }
-        return \RectorPrefix20211110\Nette\Utils\Strings::replace($content, self::EXTRA_SPACE_BEFORE_NOP_REGEX, '');
+        return \RectorPrefix20211213\Nette\Utils\Strings::replace($content, self::EXTRA_SPACE_BEFORE_NOP_REGEX, '');
     }
     /**
      * Do not preslash all slashes (parent behavior), but only those:
@@ -193,7 +216,7 @@ final class BetterStandardPrinter extends \PhpParser\PrettyPrinter\Standard
      */
     protected function pSingleQuotedString(string $string) : string
     {
-        return "'" . \RectorPrefix20211110\Nette\Utils\Strings::replace($string, self::QUOTED_SLASH_REGEX, '\\\\$0') . "'";
+        return "'" . \RectorPrefix20211213\Nette\Utils\Strings::replace($string, self::QUOTED_SLASH_REGEX, '\\\\$0') . "'";
     }
     /**
      * Emulates 1_000 in PHP 7.3- version
@@ -214,7 +237,7 @@ final class BetterStandardPrinter extends \PhpParser\PrettyPrinter\Standard
     protected function pExpr_Closure(\PhpParser\Node\Expr\Closure $closure) : string
     {
         $closureContent = parent::pExpr_Closure($closure);
-        return \RectorPrefix20211110\Nette\Utils\Strings::replace($closureContent, self::USE_REGEX, '$1 (');
+        return \RectorPrefix20211213\Nette\Utils\Strings::replace($closureContent, self::USE_REGEX, '$1 (');
     }
     /**
      * Do not add "()" on Expressions
@@ -226,7 +249,8 @@ final class BetterStandardPrinter extends \PhpParser\PrettyPrinter\Standard
             return 'yield';
         }
         $parentNode = $yield->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::PARENT_NODE);
-        $shouldAddBrackets = !$parentNode instanceof \PhpParser\Node\Stmt\Expression;
+        // brackets are needed only in case of assign, @see https://www.php.net/manual/en/language.generators.syntax.php
+        $shouldAddBrackets = $parentNode instanceof \PhpParser\Node\Expr\Assign;
         return \sprintf('%syield %s%s%s', $shouldAddBrackets ? '(' : '', $yield->key !== null ? $this->p($yield->key) . ' => ' : '', $this->p($yield->value), $shouldAddBrackets ? ')' : '');
     }
     /**
@@ -245,7 +269,7 @@ final class BetterStandardPrinter extends \PhpParser\PrettyPrinter\Standard
      */
     protected function pScalar_String(\PhpParser\Node\Scalar\String_ $string) : string
     {
-        $isRegularPattern = $string->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::IS_REGULAR_PATTERN);
+        $isRegularPattern = (bool) $string->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::IS_REGULAR_PATTERN, \false);
         if (!$isRegularPattern) {
             return parent::pScalar_String($string);
         }
@@ -275,7 +299,7 @@ final class BetterStandardPrinter extends \PhpParser\PrettyPrinter\Standard
     {
         $content = parent::pStmt_ClassMethod($classMethod);
         // this approach is chosen, to keep changes in parent pStmt_ClassMethod() updated
-        return \RectorPrefix20211110\Nette\Utils\Strings::replace($content, self::REPLACE_COLON_WITH_SPACE_REGEX, '$1: ');
+        return \RectorPrefix20211213\Nette\Utils\Strings::replace($content, self::REPLACE_COLON_WITH_SPACE_REGEX, '$1: ');
     }
     /**
      * Clean class and trait from empty "use x;" for traits causing invalid code
@@ -301,7 +325,7 @@ final class BetterStandardPrinter extends \PhpParser\PrettyPrinter\Standard
     protected function pStmt_Declare(\PhpParser\Node\Stmt\Declare_ $declare) : string
     {
         $declareString = parent::pStmt_Declare($declare);
-        return \RectorPrefix20211110\Nette\Utils\Strings::replace($declareString, '#\\s+#', '');
+        return \RectorPrefix20211213\Nette\Utils\Strings::replace($declareString, '#\\s+#', '');
     }
     protected function pExpr_Ternary(\PhpParser\Node\Expr\Ternary $ternary) : string
     {
@@ -352,7 +376,7 @@ final class BetterStandardPrinter extends \PhpParser\PrettyPrinter\Standard
     private function resolveNewStmts(array $stmts) : array
     {
         if (\count($stmts) === 1 && $stmts[0] instanceof \Rector\Core\PhpParser\Node\CustomNode\FileWithoutNamespace) {
-            return $stmts[0]->stmts;
+            return $this->resolveNewStmts($stmts[0]->stmts);
         }
         return $stmts;
     }

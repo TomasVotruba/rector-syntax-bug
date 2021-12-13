@@ -33,6 +33,7 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class DowngradeScalarTypeDeclarationRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocParser\PhpDocFromTypeDeclarationDecorator
      */
     private $phpDocFromTypeDeclarationDecorator;
@@ -72,7 +73,7 @@ CODE_SAMPLE
 )]);
     }
     /**
-     * @param Function_|ClassMethod $node
+     * @param Function_|ClassMethod|Closure $node
      */
     public function refactor(\PhpParser\Node $node) : ?\PhpParser\Node
     {

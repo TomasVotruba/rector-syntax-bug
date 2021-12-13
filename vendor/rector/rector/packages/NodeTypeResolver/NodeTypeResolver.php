@@ -14,20 +14,14 @@ use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
+use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\NullableType;
-use PhpParser\Node\Param;
-use PhpParser\Node\Scalar;
 use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\Return_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
-use PHPStan\Type\Accessory\NonEmptyArrayType;
-use PHPStan\Type\ArrayType;
 use PHPStan\Type\Constant\ConstantBooleanType;
 use PHPStan\Type\FloatType;
-use PHPStan\Type\Generic\GenericObjectType;
 use PHPStan\Type\IntegerType;
-use PHPStan\Type\IntersectionType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\NullType;
 use PHPStan\Type\ObjectType;
@@ -46,10 +40,8 @@ use Rector\NodeTypeResolver\NodeTypeCorrector\AccessoryNonEmptyStringTypeCorrect
 use Rector\NodeTypeResolver\NodeTypeCorrector\GenericClassStringTypeCorrector;
 use Rector\NodeTypeResolver\NodeTypeCorrector\HasOffsetTypeCorrector;
 use Rector\NodeTypeResolver\NodeTypeResolver\IdentifierTypeResolver;
-use Rector\NodeTypeResolver\TypeAnalyzer\ArrayTypeAnalyzer;
 use Rector\StaticTypeMapper\ValueObject\Type\ShortenedObjectType;
 use Rector\TypeDeclaration\PHPStan\Type\ObjectTypeSpecifier;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
 final class NodeTypeResolver
 {
     /**
@@ -57,42 +49,47 @@ final class NodeTypeResolver
      */
     private $nodeTypeResolvers = [];
     /**
-     * @var \Rector\NodeTypeResolver\TypeAnalyzer\ArrayTypeAnalyzer
-     */
-    private $arrayTypeAnalyzer;
-    /**
+     * @readonly
      * @var \Rector\TypeDeclaration\PHPStan\Type\ObjectTypeSpecifier
      */
     private $objectTypeSpecifier;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\ClassAnalyzer
      */
     private $classAnalyzer;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeTypeCorrector\GenericClassStringTypeCorrector
      */
     private $genericClassStringTypeCorrector;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeTypeCorrector\HasOffsetTypeCorrector
      */
     private $hasOffsetTypeCorrector;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeTypeCorrector\AccessoryNonEmptyStringTypeCorrector
      */
     private $accessoryNonEmptyStringTypeCorrector;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeTypeResolver\IdentifierTypeResolver
      */
     private $identifierTypeResolver;
     /**
+     * @readonly
      * @var \Rector\Core\Configuration\RenamedClassesDataCollector
      */
     private $renamedClassesDataCollector;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
@@ -113,14 +110,6 @@ final class NodeTypeResolver
         foreach ($nodeTypeResolvers as $nodeTypeResolver) {
             $this->addNodeTypeResolver($nodeTypeResolver);
         }
-    }
-    // Prevents circular dependency
-    /**
-     * @required
-     */
-    public function autowireNodeTypeResolver(\Rector\NodeTypeResolver\TypeAnalyzer\ArrayTypeAnalyzer $arrayTypeAnalyzer) : void
-    {
-        $this->arrayTypeAnalyzer = $arrayTypeAnalyzer;
     }
     /**
      * @param ObjectType[] $requiredTypes
@@ -151,20 +140,12 @@ final class NodeTypeResolver
         }
         return $this->isMatchingUnionType($resolvedType, $requiredObjectType);
     }
-    /**
-     * @deprecated
-     * @see use NodeTypeResolver::getType() instead
-     */
-    public function resolve(\PhpParser\Node $node) : \PHPStan\Type\Type
-    {
-        $errorMessage = \sprintf('Method "%s" is deprecated. Use "getType()" instead', __METHOD__);
-        \trigger_error($errorMessage, \E_USER_WARNING);
-        \sleep(3);
-        return $this->getType($node);
-    }
     public function getType(\PhpParser\Node $node) : \PHPStan\Type\Type
     {
         if ($node instanceof \PhpParser\Node\NullableType) {
+            if ($node->type instanceof \PhpParser\Node\Name && $node->type->hasAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::NAMESPACED_NAME)) {
+                $node->type = new \PhpParser\Node\Name\FullyQualified($node->type->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::NAMESPACED_NAME));
+            }
             $type = $this->getType($node->type);
             if (!$type instanceof \PHPStan\Type\MixedType) {
                 return new \PHPStan\Type\UnionType([$type, new \PHPStan\Type\NullType()]);
@@ -195,8 +176,8 @@ final class NodeTypeResolver
         }
         $scope = $node->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::SCOPE);
         if (!$scope instanceof \PHPStan\Analyser\Scope) {
-            if ($node instanceof \PhpParser\Node\Expr\ConstFetch && $node->name instanceof \PhpParser\Node\Name) {
-                $name = (string) $node->name;
+            if ($node instanceof \PhpParser\Node\Expr\ConstFetch) {
+                $name = $node->name->toString();
                 if (\strtolower($name) === 'null') {
                     return new \PHPStan\Type\NullType();
                 }
@@ -240,42 +221,8 @@ final class NodeTypeResolver
         if (!$scope instanceof \PHPStan\Analyser\Scope) {
             return new \PHPStan\Type\MixedType();
         }
-        return $scope->getNativeType($expr);
-    }
-    /**
-     * @deprecated
-     * @see Use NodeTypeResolver::getType() instead
-     */
-    public function getStaticType(\PhpParser\Node $node) : \PHPStan\Type\Type
-    {
-        $errorMessage = \sprintf('Method "%s" is deprecated. Use "getType()" instead', __METHOD__);
-        \trigger_error($errorMessage, \E_USER_WARNING);
-        \sleep(3);
-        if ($node instanceof \PhpParser\Node\Param || $node instanceof \PhpParser\Node\Expr\New_ || $node instanceof \PhpParser\Node\Stmt\Return_) {
-            return $this->getType($node);
-        }
-        if (!$node instanceof \PhpParser\Node\Expr) {
-            return new \PHPStan\Type\MixedType();
-        }
-        if ($this->arrayTypeAnalyzer->isArrayType($node)) {
-            return $this->resolveArrayType($node);
-        }
-        if ($node instanceof \PhpParser\Node\Scalar) {
-            return $this->getType($node);
-        }
-        $scope = $node->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::SCOPE);
-        if (!$scope instanceof \PHPStan\Analyser\Scope) {
-            return new \PHPStan\Type\MixedType();
-        }
-        $staticType = $scope->getType($node);
-        if ($staticType instanceof \PHPStan\Type\Generic\GenericObjectType) {
-            return $staticType;
-        }
-        if ($staticType instanceof \PHPStan\Type\ObjectType) {
-            $scope = $node->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::SCOPE);
-            return $this->objectTypeSpecifier->narrowToFullyQualifiedOrAliasedObjectType($node, $staticType, $scope);
-        }
-        return $this->accessoryNonEmptyStringTypeCorrector->correct($staticType);
+        $type = $scope->getNativeType($expr);
+        return $this->accessoryNonEmptyStringTypeCorrector->correct($type);
     }
     public function isNumberType(\PhpParser\Node $node) : bool
     {
@@ -345,17 +292,6 @@ final class NodeTypeResolver
         }
         return $type->isInstanceOf($requiredObjectType->getClassName())->yes();
     }
-    private function resolveArrayType(\PhpParser\Node\Expr $expr) : \PHPStan\Type\Type
-    {
-        /** @var Scope|null $scope */
-        $scope = $expr->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::SCOPE);
-        if ($scope instanceof \PHPStan\Analyser\Scope) {
-            $arrayType = $scope->getType($expr);
-            $arrayType = $this->genericClassStringTypeCorrector->correct($arrayType);
-            return $this->removeNonEmptyArrayFromIntersectionWithArrayType($arrayType);
-        }
-        return new \PHPStan\Type\ArrayType(new \PHPStan\Type\MixedType(), new \PHPStan\Type\MixedType());
-    }
     private function resolveByNodeTypeResolvers(\PhpParser\Node $node) : ?\PHPStan\Type\Type
     {
         foreach ($this->nodeTypeResolvers as $nodeClass => $nodeTypeResolver) {
@@ -365,30 +301,6 @@ final class NodeTypeResolver
             return $nodeTypeResolver->resolve($node);
         }
         return null;
-    }
-    private function removeNonEmptyArrayFromIntersectionWithArrayType(\PHPStan\Type\Type $type) : \PHPStan\Type\Type
-    {
-        if (!$type instanceof \PHPStan\Type\IntersectionType) {
-            return $type;
-        }
-        if (\count($type->getTypes()) !== 2) {
-            return $type;
-        }
-        if (!$type->isSubTypeOf(new \PHPStan\Type\Accessory\NonEmptyArrayType())->yes()) {
-            return $type;
-        }
-        $otherType = null;
-        foreach ($type->getTypes() as $intersectionedType) {
-            if ($intersectionedType instanceof \PHPStan\Type\Accessory\NonEmptyArrayType) {
-                continue;
-            }
-            $otherType = $intersectionedType;
-            break;
-        }
-        if ($otherType === null) {
-            return $type;
-        }
-        return $otherType;
     }
     private function isObjectTypeOfObjectType(\PHPStan\Type\ObjectType $resolvedObjectType, \PHPStan\Type\ObjectType $requiredObjectType) : bool
     {

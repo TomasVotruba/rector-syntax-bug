@@ -20,12 +20,14 @@ use Rector\PostRector\ValueObject\PropertyMetadata;
 use Rector\Transform\NodeFactory\PropertyFetchFactory;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\New_\NewToConstructorInjectionRector\NewToConstructorInjectionRectorTest
  */
 final class NewToConstructorInjectionRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const TYPES_TO_CONSTRUCTOR_INJECTION = 'types_to_constructor_injection';
@@ -34,18 +36,22 @@ final class NewToConstructorInjectionRector extends \Rector\Core\Rector\Abstract
      */
     private $constructorInjectionObjectTypes = [];
     /**
+     * @readonly
      * @var \Rector\Transform\NodeFactory\PropertyFetchFactory
      */
     private $propertyFetchFactory;
     /**
+     * @readonly
      * @var \Rector\Naming\Naming\PropertyNaming
      */
     private $propertyNaming;
     /**
+     * @readonly
      * @var \Rector\PostRector\Collector\PropertyToAddCollector
      */
     private $propertyToAddCollector;
     /**
+     * @readonly
      * @var \Rector\NodeRemoval\AssignRemover
      */
     private $assignRemover;
@@ -87,7 +93,7 @@ class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::TYPES_TO_CONSTRUCTOR_INJECTION => ['Validator']])]);
+, ['Validator'])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -113,11 +119,12 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, mixed[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $typesToConstructorInjections = $configuration[self::TYPES_TO_CONSTRUCTOR_INJECTION] ?? [];
+        $typesToConstructorInjections = $configuration[self::TYPES_TO_CONSTRUCTOR_INJECTION] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($typesToConstructorInjections);
         foreach ($typesToConstructorInjections as $typeToConstructorInjection) {
             $this->constructorInjectionObjectTypes[] = new \PHPStan\Type\ObjectType($typeToConstructorInjection);
         }

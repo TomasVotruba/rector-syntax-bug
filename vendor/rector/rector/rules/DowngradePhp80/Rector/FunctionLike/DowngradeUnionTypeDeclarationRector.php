@@ -4,6 +4,7 @@ declare (strict_types=1);
 namespace Rector\DowngradePhp80\Rector\FunctionLike;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Function_;
@@ -20,6 +21,7 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class DowngradeUnionTypeDeclarationRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocParser\PhpDocFromTypeDeclarationDecorator
      */
     private $phpDocFromTypeDeclarationDecorator;
@@ -32,7 +34,7 @@ final class DowngradeUnionTypeDeclarationRector extends \Rector\Core\Rector\Abst
      */
     public function getNodeTypes() : array
     {
-        return [\PhpParser\Node\Stmt\Function_::class, \PhpParser\Node\Stmt\ClassMethod::class, \PhpParser\Node\Expr\Closure::class];
+        return [\PhpParser\Node\Stmt\Function_::class, \PhpParser\Node\Stmt\ClassMethod::class, \PhpParser\Node\Expr\Closure::class, \PhpParser\Node\Expr\ArrowFunction::class];
     }
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
@@ -61,7 +63,7 @@ CODE_SAMPLE
 )]);
     }
     /**
-     * @param ClassMethod|Function_ $node
+     * @param ClassMethod|Closure|Function_|ArrowFunction $node
      */
     public function refactor(\PhpParser\Node $node) : ?\PhpParser\Node
     {

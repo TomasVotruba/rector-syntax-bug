@@ -10,13 +10,14 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Transform\ValueObject\StringToClassConstant;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\String_\StringToClassConstantRector\StringToClassConstantRectorTest
  */
 final class StringToClassConstantRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const STRINGS_TO_CLASS_CONSTANTS = 'strings_to_class_constants';
@@ -44,7 +45,7 @@ final class SomeSubscriber
     }
 }
 CODE_SAMPLE
-, [self::STRINGS_TO_CLASS_CONSTANTS => [new \Rector\Transform\ValueObject\StringToClassConstant('compiler.post_dump', 'Yet\\AnotherClass', 'CONSTANT')]])]);
+, [new \Rector\Transform\ValueObject\StringToClassConstant('compiler.post_dump', 'Yet\\AnotherClass', 'CONSTANT')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -67,12 +68,13 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, StringToClassConstant[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $stringToClassConstants = $configuration[self::STRINGS_TO_CLASS_CONSTANTS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($stringToClassConstants, \Rector\Transform\ValueObject\StringToClassConstant::class);
+        $stringToClassConstants = $configuration[self::STRINGS_TO_CLASS_CONSTANTS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($stringToClassConstants);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($stringToClassConstants, \Rector\Transform\ValueObject\StringToClassConstant::class);
         $this->stringsToClassConstants = $stringToClassConstants;
     }
 }

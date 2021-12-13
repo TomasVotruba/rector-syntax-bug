@@ -23,7 +23,7 @@ use Rector\DeadCode\PhpDoc\TagRemover\ReturnTagRemover;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\PHPStanStaticTypeMapper\Enum\TypeKind;
 use Rector\StaticTypeMapper\ValueObject\Type\ParentStaticType;
-use RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesCaller;
+use RectorPrefix20211213\Symplify\PackageBuilder\Reflection\PrivatesCaller;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 /**
@@ -38,18 +38,21 @@ final class DowngradeCovariantReturnTypeRector extends \Rector\Core\Rector\Abstr
      */
     private const ALREADY_DOWNGRADED = 'already_downgraded';
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTypeChanger
      */
     private $phpDocTypeChanger;
     /**
+     * @readonly
      * @var \Symplify\PackageBuilder\Reflection\PrivatesCaller
      */
     private $privatesCaller;
     /**
+     * @readonly
      * @var \Rector\DeadCode\PhpDoc\TagRemover\ReturnTagRemover
      */
     private $returnTagRemover;
-    public function __construct(\Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTypeChanger $phpDocTypeChanger, \RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesCaller $privatesCaller, \Rector\DeadCode\PhpDoc\TagRemover\ReturnTagRemover $returnTagRemover)
+    public function __construct(\Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTypeChanger $phpDocTypeChanger, \RectorPrefix20211213\Symplify\PackageBuilder\Reflection\PrivatesCaller $privatesCaller, \Rector\DeadCode\PhpDoc\TagRemover\ReturnTagRemover $returnTagRemover)
     {
         $this->phpDocTypeChanger = $phpDocTypeChanger;
         $this->privatesCaller = $privatesCaller;
@@ -113,7 +116,7 @@ CODE_SAMPLE
         if ($node->returnType === null) {
             return null;
         }
-        $isAlreadyDowngraded = $node->getAttribute(self::ALREADY_DOWNGRADED);
+        $isAlreadyDowngraded = (bool) $node->getAttribute(self::ALREADY_DOWNGRADED, \false);
         if ($isAlreadyDowngraded) {
             return null;
         }
@@ -129,7 +132,7 @@ CODE_SAMPLE
             return null;
         }
         // Make it nullable?
-        if ($node->returnType instanceof \PhpParser\Node\NullableType && !$parentReturnTypeNode instanceof \PhpParser\Node\NullableType && !$parentReturnTypeNode instanceof \PhpParser\Node\UnionType) {
+        if ($node->returnType instanceof \PhpParser\Node\NullableType && !$parentReturnTypeNode instanceof \PhpParser\Node\ComplexType) {
             $parentReturnTypeNode = new \PhpParser\Node\NullableType($parentReturnTypeNode);
         }
         // skip if type is already set

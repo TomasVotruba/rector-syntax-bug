@@ -4,7 +4,6 @@ declare (strict_types=1);
 namespace Rector\Naming\Guard;
 
 use DateTimeInterface;
-use RectorPrefix20211110\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\Variable;
@@ -17,6 +16,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\TypeWithClassName;
 use Rector\Core\PhpParser\Node\BetterNodeFinder;
+use Rector\Core\Util\StringUtils;
 use Rector\Naming\Naming\ConflictingNameResolver;
 use Rector\Naming\Naming\OverridenExistingNamesResolver;
 use Rector\NodeNameResolver\NodeNameResolver;
@@ -34,26 +34,32 @@ final class BreakingVariableRenameGuard
      */
     private const AT_NAMING_REGEX = '#[\\w+]At$#';
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\Naming\Naming\ConflictingNameResolver
      */
     private $conflictingNameResolver;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\NodeTypeResolver
      */
     private $nodeTypeResolver;
     /**
+     * @readonly
      * @var \Rector\Naming\Naming\OverridenExistingNamesResolver
      */
     private $overridenExistingNamesResolver;
     /**
+     * @readonly
      * @var \Rector\PHPStanStaticTypeMapper\Utils\TypeUnwrapper
      */
     private $typeUnwrapper;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
@@ -219,6 +225,6 @@ final class BreakingVariableRenameGuard
         }
         /** @var string $currentName */
         $currentName = $this->nodeNameResolver->getName($param);
-        return (bool) \RectorPrefix20211110\Nette\Utils\Strings::match($currentName, self::AT_NAMING_REGEX . '');
+        return \Rector\Core\Util\StringUtils::isMatch($currentName, self::AT_NAMING_REGEX . '');
     }
 }

@@ -21,6 +21,7 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class ClosureToArrowFunctionRector extends \Rector\Core\Rector\AbstractRector implements \Rector\VersionBonding\Contract\MinPhpVersionInterface
 {
     /**
+     * @readonly
      * @var \Rector\Php74\NodeAnalyzer\ClosureArrowFunctionAnalyzer
      */
     private $closureArrowFunctionAnalyzer;
@@ -68,11 +69,7 @@ CODE_SAMPLE
         if (!$returnExpr instanceof \PhpParser\Node\Expr) {
             return null;
         }
-        $arrowFunction = new \PhpParser\Node\Expr\ArrowFunction();
-        $arrowFunction->params = $node->params;
-        $arrowFunction->returnType = $node->returnType;
-        $arrowFunction->byRef = $node->byRef;
-        $arrowFunction->expr = $returnExpr;
+        $arrowFunction = new \PhpParser\Node\Expr\ArrowFunction(['params' => $node->params, 'returnType' => $node->returnType, 'byRef' => $node->byRef, 'expr' => $returnExpr]);
         if ($node->static) {
             $arrowFunction->static = \true;
         }

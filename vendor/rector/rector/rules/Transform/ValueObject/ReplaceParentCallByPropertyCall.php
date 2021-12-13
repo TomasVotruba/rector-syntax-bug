@@ -4,17 +4,21 @@ declare (strict_types=1);
 namespace Rector\Transform\ValueObject;
 
 use PHPStan\Type\ObjectType;
+use Rector\Core\Validation\RectorAssert;
 final class ReplaceParentCallByPropertyCall
 {
     /**
+     * @readonly
      * @var string
      */
     private $class;
     /**
+     * @readonly
      * @var string
      */
     private $method;
     /**
+     * @readonly
      * @var string
      */
     private $property;
@@ -23,6 +27,7 @@ final class ReplaceParentCallByPropertyCall
         $this->class = $class;
         $this->method = $method;
         $this->property = $property;
+        \Rector\Core\Validation\RectorAssert::className($class);
     }
     public function getObjectType() : \PHPStan\Type\ObjectType
     {

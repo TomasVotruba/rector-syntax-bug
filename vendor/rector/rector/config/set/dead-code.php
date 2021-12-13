@@ -1,11 +1,10 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110;
+namespace RectorPrefix20211213;
 
 use Rector\CodeQuality\Rector\Return_\SimplifyUselessVariableRector;
 use Rector\DeadCode\Rector\Array_\RemoveDuplicatedArrayKeyRector;
-use Rector\DeadCode\Rector\Assign\RemoveAssignOfVoidReturnFunctionRector;
 use Rector\DeadCode\Rector\Assign\RemoveDoubleAssignRector;
 use Rector\DeadCode\Rector\Assign\RemoveUnusedVariableAssignRector;
 use Rector\DeadCode\Rector\BinaryOp\RemoveDuplicatedInstanceOfRector;
@@ -17,6 +16,7 @@ use Rector\DeadCode\Rector\ClassMethod\RemoveDelegatingParentCallRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveEmptyClassMethodRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveLastReturnRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedConstructorParamRector;
+use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedParamInRequiredAutowireRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPrivateMethodParameterRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPrivateMethodRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPromotedPropertyRector;
@@ -25,6 +25,7 @@ use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
 use Rector\DeadCode\Rector\Concat\RemoveConcatAutocastRector;
 use Rector\DeadCode\Rector\Expression\RemoveDeadStmtRector;
 use Rector\DeadCode\Rector\Expression\SimplifyMirrorAssignRector;
+use Rector\DeadCode\Rector\For_\RemoveDeadContinueRector;
 use Rector\DeadCode\Rector\For_\RemoveDeadIfForeachForRector;
 use Rector\DeadCode\Rector\For_\RemoveDeadLoopRector;
 use Rector\DeadCode\Rector\Foreach_\RemoveUnusedForeachKeyRector;
@@ -68,6 +69,7 @@ return static function (\Symfony\Component\DependencyInjection\Loader\Configurat
     $services->set(\Rector\DeadCode\Rector\FunctionLike\RemoveCodeAfterReturnRector::class);
     $services->set(\Rector\DeadCode\Rector\ClassMethod\RemoveDeadConstructorRector::class);
     $services->set(\Rector\DeadCode\Rector\FunctionLike\RemoveDeadReturnRector::class);
+    $services->set(\Rector\DeadCode\Rector\For_\RemoveDeadContinueRector::class);
     $services->set(\Rector\DeadCode\Rector\For_\RemoveDeadIfForeachForRector::class);
     $services->set(\Rector\DeadCode\Rector\BooleanAnd\RemoveAndTrueRector::class);
     $services->set(\Rector\DeadCode\Rector\Concat\RemoveConcatAutocastRector::class);
@@ -84,13 +86,13 @@ return static function (\Symfony\Component\DependencyInjection\Loader\Configurat
     $services->set(\Rector\DeadCode\Rector\Assign\RemoveUnusedVariableAssignRector::class);
     $services->set(\Rector\DeadCode\Rector\FunctionLike\RemoveDuplicatedIfReturnRector::class);
     $services->set(\Rector\DeadCode\Rector\If_\RemoveUnusedNonEmptyArrayBeforeForeachRector::class);
-    $services->set(\Rector\DeadCode\Rector\Assign\RemoveAssignOfVoidReturnFunctionRector::class);
     $services->set(\Rector\DeadCode\Rector\MethodCall\RemoveEmptyMethodCallRector::class);
     $services->set(\Rector\DeadCode\Rector\Return_\RemoveDeadConditionAboveReturnRector::class);
     $services->set(\Rector\DeadCode\Rector\ClassMethod\RemoveUnusedConstructorParamRector::class);
     $services->set(\Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector::class);
     $services->set(\Rector\DeadCode\Rector\For_\RemoveDeadLoopRector::class);
     $services->set(\Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPrivateMethodParameterRector::class);
+    $services->set(\Rector\DeadCode\Rector\ClassMethod\RemoveUnusedParamInRequiredAutowireRector::class);
     // docblock
     $services->set(\Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector::class);
     $services->set(\Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector::class);

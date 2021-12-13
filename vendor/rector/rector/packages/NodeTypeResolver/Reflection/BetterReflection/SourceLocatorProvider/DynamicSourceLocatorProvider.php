@@ -27,10 +27,12 @@ final class DynamicSourceLocatorProvider implements \Rector\NodeTypeResolver\Con
      */
     private $aggregateSourceLocator;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\BetterReflection\SourceLocator\FileNodesFetcher
      */
     private $fileNodesFetcher;
     /**
+     * @readonly
      * @var \PHPStan\Php\PhpVersion
      */
     private $phpVersion;
@@ -39,17 +41,14 @@ final class DynamicSourceLocatorProvider implements \Rector\NodeTypeResolver\Con
         $this->fileNodesFetcher = $fileNodesFetcher;
         $this->phpVersion = $phpVersion;
     }
-    /**
-     * @param \Symplify\SmartFileSystem\SmartFileInfo $fileInfo
-     */
-    public function setFileInfo($fileInfo) : void
+    public function setFileInfo(\Symplify\SmartFileSystem\SmartFileInfo $fileInfo) : void
     {
         $this->files = [$fileInfo->getRealPath()];
     }
     /**
      * @param string[] $files
      */
-    public function addFiles($files) : void
+    public function addFiles(array $files) : void
     {
         $this->files = \array_merge($this->files, $files);
     }
@@ -57,7 +56,7 @@ final class DynamicSourceLocatorProvider implements \Rector\NodeTypeResolver\Con
     {
         // do not cache for PHPUnit, as in test every fixture is different
         $isPHPUnitRun = \Rector\Testing\PHPUnit\StaticPHPUnitEnvironment::isPHPUnitRun();
-        if ($this->aggregateSourceLocator && !$isPHPUnitRun) {
+        if ($this->aggregateSourceLocator instanceof \PHPStan\BetterReflection\SourceLocator\Type\AggregateSourceLocator && !$isPHPUnitRun) {
             return $this->aggregateSourceLocator;
         }
         $sourceLocators = [];
@@ -72,9 +71,8 @@ final class DynamicSourceLocatorProvider implements \Rector\NodeTypeResolver\Con
     }
     /**
      * @param string[] $files
-     * @param string $directory
      */
-    public function addFilesByDirectory($directory, $files) : void
+    public function addFilesByDirectory(string $directory, array $files) : void
     {
         $this->filesByDirectory[$directory] = $files;
     }

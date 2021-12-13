@@ -1,7 +1,7 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110;
+namespace RectorPrefix20211213;
 
 use Rector\Core\Configuration\Option;
 use Rector\Core\ValueObject\PhpVersion;
@@ -10,9 +10,11 @@ use Rector\DowngradePhp70\Rector\ClassMethod\DowngradeSelfTypeDeclarationRector;
 use Rector\DowngradePhp70\Rector\Coalesce\DowngradeNullCoalesceRector;
 use Rector\DowngradePhp70\Rector\Declare_\DowngradeStrictTypeDeclarationRector;
 use Rector\DowngradePhp70\Rector\Expression\DowngradeDefineArrayConstantRector;
+use Rector\DowngradePhp70\Rector\FuncCall\DowngradeDirnameLevelsRector;
 use Rector\DowngradePhp70\Rector\FuncCall\DowngradeSessionStartArrayOptionsRector;
 use Rector\DowngradePhp70\Rector\FunctionLike\DowngradeScalarTypeDeclarationRector;
 use Rector\DowngradePhp70\Rector\GroupUse\SplitGroupedUseImportsRector;
+use Rector\DowngradePhp70\Rector\MethodCall\DowngradeClosureCallRector;
 use Rector\DowngradePhp70\Rector\New_\DowngradeAnonymousClassRector;
 use Rector\DowngradePhp70\Rector\Spaceship\DowngradeSpaceshipRector;
 use Rector\DowngradePhp70\Rector\String_\DowngradeGeneratedScalarTypesRector;
@@ -28,8 +30,10 @@ return static function (\Symfony\Component\DependencyInjection\Loader\Configurat
     $services->set(\Rector\DowngradePhp70\Rector\Coalesce\DowngradeNullCoalesceRector::class);
     $services->set(\Rector\DowngradePhp70\Rector\Spaceship\DowngradeSpaceshipRector::class);
     $services->set(\Rector\DowngradePhp70\Rector\Expression\DowngradeDefineArrayConstantRector::class);
+    $services->set(\Rector\DowngradePhp70\Rector\FuncCall\DowngradeDirnameLevelsRector::class);
     $services->set(\Rector\DowngradePhp70\Rector\FuncCall\DowngradeSessionStartArrayOptionsRector::class);
     $services->set(\Rector\DowngradePhp70\Rector\GroupUse\SplitGroupedUseImportsRector::class);
+    $services->set(\Rector\DowngradePhp70\Rector\MethodCall\DowngradeClosureCallRector::class);
     $services->set(\Rector\DowngradePhp70\Rector\String_\DowngradeGeneratedScalarTypesRector::class);
     $services->set(\Rector\DowngradePhp70\Rector\ClassMethod\DowngradeParentTypeDeclarationRector::class);
 };
