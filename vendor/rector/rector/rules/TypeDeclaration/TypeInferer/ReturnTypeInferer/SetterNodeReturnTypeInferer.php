@@ -15,18 +15,22 @@ use Rector\TypeDeclaration\TypeInferer\AssignToPropertyTypeInferer;
 final class SetterNodeReturnTypeInferer implements \Rector\TypeDeclaration\Contract\TypeInferer\ReturnTypeInfererInterface
 {
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\TypeInferer\AssignToPropertyTypeInferer
      */
     private $assignToPropertyTypeInferer;
     /**
+     * @readonly
      * @var \Rector\Core\NodeManipulator\FunctionLikeManipulator
      */
     private $functionLikeManipulator;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PHPStan\Type\TypeFactory
      */
     private $typeFactory;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
@@ -37,10 +41,7 @@ final class SetterNodeReturnTypeInferer implements \Rector\TypeDeclaration\Contr
         $this->typeFactory = $typeFactory;
         $this->betterNodeFinder = $betterNodeFinder;
     }
-    /**
-     * @param \PhpParser\Node\FunctionLike $functionLike
-     */
-    public function inferFunctionLike($functionLike) : \PHPStan\Type\Type
+    public function inferFunctionLike(\PhpParser\Node\FunctionLike $functionLike) : \PHPStan\Type\Type
     {
         $classLike = $this->betterNodeFinder->findParentType($functionLike, \PhpParser\Node\Stmt\ClassLike::class);
         if (!$classLike instanceof \PhpParser\Node\Stmt\ClassLike) {

@@ -3,10 +3,10 @@
 declare (strict_types=1);
 namespace Rector\Autodiscovery\Rector\Class_;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use Rector\Core\Rector\AbstractRector;
+use Rector\Core\Util\StringUtils;
 use Rector\Doctrine\PhpDocParser\DoctrineDocBlockResolver;
 use Rector\FileSystemRector\ValueObject\AddedFileWithNodes;
 use Rector\FileSystemRector\ValueObjectFactory\AddedFileWithNodesFactory;
@@ -25,10 +25,12 @@ final class MoveEntitiesToEntityDirectoryRector extends \Rector\Core\Rector\Abst
      */
     private const ENTITY_PATH_REGEX = '#\\bEntity\\b#';
     /**
+     * @readonly
      * @var \Rector\Doctrine\PhpDocParser\DoctrineDocBlockResolver
      */
     private $doctrineDocBlockResolver;
     /**
+     * @readonly
      * @var \Rector\FileSystemRector\ValueObjectFactory\AddedFileWithNodesFactory
      */
     private $addedFileWithNodesFactory;
@@ -86,7 +88,7 @@ CODE_SAMPLE
         }
         // is entity in expected directory?
         $smartFileInfo = $this->file->getSmartFileInfo();
-        if (\RectorPrefix20211110\Nette\Utils\Strings::match($smartFileInfo->getRealPath(), self::ENTITY_PATH_REGEX)) {
+        if (\Rector\Core\Util\StringUtils::isMatch($smartFileInfo->getRealPath(), self::ENTITY_PATH_REGEX)) {
             return null;
         }
         $addedFileWithNodes = $this->addedFileWithNodesFactory->createWithDesiredGroup($smartFileInfo, $this->file, 'Entity');

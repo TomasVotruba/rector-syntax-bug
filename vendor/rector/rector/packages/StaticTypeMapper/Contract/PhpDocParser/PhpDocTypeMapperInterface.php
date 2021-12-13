@@ -7,16 +7,17 @@ use PhpParser\Node;
 use PHPStan\Analyser\NameScope;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\Type\Type;
+/**
+ * @template TTypeNode as TypeNode
+ */
 interface PhpDocTypeMapperInterface
 {
     /**
-     * @return class-string<TypeNode>
+     * @return class-string<TTypeNode>
      */
     public function getNodeType() : string;
     /**
-     * @param \PHPStan\PhpDocParser\Ast\Type\TypeNode $typeNode
-     * @param \PhpParser\Node $node
-     * @param \PHPStan\Analyser\NameScope $nameScope
+     * @param TTypeNode $typeNode
      */
-    public function mapToPHPStanType($typeNode, $node, $nameScope) : \PHPStan\Type\Type;
+    public function mapToPHPStanType(\PHPStan\PhpDocParser\Ast\Type\TypeNode $typeNode, \PhpParser\Node $node, \PHPStan\Analyser\NameScope $nameScope) : \PHPStan\Type\Type;
 }

@@ -1,7 +1,7 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Helmich\TypoScriptParser\Tokenizer\Preprocessing;
+namespace RectorPrefix20211213\Helmich\TypoScriptParser\Tokenizer\Preprocessing;
 
 /**
  * Interface definitions for tokenizer preprocessors.
@@ -17,5 +17,5 @@ interface Preprocessor
      * @param string $contents Un-processed Typoscript contents
      * @return string Processed TypoScript contents
      */
-    public function preprocess($contents) : string;
+    public function preprocess(string $contents) : string;
 }

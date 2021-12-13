@@ -11,8 +11,7 @@ use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\PropertyProperty;
 use Rector\Core\Rector\AbstractRector;
-use Rector\NodeTypeResolver\Node\AttributeKey;
-use RectorPrefix20211110\Stringy\Stringy;
+use RectorPrefix20211213\Symfony\Component\String\UnicodeString;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 /**
@@ -56,7 +55,7 @@ CODE_SAMPLE
      */
     public function refactor(\PhpParser\Node $node) : ?\PhpParser\Node
     {
-        $classLike = $node->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::CLASS_NODE);
+        $classLike = $this->betterNodeFinder->findParentType($node, \PhpParser\Node\Stmt\ClassLike::class);
         if (!$classLike instanceof \PhpParser\Node\Stmt\ClassLike) {
             return null;
         }
@@ -90,8 +89,8 @@ CODE_SAMPLE
         [$prefix, $table] = \explode('.', $string->value);
         $tableParts = \explode('/', $table);
         $pascalCaseTableParts = \array_map(function (string $token) : string {
-            $stringy = new \RectorPrefix20211110\Stringy\Stringy($token);
-            return (string) $stringy->upperCamelize();
+            $tokenUnicodeString = new \RectorPrefix20211213\Symfony\Component\String\UnicodeString($token);
+            return \ucfirst($tokenUnicodeString->camel()->toString());
         }, $tableParts);
         $table = \implode('/', $pascalCaseTableParts);
         $string->value = \sprintf('%s.%s', $prefix, $table);

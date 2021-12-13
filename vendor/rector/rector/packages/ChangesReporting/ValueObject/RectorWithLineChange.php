@@ -4,8 +4,8 @@ declare (strict_types=1);
 namespace Rector\ChangesReporting\ValueObject;
 
 use Rector\Core\Contract\Rector\RectorInterface;
-use Rector\Parallel\Contract\SerializableInterface;
-final class RectorWithLineChange implements \Rector\Parallel\Contract\SerializableInterface
+use RectorPrefix20211213\Symplify\EasyParallel\Contract\SerializableInterface;
+final class RectorWithLineChange implements \RectorPrefix20211213\Symplify\EasyParallel\Contract\SerializableInterface
 {
     /**
      * @var string
@@ -17,9 +17,11 @@ final class RectorWithLineChange implements \Rector\Parallel\Contract\Serializab
     private const KEY_LINE = 'line';
     /**
      * @var class-string<RectorInterface>
+     * @readonly
      */
     private $rectorClass;
     /**
+     * @readonly
      * @var int
      */
     private $line;
@@ -48,7 +50,7 @@ final class RectorWithLineChange implements \Rector\Parallel\Contract\Serializab
     /**
      * @param array<string, mixed> $json
      */
-    public static function decode($json) : \Rector\Parallel\Contract\SerializableInterface
+    public static function decode(array $json) : \RectorPrefix20211213\Symplify\EasyParallel\Contract\SerializableInterface
     {
         return new self($json[self::KEY_RECTOR_CLASS], $json[self::KEY_LINE]);
     }

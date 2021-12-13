@@ -9,14 +9,12 @@ declare (strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\SebastianBergmann\Diff;
+namespace RectorPrefix20211213\SebastianBergmann\Diff;
 
 interface LongestCommonSubsequenceCalculator
 {
     /**
      * Calculates the longest common subsequence of two arrays.
-     * @param mixed[] $from
-     * @param mixed[] $to
      */
-    public function calculate($from, $to) : array;
+    public function calculate(array $from, array $to) : array;
 }

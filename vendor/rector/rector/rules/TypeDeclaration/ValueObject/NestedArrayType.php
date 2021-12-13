@@ -8,14 +8,17 @@ use PHPStan\Type\Type;
 final class NestedArrayType
 {
     /**
+     * @readonly
      * @var \PHPStan\Type\Type
      */
     private $type;
     /**
+     * @readonly
      * @var int
      */
     private $arrayNestingLevel;
     /**
+     * @readonly
      * @var \PHPStan\Type\Type|null
      */
     private $keyType;
@@ -35,6 +38,9 @@ final class NestedArrayType
     }
     public function getKeyType() : \PHPStan\Type\Type
     {
-        return $this->keyType ?: new \PHPStan\Type\MixedType();
+        if ($this->keyType instanceof \PHPStan\Type\Type) {
+            return $this->keyType;
+        }
+        return new \PHPStan\Type\MixedType();
     }
 }

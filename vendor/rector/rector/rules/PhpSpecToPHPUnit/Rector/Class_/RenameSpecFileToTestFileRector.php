@@ -3,10 +3,11 @@
 declare (strict_types=1);
 namespace Rector\PhpSpecToPHPUnit\Rector\Class_;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use Rector\Core\Rector\AbstractRector;
+use Rector\Core\Util\StringUtils;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 /**
@@ -51,7 +52,7 @@ CODE_SAMPLE
         $smartFileInfo = $this->file->getSmartFileInfo();
         $oldPathname = $smartFileInfo->getPathname();
         // ends with Spec.php
-        if (!\RectorPrefix20211110\Nette\Utils\Strings::match($oldPathname, self::SPEC_SUFFIX_REGEX)) {
+        if (!\Rector\Core\Util\StringUtils::isMatch($oldPathname, self::SPEC_SUFFIX_REGEX)) {
             return null;
         }
         $newPathName = $this->createPathName($oldPathname);
@@ -61,8 +62,8 @@ CODE_SAMPLE
     private function createPathName(string $oldRealPath) : string
     {
         // suffix
-        $newRealPath = \RectorPrefix20211110\Nette\Utils\Strings::replace($oldRealPath, self::SPEC_SUFFIX_REGEX, 'Test.php');
+        $newRealPath = \RectorPrefix20211213\Nette\Utils\Strings::replace($oldRealPath, self::SPEC_SUFFIX_REGEX, 'Test.php');
         // directory
-        return \RectorPrefix20211110\Nette\Utils\Strings::replace($newRealPath, self::SPEC_REGEX, '/tests/');
+        return \RectorPrefix20211213\Nette\Utils\Strings::replace($newRealPath, self::SPEC_REGEX, '/tests/');
     }
 }

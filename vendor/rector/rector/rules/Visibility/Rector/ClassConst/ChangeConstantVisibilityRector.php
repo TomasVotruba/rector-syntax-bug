@@ -8,16 +8,18 @@ use PhpParser\Node\Stmt\ClassConst;
 use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Rector\Core\ValueObject\Visibility;
+use Rector\Privatization\NodeManipulator\VisibilityManipulator;
 use Rector\Visibility\ValueObject\ChangeConstantVisibility;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Visibility\Rector\ClassConst\ChangeConstantVisibilityRector\ChangeConstantVisibilityRectorTest
  */
 final class ChangeConstantVisibilityRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const CLASS_CONSTANT_VISIBILITY_CHANGES = 'class_constant_visibility_changes';
@@ -25,6 +27,15 @@ final class ChangeConstantVisibilityRector extends \Rector\Core\Rector\AbstractR
      * @var ChangeConstantVisibility[]
      */
     private $classConstantVisibilityChanges = [];
+    /**
+     * @readonly
+     * @var \Rector\Privatization\NodeManipulator\VisibilityManipulator
+     */
+    private $visibilityManipulator;
+    public function __construct(\Rector\Privatization\NodeManipulator\VisibilityManipulator $visibilityManipulator)
+    {
+        $this->visibilityManipulator = $visibilityManipulator;
+    }
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
         return new \Symplify\RuleDocGenerator\ValueObject\RuleDefinition('Change visibility of constant from parent class.', [new \Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample(<<<'CODE_SAMPLE'
@@ -49,7 +60,7 @@ class MyClass extends FrameworkClass
     protected const SOME_CONSTANT = 1;
 }
 CODE_SAMPLE
-, [self::CLASS_CONSTANT_VISIBILITY_CHANGES => [new \Rector\Visibility\ValueObject\ChangeConstantVisibility('ParentObject', 'SOME_CONSTANT', \Rector\Core\ValueObject\Visibility::PROTECTED)]])]);
+, [new \Rector\Visibility\ValueObject\ChangeConstantVisibility('ParentObject', 'SOME_CONSTANT', \Rector\Core\ValueObject\Visibility::PROTECTED)])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -76,13 +87,13 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, ChangeConstantVisibility[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $classConstantVisibilityChanges = $configuration[self::CLASS_CONSTANT_VISIBILITY_CHANGES] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::isArray($classConstantVisibilityChanges);
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($classConstantVisibilityChanges, \Rector\Visibility\ValueObject\ChangeConstantVisibility::class);
+        $classConstantVisibilityChanges = $configuration[self::CLASS_CONSTANT_VISIBILITY_CHANGES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($classConstantVisibilityChanges);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($classConstantVisibilityChanges, \Rector\Visibility\ValueObject\ChangeConstantVisibility::class);
         $this->classConstantVisibilityChanges = $classConstantVisibilityChanges;
     }
 }

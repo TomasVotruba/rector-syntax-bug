@@ -20,10 +20,12 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class UnwrapFutureCompatibleIfPhpVersionRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
+     * @readonly
      * @var \Rector\DeadCode\ConditionEvaluator
      */
     private $conditionEvaluator;
     /**
+     * @readonly
      * @var \Rector\DeadCode\ConditionResolver
      */
     private $conditionResolver;
@@ -61,7 +63,7 @@ CODE_SAMPLE
      */
     public function refactor(\PhpParser\Node $node) : ?array
     {
-        if ($node->elseifs) {
+        if ($node->elseifs !== []) {
             return null;
         }
         $condition = $this->conditionResolver->resolveFromExpr($node->cond);
@@ -73,7 +75,10 @@ CODE_SAMPLE
             return null;
         }
         // if is skipped
-        if ($result) {
+        if ($result === \true) {
+            return $this->refactorIsMatch($node);
+        }
+        if ($result > 0) {
             return $this->refactorIsMatch($node);
         }
         return $this->refactorIsNotMatch($node);
@@ -83,7 +88,7 @@ CODE_SAMPLE
      */
     private function refactorIsMatch(\PhpParser\Node\Stmt\If_ $if) : ?array
     {
-        if ($if->elseifs) {
+        if ($if->elseifs !== []) {
             return null;
         }
         return $if->stmts;

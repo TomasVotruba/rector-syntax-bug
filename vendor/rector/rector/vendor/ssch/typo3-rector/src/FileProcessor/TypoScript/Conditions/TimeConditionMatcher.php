@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Ssch\TYPO3Rector\FileProcessor\TypoScript\Conditions;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use Ssch\TYPO3Rector\Contract\FileProcessor\TypoScript\Conditions\TyposcriptConditionMatcher;
 use Ssch\TYPO3Rector\Helper\ArrayUtility;
 final class TimeConditionMatcher implements \Ssch\TYPO3Rector\Contract\FileProcessor\TypoScript\Conditions\TyposcriptConditionMatcher
@@ -16,10 +16,7 @@ final class TimeConditionMatcher implements \Ssch\TYPO3Rector\Contract\FileProce
      * @var array<string, string>
      */
     private const TIME_MAPPING = ['hour' => 'G', 'minute' => 'i', 'month' => 'm', 'year' => 'Y', 'dayofweek' => 'w', 'dayofmonth' => 'j', 'dayofyear' => 'z'];
-    /**
-     * @param string $condition
-     */
-    public function change($condition) : ?string
+    public function change(string $condition) : ?string
     {
         \preg_match('#^(?<time>' . self::ALLOWED_TIME_CONSTANTS . ')' . self::ZERO_ONE_OR_MORE_WHITESPACES . '=' . self::ZERO_ONE_OR_MORE_WHITESPACES . '(?<operatorsAndValues>.*)$#Ui', $condition, $matches);
         if (!\is_array($matches)) {
@@ -43,11 +40,8 @@ final class TimeConditionMatcher implements \Ssch\TYPO3Rector\Contract\FileProce
         }
         return \implode(' || ', $newConditions);
     }
-    /**
-     * @param string $condition
-     */
-    public function shouldApply($condition) : bool
+    public function shouldApply(string $condition) : bool
     {
-        return null !== \RectorPrefix20211110\Nette\Utils\Strings::match($condition, '#' . self::ALLOWED_TIME_CONSTANTS . '#Ui');
+        return null !== \RectorPrefix20211213\Nette\Utils\Strings::match($condition, '#' . self::ALLOWED_TIME_CONSTANTS . '#Ui');
     }
 }

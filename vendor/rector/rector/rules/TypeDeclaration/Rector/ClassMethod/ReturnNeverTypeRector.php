@@ -4,6 +4,7 @@ declare (strict_types=1);
 namespace Rector\TypeDeclaration\Rector\ClassMethod;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\Yield_;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt;
@@ -28,10 +29,12 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class ReturnNeverTypeRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
+     * @readonly
      * @var \Rector\VendorLocker\ParentClassMethodTypeOverrideGuard
      */
     private $parentClassMethodTypeOverrideGuard;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTypeChanger
      */
     private $phpDocTypeChanger;
@@ -70,10 +73,10 @@ CODE_SAMPLE
      */
     public function getNodeTypes() : array
     {
-        return [\PhpParser\Node\Stmt\ClassMethod::class, \PhpParser\Node\Stmt\Function_::class];
+        return [\PhpParser\Node\Stmt\ClassMethod::class, \PhpParser\Node\Stmt\Function_::class, \PhpParser\Node\Expr\Closure::class];
     }
     /**
-     * @param ClassMethod|Function_ $node
+     * @param ClassMethod|Function_|Closure $node
      */
     public function refactor(\PhpParser\Node $node) : ?\PhpParser\Node
     {
@@ -91,19 +94,20 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param \PhpParser\Node\Stmt\ClassMethod|\PhpParser\Node\Stmt\Function_ $node
+     * @param \PhpParser\Node\Expr\Closure|\PhpParser\Node\Stmt\ClassMethod|\PhpParser\Node\Stmt\Function_ $node
      */
     private function shouldSkip($node) : bool
     {
-        $return = $this->betterNodeFinder->findFirstInstanceOf($node, \PhpParser\Node\Stmt\Return_::class);
-        if ($return instanceof \PhpParser\Node\Stmt\Return_) {
+        $hasReturn = $this->betterNodeFinder->hasInstancesOfInFunctionLikeScoped($node, \PhpParser\Node\Stmt\Return_::class);
+        if ($hasReturn) {
             return \true;
         }
-        $hasNotNeverNodes = $this->betterNodeFinder->hasInstancesOf($node, [\PhpParser\Node\Expr\Yield_::class] + \Rector\NodeNestingScope\ValueObject\ControlStructure::CONDITIONAL_NODE_SCOPE_TYPES);
+        $yieldAndConditionalNodes = \array_merge([\PhpParser\Node\Expr\Yield_::class], \Rector\NodeNestingScope\ValueObject\ControlStructure::CONDITIONAL_NODE_SCOPE_TYPES);
+        $hasNotNeverNodes = $this->betterNodeFinder->hasInstancesOfInFunctionLikeScoped($node, $yieldAndConditionalNodes);
         if ($hasNotNeverNodes) {
             return \true;
         }
-        $hasNeverNodes = $this->betterNodeFinder->hasInstancesOf($node, [\PhpParser\Node\Expr\Throw_::class, \PhpParser\Node\Stmt\Throw_::class]);
+        $hasNeverNodes = $this->betterNodeFinder->hasInstancesOfInFunctionLikeScoped($node, [\PhpParser\Node\Expr\Throw_::class, \PhpParser\Node\Stmt\Throw_::class]);
         $hasNeverFuncCall = $this->hasNeverFuncCall($node);
         if (!$hasNeverNodes && !$hasNeverFuncCall) {
             return \true;
@@ -111,10 +115,13 @@ CODE_SAMPLE
         if ($node instanceof \PhpParser\Node\Stmt\ClassMethod && !$this->parentClassMethodTypeOverrideGuard->isReturnTypeChangeAllowed($node)) {
             return \true;
         }
-        return $node->returnType && $this->isName($node->returnType, 'never');
+        if (!$node->returnType instanceof \PhpParser\Node) {
+            return \false;
+        }
+        return $this->isName($node->returnType, 'never');
     }
     /**
-     * @param \PhpParser\Node\Stmt\ClassMethod|\PhpParser\Node\Stmt\Function_ $functionLike
+     * @param \PhpParser\Node\Expr\Closure|\PhpParser\Node\Stmt\ClassMethod|\PhpParser\Node\Stmt\Function_ $functionLike
      */
     private function hasNeverFuncCall($functionLike) : bool
     {

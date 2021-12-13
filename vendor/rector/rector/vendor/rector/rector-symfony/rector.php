@@ -1,10 +1,12 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110;
+namespace RectorPrefix20211213;
 
 use Rector\Core\Configuration\Option;
 use Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector;
+use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
+use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 return static function (\Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator $containerConfigurator) : void {
@@ -17,8 +19,9 @@ return static function (\Symfony\Component\DependencyInjection\Loader\Configurat
         '*/Fixture/*',
         '*/Source/*',
     ]);
-    $containerConfigurator->import(\Rector\Set\ValueObject\SetList::PHP_74);
-    $containerConfigurator->import(\Rector\Set\ValueObject\SetList::PHP_80);
-    $containerConfigurator->import(\Rector\Set\ValueObject\SetList::DEAD_CODE);
+    $services = $containerConfigurator->services();
+    $services->set(\Rector\Php55\Rector\String_\StringClassNameToClassConstantRector::class)->configure(['Symfony\\*', 'Twig_*', 'Swift_*']);
+    $containerConfigurator->import(\Rector\Set\ValueObject\LevelSetList::UP_TO_PHP_80);
     $containerConfigurator->import(\Rector\Set\ValueObject\SetList::CODE_QUALITY);
+    $containerConfigurator->import(\Rector\Set\ValueObject\SetList::DEAD_CODE);
 };

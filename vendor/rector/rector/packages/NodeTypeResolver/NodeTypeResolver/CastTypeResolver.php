@@ -21,6 +21,9 @@ use PHPStan\Type\StringType;
 use PHPStan\Type\Type;
 use Rector\Core\Exception\NotImplementedYetException;
 use Rector\NodeTypeResolver\Contract\NodeTypeResolverInterface;
+/**
+ * @implements NodeTypeResolverInterface<Cast>
+ */
 final class CastTypeResolver implements \Rector\NodeTypeResolver\Contract\NodeTypeResolverInterface
 {
     /**
@@ -35,9 +38,9 @@ final class CastTypeResolver implements \Rector\NodeTypeResolver\Contract\NodeTy
         return [\PhpParser\Node\Expr\Cast::class];
     }
     /**
-     * @param \PhpParser\Node $node
+     * @param Cast $node
      */
-    public function resolve($node) : \PHPStan\Type\Type
+    public function resolve(\PhpParser\Node $node) : \PHPStan\Type\Type
     {
         foreach (self::CAST_CLASS_TO_TYPE_MAP as $castClass => $typeClass) {
             if (\is_a($node, $castClass, \true)) {

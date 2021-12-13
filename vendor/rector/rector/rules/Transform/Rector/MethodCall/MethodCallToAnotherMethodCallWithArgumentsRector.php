@@ -11,13 +11,14 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Transform\ValueObject\MethodCallToAnotherMethodCallWithArguments;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\MethodCall\MethodCallToAnotherMethodCallWithArgumentsRector\MethodCallToAnotherMethodCallWithArgumentsRectorTest
  */
 final class MethodCallToAnotherMethodCallWithArgumentsRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const METHOD_CALL_RENAMES_WITH_ADDED_ARGUMENTS = 'method_call_renames_with_added_arguments';
@@ -35,7 +36,7 @@ CODE_SAMPLE
 $serviceDefinition = new Nette\DI\ServiceDefinition;
 $serviceDefinition->addTag('inject');
 CODE_SAMPLE
-, [self::METHOD_CALL_RENAMES_WITH_ADDED_ARGUMENTS => [new \Rector\Transform\ValueObject\MethodCallToAnotherMethodCallWithArguments('Nette\\DI\\ServiceDefinition', 'setInject', 'addTag', ['inject'])]])]);
+, [new \Rector\Transform\ValueObject\MethodCallToAnotherMethodCallWithArguments('Nette\\DI\\ServiceDefinition', 'setInject', 'addTag', ['inject'])])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -63,12 +64,13 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, MethodCallToAnotherMethodCallWithArguments[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $methodCallRenamesWithAddedArguments = $configuration[self::METHOD_CALL_RENAMES_WITH_ADDED_ARGUMENTS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($methodCallRenamesWithAddedArguments, \Rector\Transform\ValueObject\MethodCallToAnotherMethodCallWithArguments::class);
+        $methodCallRenamesWithAddedArguments = $configuration[self::METHOD_CALL_RENAMES_WITH_ADDED_ARGUMENTS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($methodCallRenamesWithAddedArguments);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($methodCallRenamesWithAddedArguments, \Rector\Transform\ValueObject\MethodCallToAnotherMethodCallWithArguments::class);
         $this->methodCallRenamesWithAddedArguments = $methodCallRenamesWithAddedArguments;
     }
 }

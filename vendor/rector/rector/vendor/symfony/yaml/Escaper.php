@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Yaml;
+namespace RectorPrefix20211213\Symfony\Component\Yaml;
 
 /**
  * Escaper encapsulates escaping rules for single and double-quoted
@@ -32,10 +32,8 @@ class Escaper
      * Determines if a PHP value would require double quoting in YAML.
      *
      * @param string $value A PHP value
-     *
-     * @return bool True if the value would require double quotes
      */
-    public static function requiresDoubleQuoting($value) : bool
+    public static function requiresDoubleQuoting(string $value) : bool
     {
         return 0 < \preg_match('/' . self::REGEX_CHARACTER_TO_ESCAPE . '/u', $value);
     }
@@ -43,10 +41,8 @@ class Escaper
      * Escapes and surrounds a PHP value with double quotes.
      *
      * @param string $value A PHP value
-     *
-     * @return string The quoted, escaped string
      */
-    public static function escapeWithDoubleQuotes($value) : string
+    public static function escapeWithDoubleQuotes(string $value) : string
     {
         return \sprintf('"%s"', \str_replace(self::ESCAPEES, self::ESCAPED, $value));
     }
@@ -54,10 +50,8 @@ class Escaper
      * Determines if a PHP value would require single quoting in YAML.
      *
      * @param string $value A PHP value
-     *
-     * @return bool True if the value would require single quotes
      */
-    public static function requiresSingleQuoting($value) : bool
+    public static function requiresSingleQuoting(string $value) : bool
     {
         // Determines if a PHP value is entirely composed of a value that would
         // require single quoting in YAML.
@@ -72,10 +66,8 @@ class Escaper
      * Escapes and surrounds a PHP value with single quotes.
      *
      * @param string $value A PHP value
-     *
-     * @return string The quoted, escaped string
      */
-    public static function escapeWithSingleQuotes($value) : string
+    public static function escapeWithSingleQuotes(string $value) : string
     {
         return \sprintf("'%s'", \str_replace('\'', '\'\'', $value));
     }

@@ -4,10 +4,11 @@ declare (strict_types=1);
 namespace Rector\BetterPhpDocParser\PhpDocNodeTraverser;
 
 use Rector\BetterPhpDocParser\PhpDocNodeVisitor\ChangedPhpDocNodeVisitor;
-use RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser;
+use RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser;
 final class ChangedPhpDocNodeTraverserFactory
 {
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocNodeVisitor\ChangedPhpDocNodeVisitor
      */
     private $changedPhpDocNodeVisitor;
@@ -15,9 +16,9 @@ final class ChangedPhpDocNodeTraverserFactory
     {
         $this->changedPhpDocNodeVisitor = $changedPhpDocNodeVisitor;
     }
-    public function create() : \RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser
+    public function create() : \RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser
     {
-        $changedPhpDocNodeTraverser = new \RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser();
+        $changedPhpDocNodeTraverser = new \RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser();
         $changedPhpDocNodeTraverser->addPhpDocNodeVisitor($this->changedPhpDocNodeVisitor);
         return $changedPhpDocNodeTraverser;
     }

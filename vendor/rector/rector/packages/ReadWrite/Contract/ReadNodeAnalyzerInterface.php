@@ -3,15 +3,15 @@
 declare (strict_types=1);
 namespace Rector\ReadWrite\Contract;
 
-use PhpParser\Node;
+use PhpParser\Node\Expr;
+/**
+ * @template TExpr as Expr
+ */
 interface ReadNodeAnalyzerInterface
 {
+    public function supports(\PhpParser\Node\Expr $expr) : bool;
     /**
-     * @param \PhpParser\Node $node
+     * @param TExpr $expr
      */
-    public function supports($node) : bool;
-    /**
-     * @param \PhpParser\Node $node
-     */
-    public function isRead($node) : bool;
+    public function isRead(\PhpParser\Node\Expr $expr) : bool;
 }

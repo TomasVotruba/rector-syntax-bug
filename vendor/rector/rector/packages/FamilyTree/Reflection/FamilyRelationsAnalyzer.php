@@ -4,17 +4,16 @@ declare (strict_types=1);
 namespace Rector\FamilyTree\Reflection;
 
 use PhpParser\Node;
+use PhpParser\Node\ComplexType;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Name;
-use PhpParser\Node\NullableType;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Property;
-use PhpParser\Node\UnionType as PhpParserUnionType;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ReflectionProvider;
@@ -28,34 +27,40 @@ use Rector\FamilyTree\ValueObject\PropertyType;
 use Rector\NodeNameResolver\NodeNameResolver;
 use Rector\PHPStanStaticTypeMapper\Enum\TypeKind;
 use Rector\StaticTypeMapper\StaticTypeMapper;
-use RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesAccessor;
+use RectorPrefix20211213\Symplify\PackageBuilder\Reflection\PrivatesAccessor;
 final class FamilyRelationsAnalyzer
 {
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
+     * @readonly
      * @var \Symplify\PackageBuilder\Reflection\PrivatesAccessor
      */
     private $privatesAccessor;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\StaticTypeMapper\StaticTypeMapper
      */
     private $staticTypeMapper;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\AstResolver
      */
     private $astResolver;
-    public function __construct(\PHPStan\Reflection\ReflectionProvider $reflectionProvider, \RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesAccessor $privatesAccessor, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder, \Rector\StaticTypeMapper\StaticTypeMapper $staticTypeMapper, \Rector\Core\PhpParser\AstResolver $astResolver)
+    public function __construct(\PHPStan\Reflection\ReflectionProvider $reflectionProvider, \RectorPrefix20211213\Symplify\PackageBuilder\Reflection\PrivatesAccessor $privatesAccessor, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder, \Rector\StaticTypeMapper\StaticTypeMapper $staticTypeMapper, \Rector\Core\PhpParser\AstResolver $astResolver)
     {
         $this->reflectionProvider = $reflectionProvider;
         $this->privatesAccessor = $privatesAccessor;
@@ -81,7 +86,7 @@ final class FamilyRelationsAnalyzer
         return $childrenClassReflections;
     }
     /**
-     * @param \PhpParser\Node\Name|\PhpParser\Node\NullableType|PhpParserUnionType|null $propertyTypeNode
+     * @param \PhpParser\Node\ComplexType|\PhpParser\Node\Name|null $propertyTypeNode
      */
     public function getPossibleUnionPropertyType(\PhpParser\Node\Stmt\Property $property, \PHPStan\Type\Type $varType, ?\PHPStan\Analyser\Scope $scope, $propertyTypeNode) : \Rector\FamilyTree\ValueObject\PropertyType
     {

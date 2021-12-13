@@ -16,7 +16,7 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Transform\ValueObject\SingleToManyMethod;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\ClassMethod\SingleToManyMethodRector\SingleToManyMethodRectorTest
  */
@@ -24,6 +24,7 @@ final class SingleToManyMethodRector extends \Rector\Core\Rector\AbstractRector 
 {
     /**
      * @api
+     * @deprecated
      * @var string
      */
     public const SINGLES_TO_MANY_METHODS = 'singles_to_many_methods';
@@ -32,6 +33,7 @@ final class SingleToManyMethodRector extends \Rector\Core\Rector\AbstractRector 
      */
     private $singleToManyMethods = [];
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTypeChanger
      */
     private $phpDocTypeChanger;
@@ -62,7 +64,7 @@ class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::SINGLES_TO_MANY_METHODS => [new \Rector\Transform\ValueObject\SingleToManyMethod('SomeClass', 'getNode', 'getNodes')]])]);
+, [new \Rector\Transform\ValueObject\SingleToManyMethod('SomeClass', 'getNode', 'getNodes')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -96,12 +98,12 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, SingleToManyMethod[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $singleToManyMethods = $configuration[self::SINGLES_TO_MANY_METHODS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($singleToManyMethods, \Rector\Transform\ValueObject\SingleToManyMethod::class);
+        $singleToManyMethods = $configuration[self::SINGLES_TO_MANY_METHODS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($singleToManyMethods, \Rector\Transform\ValueObject\SingleToManyMethod::class);
         $this->singleToManyMethods = $singleToManyMethods;
     }
     private function keepOldReturnTypeInDocBlock(\PhpParser\Node\Stmt\ClassMethod $classMethod) : void

@@ -3,30 +3,26 @@
 declare (strict_types=1);
 namespace Rector\Renaming\ValueObject;
 
-use PHPStan\Type\ObjectType;
-final class RenameAnnotation
+use Rector\Renaming\Contract\RenameAnnotationInterface;
+/**
+ * @api
+ */
+final class RenameAnnotation implements \Rector\Renaming\Contract\RenameAnnotationInterface
 {
     /**
-     * @var string
-     */
-    private $type;
-    /**
+     * @readonly
      * @var string
      */
     private $oldAnnotation;
     /**
+     * @readonly
      * @var string
      */
     private $newAnnotation;
-    public function __construct(string $type, string $oldAnnotation, string $newAnnotation)
+    public function __construct(string $oldAnnotation, string $newAnnotation)
     {
-        $this->type = $type;
         $this->oldAnnotation = $oldAnnotation;
         $this->newAnnotation = $newAnnotation;
-    }
-    public function getObjectType() : \PHPStan\Type\ObjectType
-    {
-        return new \PHPStan\Type\ObjectType($this->type);
     }
     public function getOldAnnotation() : string
     {

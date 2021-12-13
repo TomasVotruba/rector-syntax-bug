@@ -3,80 +3,60 @@
 declare (strict_types=1);
 namespace Rector\Core\Validation\Collector;
 
+use Rector\Core\Contract\Rector\AllowEmptyConfigurableRectorInterface;
 use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
-use Rector\Core\Contract\Rector\RectorInterface;
 use Rector\Core\NonPhpFile\Rector\RenameClassNonPhpRector;
-use Rector\Naming\Naming\PropertyNaming;
-use RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesAccessor;
-use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerBuilder;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition;
+/**
+ * @see \Rector\Core\Tests\Validation\Collector\EmptyConfigurableRectorCollector\EmptyConfigurableRectorCollectorTest
+ */
 final class EmptyConfigurableRectorCollector
 {
     /**
-     * @var \Symplify\PackageBuilder\Reflection\PrivatesAccessor
+     * @readonly
+     * @var \Symfony\Component\DependencyInjection\ContainerBuilder
      */
-    private $privatesAccessor;
-    /**
-     * @var \Rector\Naming\Naming\PropertyNaming
-     */
-    private $propertyNaming;
-    public function __construct(\RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesAccessor $privatesAccessor, \Rector\Naming\Naming\PropertyNaming $propertyNaming)
+    private $containerBuilder;
+    public function __construct(\RectorPrefix20211213\Symfony\Component\DependencyInjection\ContainerBuilder $containerBuilder)
     {
-        $this->privatesAccessor = $privatesAccessor;
-        $this->propertyNaming = $propertyNaming;
+        $this->containerBuilder = $containerBuilder;
     }
     /**
-     * @param RectorInterface[] $rectors
-     * @return RectorInterface[]
+     * @return array<class-string<ConfigurableRectorInterface>>
      */
-    public function resolveEmptyConfigurable(array $rectors) : array
+    public function resolveEmptyConfigurableRectorClasses() : array
     {
-        $emptyConfigurableRectors = [];
-        foreach ($rectors as $rector) {
-            if ($this->shouldSkip($rector)) {
+        $emptyConfigurableRectorClasses = [];
+        foreach ($this->containerBuilder->getServiceIds() as $serviceId) {
+            if (!\is_a($serviceId, \Rector\Core\Contract\Rector\ConfigurableRectorInterface::class, \true)) {
                 continue;
             }
-            $emptyConfigurableRectors = $this->collectEmptyConfigurableRectors($rector, $emptyConfigurableRectors);
-        }
-        return $emptyConfigurableRectors;
-    }
-    /**
-     * @param RectorInterface[] $emptyConfigurableRectors
-     * @return RectorInterface[]
-     */
-    private function collectEmptyConfigurableRectors(\Rector\Core\Contract\Rector\RectorInterface $rector, array $emptyConfigurableRectors) : array
-    {
-        $ruleDefinition = $rector->getRuleDefinition();
-        /** @var ConfiguredCodeSample[] $codeSamples */
-        $codeSamples = $ruleDefinition->getCodeSamples();
-        foreach ($codeSamples as $codeSample) {
-            $configuration = $codeSample->getConfiguration();
-            if (!\is_array($configuration)) {
+            if (\is_a($serviceId, \Rector\Core\Contract\Rector\AllowEmptyConfigurableRectorInterface::class, \true)) {
                 continue;
             }
-            foreach (\array_keys($configuration) as $key) {
-                $key = $this->propertyNaming->underscoreToName($key);
-                if (!\property_exists($rector, $key)) {
-                    continue;
+            // it seems always loaded
+            if (\is_a($serviceId, \Rector\Core\NonPhpFile\Rector\RenameClassNonPhpRector::class, \true)) {
+                continue;
+            }
+            $serviceDefinition = $this->containerBuilder->getDefinition($serviceId);
+            if ($this->hasConfigureMethodCall($serviceDefinition)) {
+                continue;
+            }
+            $emptyConfigurableRectorClasses[] = $serviceId;
+        }
+        return $emptyConfigurableRectorClasses;
+    }
+    private function hasConfigureMethodCall(\RectorPrefix20211213\Symfony\Component\DependencyInjection\Definition $definition) : bool
+    {
+        foreach ($definition->getMethodCalls() as $methodCall) {
+            if ($methodCall[0] === 'configure') {
+                if (!isset($methodCall[1][0])) {
+                    return \false;
                 }
-                // @see https://github.com/rectorphp/rector-laravel/pull/19
-                if (\strncmp($key, 'exclude', \strlen('exclude')) === 0) {
-                    continue;
-                }
-                $value = $this->privatesAccessor->getPrivateProperty($rector, $key);
-                if ($value === []) {
-                    $emptyConfigurableRectors[] = $rector;
-                    return $emptyConfigurableRectors;
-                }
+                return $methodCall[1][0] !== [];
             }
         }
-        return $emptyConfigurableRectors;
-    }
-    private function shouldSkip(\Rector\Core\Contract\Rector\RectorInterface $rector) : bool
-    {
-        if (!$rector instanceof \Rector\Core\Contract\Rector\ConfigurableRectorInterface) {
-            return \true;
-        }
-        // it seems always loaded
-        return $rector instanceof \Rector\Core\NonPhpFile\Rector\RenameClassNonPhpRector;
+        return \false;
     }
 }

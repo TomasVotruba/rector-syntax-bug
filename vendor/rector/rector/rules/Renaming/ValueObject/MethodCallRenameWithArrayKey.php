@@ -4,18 +4,22 @@ declare (strict_types=1);
 namespace Rector\Renaming\ValueObject;
 
 use PHPStan\Type\ObjectType;
+use Rector\Core\Validation\RectorAssert;
 use Rector\Renaming\Contract\MethodCallRenameInterface;
 final class MethodCallRenameWithArrayKey implements \Rector\Renaming\Contract\MethodCallRenameInterface
 {
     /**
+     * @readonly
      * @var string
      */
     private $class;
     /**
+     * @readonly
      * @var string
      */
     private $oldMethod;
     /**
+     * @readonly
      * @var string
      */
     private $newMethod;
@@ -29,6 +33,7 @@ final class MethodCallRenameWithArrayKey implements \Rector\Renaming\Contract\Me
         $this->oldMethod = $oldMethod;
         $this->newMethod = $newMethod;
         $this->arrayKey = $arrayKey;
+        \Rector\Core\Validation\RectorAssert::className($class);
     }
     public function getClass() : string
     {

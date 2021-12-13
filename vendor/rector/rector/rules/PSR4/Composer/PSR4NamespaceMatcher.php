@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\PSR4\Composer;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node;
 use Rector\Core\ValueObject\Application\File;
 use Rector\PSR4\Contract\PSR4AutoloadNamespaceMatcherInterface;
@@ -14,6 +14,7 @@ use Symplify\SmartFileSystem\SmartFileInfo;
 final class PSR4NamespaceMatcher implements \Rector\PSR4\Contract\PSR4AutoloadNamespaceMatcherInterface
 {
     /**
+     * @readonly
      * @var \Rector\PSR4\Composer\PSR4AutoloadPathsProvider
      */
     private $psr4AutoloadPathsProvider;
@@ -21,11 +22,7 @@ final class PSR4NamespaceMatcher implements \Rector\PSR4\Contract\PSR4AutoloadNa
     {
         $this->psr4AutoloadPathsProvider = $psr4AutoloadPathsProvider;
     }
-    /**
-     * @param \Rector\Core\ValueObject\Application\File $file
-     * @param \PhpParser\Node $node
-     */
-    public function getExpectedNamespace($file, $node) : ?string
+    public function getExpectedNamespace(\Rector\Core\ValueObject\Application\File $file, \PhpParser\Node $node) : ?string
     {
         $smartFileInfo = $file->getSmartFileInfo();
         $psr4Autoloads = $this->psr4AutoloadPathsProvider->provide();
@@ -51,8 +48,8 @@ final class PSR4NamespaceMatcher implements \Rector\PSR4\Contract\PSR4AutoloadNa
      */
     private function resolveExtraNamespace(\Symplify\SmartFileSystem\SmartFileInfo $smartFileInfo, string $path) : string
     {
-        $extraNamespace = \RectorPrefix20211110\Nette\Utils\Strings::substring($smartFileInfo->getRelativeDirectoryPath(), \RectorPrefix20211110\Nette\Utils\Strings::length($path) + 1);
-        $extraNamespace = \RectorPrefix20211110\Nette\Utils\Strings::replace($extraNamespace, '#/#', '\\');
+        $extraNamespace = \RectorPrefix20211213\Nette\Utils\Strings::substring($smartFileInfo->getRelativeDirectoryPath(), \RectorPrefix20211213\Nette\Utils\Strings::length($path) + 1);
+        $extraNamespace = \RectorPrefix20211213\Nette\Utils\Strings::replace($extraNamespace, '#/#', '\\');
         return \trim($extraNamespace);
     }
 }

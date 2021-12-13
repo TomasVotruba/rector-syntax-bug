@@ -8,19 +8,19 @@ use PhpParser\Node\Scalar\String_;
 use PHPStan\Type\StringType;
 use PHPStan\Type\Type;
 use Rector\StaticTypeMapper\Contract\PhpParser\PhpParserNodeMapperInterface;
+/**
+ * @implements PhpParserNodeMapperInterface<String_>
+ */
 final class StringNodeMapper implements \Rector\StaticTypeMapper\Contract\PhpParser\PhpParserNodeMapperInterface
 {
-    /**
-     * @return class-string<Node>
-     */
     public function getNodeType() : string
     {
         return \PhpParser\Node\Scalar\String_::class;
     }
     /**
-     * @param \PhpParser\Node $node
+     * @param String_ $node
      */
-    public function mapToPHPStan($node) : \PHPStan\Type\Type
+    public function mapToPHPStan(\PhpParser\Node $node) : \PHPStan\Type\Type
     {
         return new \PHPStan\Type\StringType();
     }

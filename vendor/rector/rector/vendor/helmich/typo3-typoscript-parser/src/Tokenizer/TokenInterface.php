@@ -1,7 +1,7 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Helmich\TypoScriptParser\Tokenizer;
+namespace RectorPrefix20211213\Helmich\TypoScriptParser\Tokenizer;
 
 interface TokenInterface
 {
@@ -28,10 +28,7 @@ interface TokenInterface
     const TYPE_EMPTY_LINE = 'NOP';
     public function getType() : string;
     public function getValue() : string;
-    /**
-     * @param string $name
-     */
-    public function getSubMatch($name) : ?string;
+    public function getSubMatch(string $name) : ?string;
     public function getLine() : int;
     public function getColumn() : int;
 }

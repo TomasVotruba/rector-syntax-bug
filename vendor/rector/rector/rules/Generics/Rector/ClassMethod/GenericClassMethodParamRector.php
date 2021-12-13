@@ -17,15 +17,17 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Generics\ValueObject\GenericClassMethodParam;
 use Rector\Naming\Naming\PropertyNaming;
 use Rector\NodeTypeResolver\Node\AttributeKey;
+use Rector\Privatization\NodeManipulator\VisibilityManipulator;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Generics\Rector\ClassMethod\GenericClassMethodParamRector\GenericClassMethodParamRectorTest
  */
 final class GenericClassMethodParamRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const GENERIC_CLASS_METHOD_PARAMS = 'generic_class_method_params';
@@ -34,17 +36,25 @@ final class GenericClassMethodParamRector extends \Rector\Core\Rector\AbstractRe
      */
     private $genericClassMethodParams = [];
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTypeChanger
      */
     private $phpDocTypeChanger;
     /**
+     * @readonly
      * @var \Rector\Naming\Naming\PropertyNaming
      */
     private $propertyNaming;
-    public function __construct(\Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTypeChanger $phpDocTypeChanger, \Rector\Naming\Naming\PropertyNaming $propertyNaming)
+    /**
+     * @readonly
+     * @var \Rector\Privatization\NodeManipulator\VisibilityManipulator
+     */
+    private $visibilityManipulator;
+    public function __construct(\Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTypeChanger $phpDocTypeChanger, \Rector\Naming\Naming\PropertyNaming $propertyNaming, \Rector\Privatization\NodeManipulator\VisibilityManipulator $visibilityManipulator)
     {
         $this->phpDocTypeChanger = $phpDocTypeChanger;
         $this->propertyNaming = $propertyNaming;
+        $this->visibilityManipulator = $visibilityManipulator;
     }
     /**
      * @return array<class-string<Node>>
@@ -103,15 +113,15 @@ final class SomeClass implements SomeInterface
     }
 }
 CODE_SAMPLE
-, [self::GENERIC_CLASS_METHOD_PARAMS => [new \Rector\Generics\ValueObject\GenericClassMethodParam('SomeInterface', 'getParams', 0, 'ParamInterface')]])]);
+, [new \Rector\Generics\ValueObject\GenericClassMethodParam('SomeInterface', 'getParams', 0, 'ParamInterface')])]);
     }
     /**
-     * @param array<string, GenericClassMethodParam[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $makeClassMethodGenerics = $configuration[self::GENERIC_CLASS_METHOD_PARAMS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsAOf($makeClassMethodGenerics, \Rector\Generics\ValueObject\GenericClassMethodParam::class);
+        $makeClassMethodGenerics = $configuration[self::GENERIC_CLASS_METHOD_PARAMS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($makeClassMethodGenerics, \Rector\Generics\ValueObject\GenericClassMethodParam::class);
         $this->genericClassMethodParams = $makeClassMethodGenerics;
     }
     private function refactorParam(\PhpParser\Node\Stmt\ClassMethod $classMethod, \Rector\Generics\ValueObject\GenericClassMethodParam $genericClassMethodParam) : void

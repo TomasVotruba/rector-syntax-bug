@@ -40,22 +40,27 @@ final class DateTimeToDateTimeInterfaceRector extends \Rector\Core\Rector\Abstra
      */
     private const DATE_TIME = 'DateTime';
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTypeChanger
      */
     private $phpDocTypeChanger;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\ParamAnalyzer
      */
     private $paramAnalyzer;
     /**
+     * @readonly
      * @var \Rector\CodeQuality\NodeManipulator\ClassMethodReturnTypeManipulator
      */
     private $classMethodReturnTypeManipulator;
     /**
+     * @readonly
      * @var \Rector\CodeQuality\NodeManipulator\ClassMethodParameterTypeManipulator
      */
     private $classMethodParameterTypeManipulator;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\CallAnalyzer
      */
     private $callAnalyzer;
@@ -168,7 +173,7 @@ CODE_SAMPLE
     }
     private function shouldSkipExactlyReturnDateTime(\PhpParser\Node\Stmt\ClassMethod $classMethod) : bool
     {
-        $return = $this->betterNodeFinder->findFirst((array) $classMethod->stmts, function (\PhpParser\Node $node) : bool {
+        $return = $this->betterNodeFinder->findFirstInFunctionLikeScoped($classMethod, function (\PhpParser\Node $node) : bool {
             return $node instanceof \PhpParser\Node\Stmt\Return_;
         });
         if (!$return instanceof \PhpParser\Node\Stmt\Return_) {

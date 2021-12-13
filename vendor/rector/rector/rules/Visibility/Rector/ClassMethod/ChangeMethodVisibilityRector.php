@@ -11,16 +11,18 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Core\ValueObject\Visibility;
 use Rector\NodeCollector\ScopeResolver\ParentClassScopeResolver;
 use Rector\NodeTypeResolver\Node\AttributeKey;
+use Rector\Privatization\NodeManipulator\VisibilityManipulator;
 use Rector\Visibility\ValueObject\ChangeMethodVisibility;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Visibility\Rector\ClassMethod\ChangeMethodVisibilityRector\ChangeMethodVisibilityRectorTest
  */
 final class ChangeMethodVisibilityRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const METHOD_VISIBILITIES = 'method_visibilities';
@@ -29,12 +31,19 @@ final class ChangeMethodVisibilityRector extends \Rector\Core\Rector\AbstractRec
      */
     private $methodVisibilities = [];
     /**
+     * @readonly
      * @var \Rector\NodeCollector\ScopeResolver\ParentClassScopeResolver
      */
     private $parentClassScopeResolver;
-    public function __construct(\Rector\NodeCollector\ScopeResolver\ParentClassScopeResolver $parentClassScopeResolver)
+    /**
+     * @readonly
+     * @var \Rector\Privatization\NodeManipulator\VisibilityManipulator
+     */
+    private $visibilityManipulator;
+    public function __construct(\Rector\NodeCollector\ScopeResolver\ParentClassScopeResolver $parentClassScopeResolver, \Rector\Privatization\NodeManipulator\VisibilityManipulator $visibilityManipulator)
     {
         $this->parentClassScopeResolver = $parentClassScopeResolver;
+        $this->visibilityManipulator = $visibilityManipulator;
     }
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
@@ -68,7 +77,7 @@ class MyClass extends FrameworkClass
     }
 }
 CODE_SAMPLE
-, [self::METHOD_VISIBILITIES => [new \Rector\Visibility\ValueObject\ChangeMethodVisibility('FrameworkClass', 'someMethod', \Rector\Core\ValueObject\Visibility::PROTECTED)]])]);
+, [new \Rector\Visibility\ValueObject\ChangeMethodVisibility('FrameworkClass', 'someMethod', \Rector\Core\ValueObject\Visibility::PROTECTED)])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -103,12 +112,13 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, ChangeMethodVisibility[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $methodVisibilities = $configuration[self::METHOD_VISIBILITIES] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($methodVisibilities, \Rector\Visibility\ValueObject\ChangeMethodVisibility::class);
+        $methodVisibilities = $configuration[self::METHOD_VISIBILITIES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($methodVisibilities);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($methodVisibilities, \Rector\Visibility\ValueObject\ChangeMethodVisibility::class);
         $this->methodVisibilities = $methodVisibilities;
     }
 }

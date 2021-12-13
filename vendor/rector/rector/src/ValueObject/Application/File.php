@@ -18,6 +18,7 @@ final class File
      */
     private $hasChanged = \false;
     /**
+     * @readonly
      * @var string
      */
     private $originalFileContent;
@@ -42,10 +43,7 @@ final class File
      */
     private $rectorWithLineChanges = [];
     /**
-     * @var RectorError[]
-     */
-    private $rectorErrors = [];
-    /**
+     * @readonly
      * @var \Symplify\SmartFileSystem\SmartFileInfo
      */
     private $smartFileInfo;
@@ -155,21 +153,6 @@ final class File
     public function getRectorWithLineChanges() : array
     {
         return $this->rectorWithLineChanges;
-    }
-    public function addRectorError(\Rector\Core\ValueObject\Application\RectorError $rectorError) : void
-    {
-        $this->rectorErrors[] = $rectorError;
-    }
-    public function hasErrors() : bool
-    {
-        return $this->rectorErrors !== [];
-    }
-    /**
-     * @return RectorError[]
-     */
-    public function getErrors() : array
-    {
-        return $this->rectorErrors;
     }
     public function getRelativeFilePath() : string
     {

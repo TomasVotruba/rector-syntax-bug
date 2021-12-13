@@ -9,7 +9,7 @@ declare (strict_types=1);
  *
  * @see https://github.com/ergebnis/json-printer
  */
-namespace RectorPrefix20211110\Ergebnis\Json\Printer;
+namespace RectorPrefix20211213\Ergebnis\Json\Printer;
 
 interface PrinterInterface
 {
@@ -22,5 +22,5 @@ interface PrinterInterface
      *
      * @return string
      */
-    public function print($json, $indent = '    ', $newLine = \PHP_EOL) : string;
+    public function print(string $json, string $indent = '    ', string $newLine = \PHP_EOL) : string;
 }

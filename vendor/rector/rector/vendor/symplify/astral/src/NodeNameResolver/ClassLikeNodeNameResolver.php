@@ -1,24 +1,21 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Symplify\Astral\NodeNameResolver;
+namespace RectorPrefix20211213\Symplify\Astral\NodeNameResolver;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
-use RectorPrefix20211110\Symplify\Astral\Contract\NodeNameResolverInterface;
-final class ClassLikeNodeNameResolver implements \RectorPrefix20211110\Symplify\Astral\Contract\NodeNameResolverInterface
+use RectorPrefix20211213\Symplify\Astral\Contract\NodeNameResolverInterface;
+final class ClassLikeNodeNameResolver implements \RectorPrefix20211213\Symplify\Astral\Contract\NodeNameResolverInterface
 {
-    /**
-     * @param \PhpParser\Node $node
-     */
-    public function match($node) : bool
+    public function match(\PhpParser\Node $node) : bool
     {
         return $node instanceof \PhpParser\Node\Stmt\ClassLike;
     }
     /**
-     * @param \PhpParser\Node $node
+     * @param ClassLike $node
      */
-    public function resolve($node) : ?string
+    public function resolve(\PhpParser\Node $node) : ?string
     {
         if (\property_exists($node, 'namespacedName')) {
             return (string) $node->namespacedName;

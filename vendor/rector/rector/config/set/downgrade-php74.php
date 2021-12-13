@@ -1,7 +1,7 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110;
+namespace RectorPrefix20211213;
 
 use Rector\Core\Configuration\Option;
 use Rector\Core\ValueObject\PhpVersion;
@@ -15,6 +15,7 @@ use Rector\DowngradePhp74\Rector\FuncCall\DowngradeStripTagsCallWithArrayRector;
 use Rector\DowngradePhp74\Rector\Identical\DowngradeFreadFwriteFalsyToNegationRector;
 use Rector\DowngradePhp74\Rector\Interface_\DowngradePreviouslyImplementedInterfaceRector;
 use Rector\DowngradePhp74\Rector\LNumber\DowngradeNumericLiteralSeparatorRector;
+use Rector\DowngradePhp74\Rector\MethodCall\DowngradeReflectionGetTypeRector;
 use Rector\DowngradePhp74\Rector\Property\DowngradeTypedPropertyRector;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 return static function (\Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator $containerConfigurator) : void {
@@ -32,4 +33,5 @@ return static function (\Symfony\Component\DependencyInjection\Loader\Configurat
     $services->set(\Rector\DowngradePhp74\Rector\FuncCall\DowngradeArrayMergeCallWithoutArgumentsRector::class);
     $services->set(\Rector\DowngradePhp74\Rector\Identical\DowngradeFreadFwriteFalsyToNegationRector::class);
     $services->set(\Rector\DowngradePhp74\Rector\Interface_\DowngradePreviouslyImplementedInterfaceRector::class);
+    $services->set(\Rector\DowngradePhp74\Rector\MethodCall\DowngradeReflectionGetTypeRector::class);
 };

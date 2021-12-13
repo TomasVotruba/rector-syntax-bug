@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\BetterPhpDocParser\PhpDocManipulator;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node;
 use Rector\BetterPhpDocParser\PhpDoc\DoctrineAnnotationTagValueNode;
 use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo;
@@ -12,6 +12,7 @@ use Rector\BetterPhpDocParser\ValueObject\PhpDoc\DoctrineAnnotation\CurlyListNod
 final class PhpDocClassRenamer
 {
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocParser\ClassAnnotationMatcher
      */
     private $classAnnotationMatcher;
@@ -76,12 +77,12 @@ final class PhpDocClassRenamer
         }
         foreach ($oldToNewClasses as $oldClass => $newClass) {
             $className = $doctrineAnnotationTagValueNode->getSilentValue();
-            if ($className) {
+            if (\is_string($className)) {
                 if ($className === $oldClass) {
                     $doctrineAnnotationTagValueNode->changeSilentValue($newClass);
                     continue;
                 }
-                $newContent = \RectorPrefix20211110\Nette\Utils\Strings::replace($className, '#\\b' . \preg_quote($oldClass, '#') . '\\b#', $newClass);
+                $newContent = \RectorPrefix20211213\Nette\Utils\Strings::replace($className, '#\\b' . \preg_quote($oldClass, '#') . '\\b#', $newClass);
                 if ($newContent === $className) {
                     continue;
                 }

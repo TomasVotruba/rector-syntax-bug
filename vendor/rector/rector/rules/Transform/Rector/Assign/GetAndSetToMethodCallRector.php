@@ -18,13 +18,14 @@ use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\Transform\ValueObject\GetAndSetToMethodCall;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\Assign\GetAndSetToMethodCallRector\GetAndSetToMethodCallRectorTest
  */
 final class GetAndSetToMethodCallRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const TYPE_TO_METHOD_CALLS = 'type_to_method_calls';
@@ -33,10 +34,12 @@ final class GetAndSetToMethodCallRector extends \Rector\Core\Rector\AbstractRect
      */
     private $getAndSetToMethodCalls = [];
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\PropertyFetchAnalyzer
      */
     private $propertyFetchAnalyzer;
     /**
+     * @readonly
      * @var \Rector\Core\NodeManipulator\MagicPropertyFetchAnalyzer
      */
     private $magicPropertyFetchAnalyzer;
@@ -55,7 +58,7 @@ CODE_SAMPLE
 $container = new SomeContainer;
 $container->setService("someService", $someService);
 CODE_SAMPLE
-, [self::TYPE_TO_METHOD_CALLS => [new \Rector\Transform\ValueObject\GetAndSetToMethodCall('SomeContainer', 'addService', 'getService')]])]);
+, [new \Rector\Transform\ValueObject\GetAndSetToMethodCall('SomeContainer', 'addService', 'getService')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -78,12 +81,12 @@ CODE_SAMPLE
         return $this->processPropertyFetch($node);
     }
     /**
-     * @param array<string, GetAndSetToMethodCall[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $getAndSetToMethodCalls = $configuration[self::TYPE_TO_METHOD_CALLS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsAOf($getAndSetToMethodCalls, \Rector\Transform\ValueObject\GetAndSetToMethodCall::class);
+        $getAndSetToMethodCalls = $configuration[self::TYPE_TO_METHOD_CALLS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($getAndSetToMethodCalls, \Rector\Transform\ValueObject\GetAndSetToMethodCall::class);
         $this->getAndSetToMethodCalls = $getAndSetToMethodCalls;
     }
     private function processMagicSet(\PhpParser\Node\Expr $expr, \PhpParser\Node\Expr\PropertyFetch $propertyFetch) : ?\PhpParser\Node

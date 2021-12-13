@@ -19,18 +19,22 @@ use Rector\VendorLocker\NodeVendorLocker\ClassMethodParamVendorLockResolver;
 final class ClassMethodParamTypeCompleter
 {
     /**
+     * @readonly
      * @var \Rector\StaticTypeMapper\StaticTypeMapper
      */
     private $staticTypeMapper;
     /**
+     * @readonly
      * @var \Rector\VendorLocker\NodeVendorLocker\ClassMethodParamVendorLockResolver
      */
     private $classMethodParamVendorLockResolver;
     /**
+     * @readonly
      * @var \Rector\PHPStanStaticTypeMapper\TypeAnalyzer\UnionTypeCommonTypeNarrower
      */
     private $unionTypeCommonTypeNarrower;
     /**
+     * @readonly
      * @var \Rector\Core\Php\PhpVersionProvider
      */
     private $phpVersionProvider;
@@ -67,6 +71,10 @@ final class ClassMethodParamTypeCompleter
     private function shouldSkipArgumentStaticType(\PhpParser\Node\Stmt\ClassMethod $classMethod, \PHPStan\Type\Type $argumentStaticType, int $position, int $maxUnionTypes) : bool
     {
         if ($argumentStaticType instanceof \PHPStan\Type\MixedType) {
+            return \true;
+        }
+        // skip mixed in union type
+        if ($argumentStaticType instanceof \PHPStan\Type\UnionType && $argumentStaticType->isSuperTypeOf(new \PHPStan\Type\MixedType())->yes()) {
             return \true;
         }
         if (!isset($classMethod->params[$position])) {

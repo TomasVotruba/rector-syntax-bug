@@ -1,6 +1,6 @@
 <?php
 
-namespace RectorPrefix20211110\Psr\Http\Message;
+namespace RectorPrefix20211213\Psr\Http\Message;
 
 /**
  * Representation of an incoming, server-side HTTP request.
@@ -40,7 +40,7 @@ namespace RectorPrefix20211110\Psr\Http\Message;
  * be implemented such that they retain the internal state of the current
  * message and return an instance that contains the changed state.
  */
-interface ServerRequestInterface extends \RectorPrefix20211110\Psr\Http\Message\RequestInterface
+interface ServerRequestInterface extends \RectorPrefix20211213\Psr\Http\Message\RequestInterface
 {
     /**
      * Retrieve server parameters.
@@ -80,7 +80,7 @@ interface ServerRequestInterface extends \RectorPrefix20211110\Psr\Http\Message\
      * @param array $cookies Array of key/value pairs representing cookies.
      * @return static
      */
-    public function withCookieParams($cookies);
+    public function withCookieParams(array $cookies);
     /**
      * Retrieve query string arguments.
      *
@@ -116,7 +116,7 @@ interface ServerRequestInterface extends \RectorPrefix20211110\Psr\Http\Message\
      *     $_GET.
      * @return static
      */
-    public function withQueryParams($query);
+    public function withQueryParams(array $query);
     /**
      * Retrieve normalized file upload data.
      *
@@ -141,7 +141,7 @@ interface ServerRequestInterface extends \RectorPrefix20211110\Psr\Http\Message\
      * @return static
      * @throws \InvalidArgumentException if an invalid structure is provided.
      */
-    public function withUploadedFiles($uploadedFiles);
+    public function withUploadedFiles(array $uploadedFiles);
     /**
      * Retrieve any parameters provided in the request body.
      *

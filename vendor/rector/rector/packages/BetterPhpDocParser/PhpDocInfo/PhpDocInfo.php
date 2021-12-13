@@ -26,9 +26,8 @@ use Rector\BetterPhpDocParser\PhpDocNodeVisitor\ChangedPhpDocNodeVisitor;
 use Rector\BetterPhpDocParser\ValueObject\Parser\BetterTokenIterator;
 use Rector\ChangesReporting\Collector\RectorChangeCollector;
 use Rector\Core\Configuration\CurrentNodeProvider;
-use Rector\Core\Exception\NotImplementedYetException;
 use Rector\StaticTypeMapper\StaticTypeMapper;
-use RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser;
+use RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser;
 /**
  * @template TNode as \PHPStan\PhpDocParser\Ast\Node
  * @see \Rector\Tests\BetterPhpDocParser\PhpDocInfo\PhpDocInfo\PhpDocInfoTest
@@ -44,6 +43,7 @@ final class PhpDocInfo
      */
     private $isSingleLine = \false;
     /**
+     * @readonly
      * @var \PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode
      */
     private $originalPhpDocNode;
@@ -52,34 +52,42 @@ final class PhpDocInfo
      */
     private $hasChanged = \false;
     /**
+     * @readonly
      * @var \PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode
      */
     private $phpDocNode;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\ValueObject\Parser\BetterTokenIterator
      */
     private $betterTokenIterator;
     /**
+     * @readonly
      * @var \Rector\StaticTypeMapper\StaticTypeMapper
      */
     private $staticTypeMapper;
     /**
+     * @readonly
      * @var \PhpParser\Node
      */
     private $node;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\Annotation\AnnotationNaming
      */
     private $annotationNaming;
     /**
+     * @readonly
      * @var \Rector\Core\Configuration\CurrentNodeProvider
      */
     private $currentNodeProvider;
     /**
+     * @readonly
      * @var \Rector\ChangesReporting\Collector\RectorChangeCollector
      */
     private $rectorChangeCollector;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocNodeFinder\PhpDocNodeByTypeFinder
      */
     private $phpDocNodeByTypeFinder;
@@ -253,6 +261,20 @@ final class PhpDocInfo
         return $this->getByAnnotationClasses($annotationsClasses) !== null;
     }
     /**
+     * @param string[] $desiredClasses
+     */
+    public function findOneByAnnotationClasses(array $desiredClasses) : ?\Rector\BetterPhpDocParser\PhpDoc\DoctrineAnnotationTagValueNode
+    {
+        foreach ($desiredClasses as $desiredClass) {
+            $doctrineAnnotationTagValueNode = $this->findOneByAnnotationClass($desiredClass);
+            if (!$doctrineAnnotationTagValueNode instanceof \Rector\BetterPhpDocParser\PhpDoc\DoctrineAnnotationTagValueNode) {
+                continue;
+            }
+            return $doctrineAnnotationTagValueNode;
+        }
+        return null;
+    }
+    /**
      * @param class-string $desiredClass
      */
     public function findOneByAnnotationClass(string $desiredClass) : ?\Rector\BetterPhpDocParser\PhpDoc\DoctrineAnnotationTagValueNode
@@ -274,20 +296,20 @@ final class PhpDocInfo
      */
     public function removeByType(string $typeToRemove) : void
     {
-        $phpDocNodeTraverser = new \RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser();
+        $phpDocNodeTraverser = new \RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser();
         $phpDocNodeTraverser->traverseWithCallable($this->phpDocNode, '', function (\PHPStan\PhpDocParser\Ast\Node $node) use($typeToRemove) : ?int {
             if ($node instanceof \PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode && \is_a($node->value, $typeToRemove, \true)) {
                 if ($typeToRemove === \PHPStan\PhpDocParser\Ast\PhpDoc\VarTagValueNode::class && $node->name !== '@var') {
                     return null;
                 }
                 $this->markAsChanged();
-                return \RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser::NODE_REMOVE;
+                return \RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser::NODE_REMOVE;
             }
             if (!\is_a($node, $typeToRemove, \true)) {
                 return null;
             }
             $this->markAsChanged();
-            return \RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser::NODE_REMOVE;
+            return \RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser::NODE_REMOVE;
         });
     }
     /**
@@ -311,6 +333,9 @@ final class PhpDocInfo
             return;
         }
         $name = $this->resolveNameForPhpDocTagValueNode($phpDocTagValueNode);
+        if (!\is_string($name)) {
+            return;
+        }
         $phpDocTagNode = new \PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode($name, $phpDocTagValueNode);
         $this->addPhpDocTagNode($phpDocTagNode);
     }
@@ -395,7 +420,7 @@ final class PhpDocInfo
             return \true;
         }
         // has a single node with missing start_end
-        $phpDocNodeTraverser = new \RectorPrefix20211110\Symplify\SimplePhpDocParser\PhpDocNodeTraverser();
+        $phpDocNodeTraverser = new \RectorPrefix20211213\Symplify\SimplePhpDocParser\PhpDocNodeTraverser();
         $changedPhpDocNodeVisitor = new \Rector\BetterPhpDocParser\PhpDocNodeVisitor\ChangedPhpDocNodeVisitor();
         $phpDocNodeTraverser->addPhpDocNodeVisitor($changedPhpDocNodeVisitor);
         $phpDocNodeTraverser->traverse($this->phpDocNode);
@@ -420,6 +445,16 @@ final class PhpDocInfo
     {
         return $this->node;
     }
+    public function resolveNameForPhpDocTagValueNode(\PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagValueNode $phpDocTagValueNode) : ?string
+    {
+        foreach (self::TAGS_TYPES_TO_NAMES as $tagValueNodeType => $name) {
+            /** @var class-string<PhpDocTagNode> $tagValueNodeType */
+            if (\is_a($phpDocTagValueNode, $tagValueNodeType, \true)) {
+                return $name;
+            }
+        }
+        return null;
+    }
     /**
      * @return \PHPStan\Type\MixedType|\PHPStan\Type\Type
      */
@@ -429,15 +464,5 @@ final class PhpDocInfo
             return new \PHPStan\Type\MixedType();
         }
         return $this->staticTypeMapper->mapPHPStanPhpDocTypeToPHPStanType($phpDocTagValueNode, $this->node);
-    }
-    private function resolveNameForPhpDocTagValueNode(\PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagValueNode $phpDocTagValueNode) : string
-    {
-        foreach (self::TAGS_TYPES_TO_NAMES as $tagValueNodeType => $name) {
-            /** @var class-string<PhpDocTagNode> $tagValueNodeType */
-            if (\is_a($phpDocTagValueNode, $tagValueNodeType, \true)) {
-                return $name;
-            }
-        }
-        throw new \Rector\Core\Exception\NotImplementedYetException(\get_class($phpDocTagValueNode));
     }
 }

@@ -19,13 +19,18 @@ use Rector\NodeNameResolver\NodeNameResolver;
 use Rector\NodeTypeResolver\Contract\NodeTypeResolverInterface;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType;
+/**
+ * @implements NodeTypeResolverInterface<New_>
+ */
 final class NewTypeResolver implements \Rector\NodeTypeResolver\Contract\NodeTypeResolverInterface
 {
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\ClassAnalyzer
      */
     private $classAnalyzer;
@@ -42,9 +47,9 @@ final class NewTypeResolver implements \Rector\NodeTypeResolver\Contract\NodeTyp
         return [\PhpParser\Node\Expr\New_::class];
     }
     /**
-     * @param \PhpParser\Node $node
+     * @param New_ $node
      */
-    public function resolve($node) : \PHPStan\Type\Type
+    public function resolve(\PhpParser\Node $node) : \PHPStan\Type\Type
     {
         if ($node->class instanceof \PhpParser\Node\Name) {
             $className = $this->nodeNameResolver->getName($node->class);

@@ -1,21 +1,21 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Symplify\Astral\NodeValue\NodeValueResolver;
+namespace RectorPrefix20211213\Symplify\Astral\NodeValue\NodeValueResolver;
 
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Stmt\ClassLike;
 use ReflectionClassConstant;
-use RectorPrefix20211110\Symplify\Astral\Contract\NodeValueResolver\NodeValueResolverInterface;
-use RectorPrefix20211110\Symplify\Astral\Naming\SimpleNameResolver;
-use RectorPrefix20211110\Symplify\Astral\NodeFinder\SimpleNodeFinder;
+use RectorPrefix20211213\Symplify\Astral\Contract\NodeValueResolver\NodeValueResolverInterface;
+use RectorPrefix20211213\Symplify\Astral\Naming\SimpleNameResolver;
+use RectorPrefix20211213\Symplify\Astral\NodeFinder\SimpleNodeFinder;
 /**
  * @see \Symplify\Astral\Tests\NodeValue\NodeValueResolverTest
  *
  * @implements NodeValueResolverInterface<ClassConstFetch>
  */
-final class ClassConstFetchValueResolver implements \RectorPrefix20211110\Symplify\Astral\Contract\NodeValueResolver\NodeValueResolverInterface
+final class ClassConstFetchValueResolver implements \RectorPrefix20211213\Symplify\Astral\Contract\NodeValueResolver\NodeValueResolverInterface
 {
     /**
      * @var \Symplify\Astral\Naming\SimpleNameResolver
@@ -25,7 +25,7 @@ final class ClassConstFetchValueResolver implements \RectorPrefix20211110\Sympli
      * @var \Symplify\Astral\NodeFinder\SimpleNodeFinder
      */
     private $simpleNodeFinder;
-    public function __construct(\RectorPrefix20211110\Symplify\Astral\Naming\SimpleNameResolver $simpleNameResolver, \RectorPrefix20211110\Symplify\Astral\NodeFinder\SimpleNodeFinder $simpleNodeFinder)
+    public function __construct(\RectorPrefix20211213\Symplify\Astral\Naming\SimpleNameResolver $simpleNameResolver, \RectorPrefix20211213\Symplify\Astral\NodeFinder\SimpleNodeFinder $simpleNodeFinder)
     {
         $this->simpleNameResolver = $simpleNameResolver;
         $this->simpleNodeFinder = $simpleNodeFinder;
@@ -35,11 +35,10 @@ final class ClassConstFetchValueResolver implements \RectorPrefix20211110\Sympli
         return \PhpParser\Node\Expr\ClassConstFetch::class;
     }
     /**
-     * @param \PhpParser\Node\Expr $expr
+     * @param ClassConstFetch $expr
      * @return null|string|mixed
-     * @param string $currentFilePath
      */
-    public function resolve($expr, $currentFilePath)
+    public function resolve(\PhpParser\Node\Expr $expr, string $currentFilePath)
     {
         $className = $this->simpleNameResolver->getName($expr->class);
         if ($className === 'self') {

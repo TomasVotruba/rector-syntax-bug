@@ -16,13 +16,14 @@ use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\CodingStyle\Rector\ClassMethod\OrderAttributesRector\OrderAttributesRectorTest
  */
 final class OrderAttributesRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const ATTRIBUTES_ORDER = 'attributes_order';
@@ -46,7 +47,7 @@ class Someclass
 {
 }
 CODE_SAMPLE
-, [self::ATTRIBUTES_ORDER => ['First', 'Second']])]);
+, ['First', 'Second'])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -77,13 +78,13 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, mixed> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $attributesOrder = $configuration[self::ATTRIBUTES_ORDER] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::isArray($attributesOrder);
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allString($attributesOrder);
+        $attributesOrder = $configuration[self::ATTRIBUTES_ORDER] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($attributesOrder);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($attributesOrder);
         $this->attributesOrderByName = \array_flip($attributesOrder);
     }
     private function resolveAttributeGroupPosition(\PhpParser\Node\AttributeGroup $attributeGroup) : int

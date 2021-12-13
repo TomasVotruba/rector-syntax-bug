@@ -13,7 +13,6 @@ use Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory;
 use Rector\Core\Exception\ShouldNotHappenException;
 use Rector\Core\Provider\CurrentFileProvider;
 use Rector\Core\ValueObject\Application\File;
-use Rector\Core\ValueObject\Application\RectorError;
 use Rector\NodeNameResolver\NodeNameResolver;
 use Rector\Symfony\DataProvider\ServiceMapProvider;
 use Rector\Symfony\ValueObject\ServiceMap\ServiceMap;
@@ -50,12 +49,10 @@ final class JMSDITypeResolver
     public function resolve(\PhpParser\Node\Stmt\Property $property, \Rector\BetterPhpDocParser\PhpDoc\DoctrineAnnotationTagValueNode $doctrineAnnotationTagValueNode) : \PHPStan\Type\Type
     {
         $serviceMap = $this->serviceMapProvider->provide();
-        $serviceName = ($doctrineAnnotationTagValueNode->getValueWithoutQuotes('serviceName') ?: $doctrineAnnotationTagValueNode->getSilentValue()) ?: $this->nodeNameResolver->getName($property);
-        if ($serviceName) {
-            $serviceType = $this->resolveFromServiceName($serviceName, $serviceMap);
-            if (!$serviceType instanceof \PHPStan\Type\MixedType) {
-                return $serviceType;
-            }
+        $serviceName = $this->resolveServiceName($doctrineAnnotationTagValueNode, $property);
+        $serviceType = $this->resolveFromServiceName($serviceName, $serviceMap);
+        if (!$serviceType instanceof \PHPStan\Type\MixedType) {
+            return $serviceType;
         }
         // 3. service is in @var annotation
         $phpDocInfo = $this->phpDocInfoFactory->createFromNodeOrEmpty($property);
@@ -64,10 +61,10 @@ final class JMSDITypeResolver
             return $varType;
         }
         // the @var is missing and service name was not found → report it
-        $this->reportServiceNotFound($serviceName, $property);
+        $this->reportServiceNotFound($serviceName);
         return new \PHPStan\Type\MixedType();
     }
-    private function reportServiceNotFound(?string $serviceName, \PhpParser\Node\Stmt\Property $property) : void
+    private function reportServiceNotFound(?string $serviceName) : void
     {
         if ($serviceName !== null) {
             return;
@@ -77,8 +74,7 @@ final class JMSDITypeResolver
             throw new \Rector\Core\Exception\ShouldNotHappenException();
         }
         $errorMessage = \sprintf('Service "%s" was not found in DI Container of your Symfony App.', $serviceName);
-        $rectorError = new \Rector\Core\ValueObject\Application\RectorError($errorMessage, $file->getSmartFileInfo(), $property->getLine());
-        $file->addRectorError($rectorError);
+        throw new \Rector\Core\Exception\ShouldNotHappenException($errorMessage);
     }
     private function resolveFromServiceName(string $serviceName, \Rector\Symfony\ValueObject\ServiceMap\ServiceMap $serviceMap) : \PHPStan\Type\Type
     {
@@ -95,5 +91,17 @@ final class JMSDITypeResolver
             }
         }
         return new \PHPStan\Type\MixedType();
+    }
+    private function resolveServiceName(\Rector\BetterPhpDocParser\PhpDoc\DoctrineAnnotationTagValueNode $doctrineAnnotationTagValueNode, \PhpParser\Node\Stmt\Property $property) : string
+    {
+        $serviceNameParameter = $doctrineAnnotationTagValueNode->getValueWithoutQuotes('serviceName');
+        if (\is_string($serviceNameParameter)) {
+            return $serviceNameParameter;
+        }
+        $silentValue = $doctrineAnnotationTagValueNode->getSilentValue();
+        if (\is_string($silentValue)) {
+            return $silentValue;
+        }
+        return $this->nodeNameResolver->getName($property);
     }
 }

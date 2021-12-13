@@ -8,32 +8,59 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Console\Helper;
+namespace RectorPrefix20211213\Symfony\Component\Console\Helper;
 
-use RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidArgumentException;
-use RectorPrefix20211110\Symfony\Component\Console\Exception\LogicException;
-use RectorPrefix20211110\Symfony\Component\Console\Output\OutputInterface;
+use RectorPrefix20211213\Symfony\Component\Console\Exception\InvalidArgumentException;
+use RectorPrefix20211213\Symfony\Component\Console\Exception\LogicException;
+use RectorPrefix20211213\Symfony\Component\Console\Output\OutputInterface;
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
  */
 class ProgressIndicator
 {
+    private const FORMATS = ['normal' => ' %indicator% %message%', 'normal_no_ansi' => ' %message%', 'verbose' => ' %indicator% %message% (%elapsed:6s%)', 'verbose_no_ansi' => ' %message% (%elapsed:6s%)', 'very_verbose' => ' %indicator% %message% (%elapsed:6s%, %memory:6s%)', 'very_verbose_no_ansi' => ' %message% (%elapsed:6s%, %memory:6s%)'];
     private $output;
+    /**
+     * @var int
+     */
     private $startTime;
+    /**
+     * @var string|null
+     */
     private $format;
+    /**
+     * @var string|null
+     */
     private $message;
+    /**
+     * @var mixed[]
+     */
     private $indicatorValues;
+    /**
+     * @var int
+     */
     private $indicatorCurrent;
+    /**
+     * @var int
+     */
     private $indicatorChangeInterval;
+    /**
+     * @var float
+     */
     private $indicatorUpdateTime;
+    /**
+     * @var bool
+     */
     private $started = \false;
+    /**
+     * @var array<string, callable>
+     */
     private static $formatters;
-    private static $formats;
     /**
      * @param int        $indicatorChangeInterval Change interval in milliseconds
      * @param array|null $indicatorValues         Animated indicator characters
      */
-    public function __construct(\RectorPrefix20211110\Symfony\Component\Console\Output\OutputInterface $output, string $format = null, int $indicatorChangeInterval = 100, array $indicatorValues = null)
+    public function __construct(\RectorPrefix20211213\Symfony\Component\Console\Output\OutputInterface $output, string $format = null, int $indicatorChangeInterval = 100, array $indicatorValues = null)
     {
         $this->output = $output;
         if (null === $format) {
@@ -44,7 +71,7 @@ class ProgressIndicator
         }
         $indicatorValues = \array_values($indicatorValues);
         if (2 > \count($indicatorValues)) {
-            throw new \RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidArgumentException('Must have at least 2 indicator value characters.');
+            throw new \RectorPrefix20211213\Symfony\Component\Console\Exception\InvalidArgumentException('Must have at least 2 indicator value characters.');
         }
         $this->format = self::getFormatDefinition($format);
         $this->indicatorChangeInterval = $indicatorChangeInterval;
@@ -53,21 +80,19 @@ class ProgressIndicator
     }
     /**
      * Sets the current indicator message.
-     * @param string|null $message
      */
-    public function setMessage($message)
+    public function setMessage(?string $message)
     {
         $this->message = $message;
         $this->display();
     }
     /**
      * Starts the indicator output.
-     * @param string $message
      */
-    public function start($message)
+    public function start(string $message)
     {
         if ($this->started) {
-            throw new \RectorPrefix20211110\Symfony\Component\Console\Exception\LogicException('Progress indicator already started.');
+            throw new \RectorPrefix20211213\Symfony\Component\Console\Exception\LogicException('Progress indicator already started.');
         }
         $this->message = $message;
         $this->started = \true;
@@ -82,7 +107,7 @@ class ProgressIndicator
     public function advance()
     {
         if (!$this->started) {
-            throw new \RectorPrefix20211110\Symfony\Component\Console\Exception\LogicException('Progress indicator has not yet been started.');
+            throw new \RectorPrefix20211213\Symfony\Component\Console\Exception\LogicException('Progress indicator has not yet been started.');
         }
         if (!$this->output->isDecorated()) {
             return;
@@ -100,10 +125,10 @@ class ProgressIndicator
      *
      * @param $message
      */
-    public function finish($message)
+    public function finish(string $message)
     {
         if (!$this->started) {
-            throw new \RectorPrefix20211110\Symfony\Component\Console\Exception\LogicException('Progress indicator has not yet been started.');
+            throw new \RectorPrefix20211213\Symfony\Component\Console\Exception\LogicException('Progress indicator has not yet been started.');
         }
         $this->message = $message;
         $this->display();
@@ -112,47 +137,32 @@ class ProgressIndicator
     }
     /**
      * Gets the format for a given name.
-     *
-     * @return string|null A format string
-     * @param string $name
      */
-    public static function getFormatDefinition($name)
+    public static function getFormatDefinition(string $name) : ?string
     {
-        if (!self::$formats) {
-            self::$formats = self::initFormats();
-        }
-        return self::$formats[$name] ?? null;
+        return self::FORMATS[$name] ?? null;
     }
     /**
      * Sets a placeholder formatter for a given name.
      *
      * This method also allow you to override an existing placeholder.
-     * @param string $name
-     * @param callable $callable
      */
-    public static function setPlaceholderFormatterDefinition($name, $callable)
+    public static function setPlaceholderFormatterDefinition(string $name, callable $callable)
     {
-        if (!self::$formatters) {
-            self::$formatters = self::initPlaceholderFormatters();
-        }
+        self::$formatters = self::$formatters ?? self::initPlaceholderFormatters();
         self::$formatters[$name] = $callable;
     }
     /**
      * Gets the placeholder formatter for a given name (including the delimiter char like %).
-     *
-     * @return callable|null A PHP callable
-     * @param string $name
      */
-    public static function getPlaceholderFormatterDefinition($name)
+    public static function getPlaceholderFormatterDefinition(string $name) : ?callable
     {
-        if (!self::$formatters) {
-            self::$formatters = self::initPlaceholderFormatters();
-        }
+        self::$formatters = self::$formatters ?? self::initPlaceholderFormatters();
         return self::$formatters[$name] ?? null;
     }
     private function display()
     {
-        if (\RectorPrefix20211110\Symfony\Component\Console\Output\OutputInterface::VERBOSITY_QUIET === $this->output->getVerbosity()) {
+        if (\RectorPrefix20211213\Symfony\Component\Console\Output\OutputInterface::VERBOSITY_QUIET === $this->output->getVerbosity()) {
             return;
         }
         $this->overwrite(\preg_replace_callback("{%([a-z\\-_]+)(?:\\:([^%]+))?%}i", function ($matches) {
@@ -166,10 +176,10 @@ class ProgressIndicator
     {
         switch ($this->output->getVerbosity()) {
             // OutputInterface::VERBOSITY_QUIET: display is disabled anyway
-            case \RectorPrefix20211110\Symfony\Component\Console\Output\OutputInterface::VERBOSITY_VERBOSE:
+            case \RectorPrefix20211213\Symfony\Component\Console\Output\OutputInterface::VERBOSITY_VERBOSE:
                 return $this->output->isDecorated() ? 'verbose' : 'verbose_no_ansi';
-            case \RectorPrefix20211110\Symfony\Component\Console\Output\OutputInterface::VERBOSITY_VERY_VERBOSE:
-            case \RectorPrefix20211110\Symfony\Component\Console\Output\OutputInterface::VERBOSITY_DEBUG:
+            case \RectorPrefix20211213\Symfony\Component\Console\Output\OutputInterface::VERBOSITY_VERY_VERBOSE:
+            case \RectorPrefix20211213\Symfony\Component\Console\Output\OutputInterface::VERBOSITY_DEBUG:
                 return $this->output->isDecorated() ? 'very_verbose' : 'very_verbose_no_ansi';
             default:
                 return $this->output->isDecorated() ? 'normal' : 'normal_no_ansi';
@@ -191,6 +201,9 @@ class ProgressIndicator
     {
         return \round(\microtime(\true) * 1000);
     }
+    /**
+     * @return array<string, \Closure>
+     */
     private static function initPlaceholderFormatters() : array
     {
         return ['indicator' => function (self $indicator) {
@@ -198,13 +211,9 @@ class ProgressIndicator
         }, 'message' => function (self $indicator) {
             return $indicator->message;
         }, 'elapsed' => function (self $indicator) {
-            return \RectorPrefix20211110\Symfony\Component\Console\Helper\Helper::formatTime(\time() - $indicator->startTime);
+            return \RectorPrefix20211213\Symfony\Component\Console\Helper\Helper::formatTime(\time() - $indicator->startTime);
         }, 'memory' => function () {
-            return \RectorPrefix20211110\Symfony\Component\Console\Helper\Helper::formatMemory(\memory_get_usage(\true));
+            return \RectorPrefix20211213\Symfony\Component\Console\Helper\Helper::formatMemory(\memory_get_usage(\true));
         }];
-    }
-    private static function initFormats() : array
-    {
-        return ['normal' => ' %indicator% %message%', 'normal_no_ansi' => ' %message%', 'verbose' => ' %indicator% %message% (%elapsed:6s%)', 'verbose_no_ansi' => ' %message% (%elapsed:6s%)', 'very_verbose' => ' %indicator% %message% (%elapsed:6s%, %memory:6s%)', 'very_verbose_no_ansi' => ' %message% (%elapsed:6s%, %memory:6s%)'];
     }
 }

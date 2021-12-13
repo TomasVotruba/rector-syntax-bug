@@ -5,43 +5,45 @@
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 declare (strict_types=1);
-namespace RectorPrefix20211110\Nette\Utils;
+namespace RectorPrefix20211213\Nette\Utils;
 
-use RectorPrefix20211110\Nette;
-use RectorPrefix20211110\Nette\MemberAccessException;
+use RectorPrefix20211213\Nette;
+use RectorPrefix20211213\Nette\MemberAccessException;
 /**
  * Nette\SmartObject helpers.
  */
 final class ObjectHelpers
 {
     use Nette\StaticClass;
-    /** @throws MemberAccessException
-     * @param string $class
-     * @param string $name */
-    public static function strictGet($class, $name) : void
+    /**
+     * @return never
+     * @throws MemberAccessException
+     */
+    public static function strictGet(string $class, string $name) : void
     {
         $rc = new \ReflectionClass($class);
         $hint = self::getSuggestion(\array_merge(\array_filter($rc->getProperties(\ReflectionProperty::IS_PUBLIC), function ($p) {
             return !$p->isStatic();
         }), self::parseFullDoc($rc, '~^[ \\t*]*@property(?:-read)?[ \\t]+(?:\\S+[ \\t]+)??\\$(\\w+)~m')), $name);
-        throw new \RectorPrefix20211110\Nette\MemberAccessException("Cannot read an undeclared property {$class}::\${$name}" . ($hint ? ", did you mean \${$hint}?" : '.'));
+        throw new \RectorPrefix20211213\Nette\MemberAccessException("Cannot read an undeclared property {$class}::\${$name}" . ($hint ? ", did you mean \${$hint}?" : '.'));
     }
-    /** @throws MemberAccessException
-     * @param string $class
-     * @param string $name */
-    public static function strictSet($class, $name) : void
+    /**
+     * @return never
+     * @throws MemberAccessException
+     */
+    public static function strictSet(string $class, string $name) : void
     {
         $rc = new \ReflectionClass($class);
         $hint = self::getSuggestion(\array_merge(\array_filter($rc->getProperties(\ReflectionProperty::IS_PUBLIC), function ($p) {
             return !$p->isStatic();
         }), self::parseFullDoc($rc, '~^[ \\t*]*@property(?:-write)?[ \\t]+(?:\\S+[ \\t]+)??\\$(\\w+)~m')), $name);
-        throw new \RectorPrefix20211110\Nette\MemberAccessException("Cannot write to an undeclared property {$class}::\${$name}" . ($hint ? ", did you mean \${$hint}?" : '.'));
+        throw new \RectorPrefix20211213\Nette\MemberAccessException("Cannot write to an undeclared property {$class}::\${$name}" . ($hint ? ", did you mean \${$hint}?" : '.'));
     }
-    /** @throws MemberAccessException
-     * @param string $class
-     * @param string $method
-     * @param mixed[] $additionalMethods */
-    public static function strictCall($class, $method, $additionalMethods = []) : void
+    /**
+     * @return never
+     * @throws MemberAccessException
+     */
+    public static function strictCall(string $class, string $method, array $additionalMethods = []) : void
     {
         $trace = \debug_backtrace(0, 3);
         // suppose this method is called from __call()
@@ -54,16 +56,17 @@ final class ObjectHelpers
             // insufficient visibility
             $rm = new \ReflectionMethod($class, $method);
             $visibility = $rm->isPrivate() ? 'private ' : ($rm->isProtected() ? 'protected ' : '');
-            throw new \RectorPrefix20211110\Nette\MemberAccessException("Call to {$visibility}method {$class}::{$method}() from " . ($context ? "scope {$context}." : 'global scope.'));
+            throw new \RectorPrefix20211213\Nette\MemberAccessException("Call to {$visibility}method {$class}::{$method}() from " . ($context ? "scope {$context}." : 'global scope.'));
         } else {
             $hint = self::getSuggestion(\array_merge(\get_class_methods($class), self::parseFullDoc(new \ReflectionClass($class), '~^[ \\t*]*@method[ \\t]+(?:\\S+[ \\t]+)??(\\w+)\\(~m'), $additionalMethods), $method);
-            throw new \RectorPrefix20211110\Nette\MemberAccessException("Call to undefined method {$class}::{$method}()" . ($hint ? ", did you mean {$hint}()?" : '.'));
+            throw new \RectorPrefix20211213\Nette\MemberAccessException("Call to undefined method {$class}::{$method}()" . ($hint ? ", did you mean {$hint}()?" : '.'));
         }
     }
-    /** @throws MemberAccessException
-     * @param string $class
-     * @param string $method */
-    public static function strictStaticCall($class, $method) : void
+    /**
+     * @return never
+     * @throws MemberAccessException
+     */
+    public static function strictStaticCall(string $class, string $method) : void
     {
         $trace = \debug_backtrace(0, 3);
         // suppose this method is called from __callStatic()
@@ -76,21 +79,20 @@ final class ObjectHelpers
             // insufficient visibility
             $rm = new \ReflectionMethod($class, $method);
             $visibility = $rm->isPrivate() ? 'private ' : ($rm->isProtected() ? 'protected ' : '');
-            throw new \RectorPrefix20211110\Nette\MemberAccessException("Call to {$visibility}method {$class}::{$method}() from " . ($context ? "scope {$context}." : 'global scope.'));
+            throw new \RectorPrefix20211213\Nette\MemberAccessException("Call to {$visibility}method {$class}::{$method}() from " . ($context ? "scope {$context}." : 'global scope.'));
         } else {
             $hint = self::getSuggestion(\array_filter((new \ReflectionClass($class))->getMethods(\ReflectionMethod::IS_PUBLIC), function ($m) {
                 return $m->isStatic();
             }), $method);
-            throw new \RectorPrefix20211110\Nette\MemberAccessException("Call to undefined static method {$class}::{$method}()" . ($hint ? ", did you mean {$hint}()?" : '.'));
+            throw new \RectorPrefix20211213\Nette\MemberAccessException("Call to undefined static method {$class}::{$method}()" . ($hint ? ", did you mean {$hint}()?" : '.'));
         }
     }
     /**
      * Returns array of magic properties defined by annotation @property.
      * @return array of [name => bit mask]
      * @internal
-     * @param string $class
      */
-    public static function getMagicProperties($class) : array
+    public static function getMagicProperties(string $class) : array
     {
         static $cache;
         $props =& $cache[$class];
@@ -120,9 +122,8 @@ final class ObjectHelpers
      * Finds the best suggestion (for 8-bit encoding).
      * @param  (\ReflectionFunctionAbstract|\ReflectionParameter|\ReflectionClass|\ReflectionProperty|string)[]  $possibilities
      * @internal
-     * @param string $value
      */
-    public static function getSuggestion($possibilities, $value) : ?string
+    public static function getSuggestion(array $possibilities, string $value) : ?string
     {
         $norm = \preg_replace($re = '#^(get|set|has|is|add)(?=[A-Z])#', '+', $value);
         $best = null;
@@ -152,10 +153,8 @@ final class ObjectHelpers
      * Checks if the public non-static property exists.
      * @return bool|string returns 'event' if the property exists and has event like name
      * @internal
-     * @param string $class
-     * @param string $name
      */
-    public static function hasProperty($class, $name)
+    public static function hasProperty(string $class, string $name)
     {
         static $cache;
         $prop =& $cache[$class][$name];

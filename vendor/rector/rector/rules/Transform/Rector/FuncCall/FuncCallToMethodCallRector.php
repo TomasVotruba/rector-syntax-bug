@@ -13,13 +13,14 @@ use Rector\Transform\NodeAnalyzer\FuncCallStaticCallToMethodCallAnalyzer;
 use Rector\Transform\ValueObject\FuncCallToMethodCall;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\FuncCall\FuncCallToMethodCallRector\FuncCallToMethodCallRectorTest
  */
 final class FuncCallToMethodCallRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const FUNC_CALL_TO_CLASS_METHOD_CALL = 'function_to_class_to_method_call';
@@ -28,6 +29,7 @@ final class FuncCallToMethodCallRector extends \Rector\Core\Rector\AbstractRecto
      */
     private $funcNameToMethodCallNames = [];
     /**
+     * @readonly
      * @var \Rector\Transform\NodeAnalyzer\FuncCallStaticCallToMethodCallAnalyzer
      */
     private $funcCallStaticCallToMethodCallAnalyzer;
@@ -65,7 +67,7 @@ class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::FUNC_CALL_TO_CLASS_METHOD_CALL => [new \Rector\Transform\ValueObject\FuncCallToMethodCall('view', 'Namespaced\\SomeRenderer', 'render')]])]);
+, [new \Rector\Transform\ValueObject\FuncCallToMethodCall('view', 'Namespaced\\SomeRenderer', 'render')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -100,13 +102,13 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, FuncCallToMethodCall[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $funcCallsToClassMethodCalls = $configuration[self::FUNC_CALL_TO_CLASS_METHOD_CALL] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::isArray($funcCallsToClassMethodCalls);
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($funcCallsToClassMethodCalls, \Rector\Transform\ValueObject\FuncCallToMethodCall::class);
+        $funcCallsToClassMethodCalls = $configuration[self::FUNC_CALL_TO_CLASS_METHOD_CALL] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($funcCallsToClassMethodCalls);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($funcCallsToClassMethodCalls, \Rector\Transform\ValueObject\FuncCallToMethodCall::class);
         $this->funcNameToMethodCallNames = $funcCallsToClassMethodCalls;
     }
 }

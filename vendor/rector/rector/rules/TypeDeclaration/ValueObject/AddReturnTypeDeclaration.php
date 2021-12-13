@@ -5,17 +5,21 @@ namespace Rector\TypeDeclaration\ValueObject;
 
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
+use Rector\Core\Validation\RectorAssert;
 final class AddReturnTypeDeclaration
 {
     /**
+     * @readonly
      * @var string
      */
     private $class;
     /**
+     * @readonly
      * @var string
      */
     private $method;
     /**
+     * @readonly
      * @var \PHPStan\Type\Type
      */
     private $returnType;
@@ -24,6 +28,7 @@ final class AddReturnTypeDeclaration
         $this->class = $class;
         $this->method = $method;
         $this->returnType = $returnType;
+        \Rector\Core\Validation\RectorAssert::className($class);
     }
     public function getClass() : string
     {

@@ -26,10 +26,12 @@ final class MockeryCreateMockToProphizeRector extends \Rector\Core\Rector\Abstra
      */
     private $mockVariableTypesByNames = [];
     /**
+     * @readonly
      * @var \Rector\MockeryToProphecy\Collector\MockVariableCollector
      */
     private $mockVariableCollector;
     /**
+     * @readonly
      * @var \Rector\PHPUnit\NodeAnalyzer\TestsNodeAnalyzer
      */
     private $testsNodeAnalyzer;
@@ -89,7 +91,10 @@ CODE_SAMPLE
                 return null;
             }
             $collectedVariableTypesByNames = $this->mockVariableCollector->collectMockVariableName($node);
-            $this->mockVariableTypesByNames = \array_merge($this->mockVariableTypesByNames, $collectedVariableTypesByNames);
+            $item0Unpacked = $this->mockVariableTypesByNames;
+            /** @var array<string, class-string> $result */
+            $result = \array_merge($item0Unpacked, $collectedVariableTypesByNames);
+            $this->mockVariableTypesByNames = $result;
             $parentNode = $node->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::PARENT_NODE);
             if ($parentNode instanceof \PhpParser\Node\Arg) {
                 $prophesizeMethodCall = $this->createProphesizeMethodCall($node);
@@ -103,7 +108,7 @@ CODE_SAMPLE
         if ($classMethod->stmts === null) {
             return;
         }
-        $this->traverseNodesWithCallable($classMethod->stmts, function (\PhpParser\Node $node) : ?MethodCall {
+        $this->traverseNodesWithCallable($classMethod->stmts, function (\PhpParser\Node $node) : ?Arg {
             if (!$node instanceof \PhpParser\Node\Arg) {
                 return null;
             }
@@ -115,7 +120,9 @@ CODE_SAMPLE
             if (!isset($this->mockVariableTypesByNames[$variableName])) {
                 return null;
             }
-            return $this->nodeFactory->createMethodCall($node->value, 'reveal');
+            $methodCall = $this->nodeFactory->createMethodCall($node->value, 'reveal');
+            $node->value = $methodCall;
+            return $node;
         });
     }
     private function createProphesizeMethodCall(\PhpParser\Node\Expr\StaticCall $staticCall) : \PhpParser\Node\Expr\MethodCall

@@ -1,15 +1,14 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110;
+namespace RectorPrefix20211213;
 
 use Rector\Renaming\Rector\MethodCall\RenameMethodRector;
 use Rector\Renaming\ValueObject\MethodCallRename;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symplify\SymfonyPhpConfig\ValueObjectInliner;
 return static function (\Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator $containerConfigurator) : void {
     $services = $containerConfigurator->services();
-    $services->set(\Rector\Renaming\Rector\MethodCall\RenameMethodRector::class)->call('configure', [[\Rector\Renaming\Rector\MethodCall\RenameMethodRector::METHOD_CALL_RENAMES => \Symplify\SymfonyPhpConfig\ValueObjectInliner::inline([
+    $services->set(\Rector\Renaming\Rector\MethodCall\RenameMethodRector::class)->configure([
         // Rename is now move, specific for files.
         new \Rector\Renaming\ValueObject\MethodCallRename('League\\Flysystem\\FilesystemInterface', 'rename', 'move'),
         // No arbitrary abbreviations
@@ -25,5 +24,5 @@ return static function (\Symfony\Component\DependencyInjection\Loader\Configurat
         new \Rector\Renaming\ValueObject\MethodCallRename('League\\Flysystem\\FilesystemInterface', 'getMimetype', 'mimeType'),
         new \Rector\Renaming\ValueObject\MethodCallRename('League\\Flysystem\\FilesystemInterface', 'getSize', 'fileSize'),
         new \Rector\Renaming\ValueObject\MethodCallRename('League\\Flysystem\\FilesystemInterface', 'getVisibility', 'visibility'),
-    ])]]);
+    ]);
 };

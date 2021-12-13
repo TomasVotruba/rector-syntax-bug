@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\CodingStyle\Rector\Encapsed;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use const PHP_EOL;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
@@ -77,7 +77,7 @@ CODE_SAMPLE
         foreach ($node->parts as $part) {
             if ($part instanceof \PhpParser\Node\Scalar\EncapsedStringPart) {
                 $this->collectEncapsedStringPart($part);
-            } elseif ($part instanceof \PhpParser\Node\Expr) {
+            } else {
                 $this->collectExpr($part);
             }
         }
@@ -91,7 +91,7 @@ CODE_SAMPLE
             $this->sprintfFormat .= '%s';
             return;
         }
-        $this->sprintfFormat .= \RectorPrefix20211110\Nette\Utils\Strings::replace($stringValue, '#%#', '%%');
+        $this->sprintfFormat .= \RectorPrefix20211213\Nette\Utils\Strings::replace($stringValue, '#%#', '%%');
     }
     private function collectExpr(\PhpParser\Node\Expr $expr) : void
     {

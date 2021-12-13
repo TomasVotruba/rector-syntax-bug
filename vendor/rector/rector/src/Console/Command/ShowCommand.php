@@ -7,17 +7,19 @@ use Rector\Core\Contract\Console\OutputStyleInterface;
 use Rector\Core\Contract\Rector\RectorInterface;
 use Rector\PostRector\Contract\Rector\ComplementaryRectorInterface;
 use Rector\PostRector\Contract\Rector\PostRectorInterface;
-use RectorPrefix20211110\Symfony\Component\Console\Command\Command;
-use RectorPrefix20211110\Symfony\Component\Console\Input\InputInterface;
-use RectorPrefix20211110\Symfony\Component\Console\Output\OutputInterface;
-final class ShowCommand extends \RectorPrefix20211110\Symfony\Component\Console\Command\Command
+use RectorPrefix20211213\Symfony\Component\Console\Command\Command;
+use RectorPrefix20211213\Symfony\Component\Console\Input\InputInterface;
+use RectorPrefix20211213\Symfony\Component\Console\Output\OutputInterface;
+final class ShowCommand extends \RectorPrefix20211213\Symfony\Component\Console\Command\Command
 {
     /**
+     * @readonly
      * @var \Rector\Core\Contract\Console\OutputStyleInterface
      */
     private $outputStyle;
     /**
      * @var \Rector\Core\Contract\Rector\RectorInterface[]
+     * @readonly
      */
     private $rectors;
     /**
@@ -33,11 +35,7 @@ final class ShowCommand extends \RectorPrefix20211110\Symfony\Component\Console\
     {
         $this->setDescription('Show loaded Rectors with their configuration');
     }
-    /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
-     */
-    protected function execute($input, $output) : int
+    protected function execute(\RectorPrefix20211213\Symfony\Component\Console\Input\InputInterface $input, \RectorPrefix20211213\Symfony\Component\Console\Output\OutputInterface $output) : int
     {
         $this->outputStyle->title('Loaded Rector rules');
         $rectors = \array_filter($this->rectors, function (\Rector\Core\Contract\Rector\RectorInterface $rector) : bool {
@@ -58,6 +56,6 @@ final class ShowCommand extends \RectorPrefix20211110\Symfony\Component\Console\
         }
         $message = \sprintf('%d loaded Rectors', $rectorCount);
         $this->outputStyle->success($message);
-        return \RectorPrefix20211110\Symfony\Component\Console\Command\Command::SUCCESS;
+        return \RectorPrefix20211213\Symfony\Component\Console\Command\Command::SUCCESS;
     }
 }

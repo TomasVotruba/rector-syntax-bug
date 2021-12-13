@@ -19,10 +19,12 @@ final class ScopeNestingComparator
      */
     private $doubleIfBranchExprs = [];
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Comparing\NodeComparator
      */
     private $nodeComparator;
@@ -68,13 +70,13 @@ final class ScopeNestingComparator
         if (!$foundParentNode instanceof \PhpParser\Node\Stmt\If_) {
             return \false;
         }
-        $foundIfNode = $this->betterNodeFinder->find($foundParentNode->stmts, function ($node) use($seekedExpr) : bool {
+        $foundIfNode = (bool) $this->betterNodeFinder->findFirst($foundParentNode->stmts, function ($node) use($seekedExpr) : bool {
             return $this->nodeComparator->areNodesEqual($node, $seekedExpr);
         });
         if ($foundParentNode->else === null) {
             return \false;
         }
-        $foundElseNode = $this->betterNodeFinder->find($foundParentNode->else, function ($node) use($seekedExpr) : bool {
+        $foundElseNode = (bool) $this->betterNodeFinder->findFirst($foundParentNode->else, function ($node) use($seekedExpr) : bool {
             return $this->nodeComparator->areNodesEqual($node, $seekedExpr);
         });
         if ($foundIfNode && $foundElseNode) {

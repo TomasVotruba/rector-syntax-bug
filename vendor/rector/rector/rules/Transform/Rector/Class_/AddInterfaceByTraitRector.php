@@ -13,12 +13,14 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\Class_\AddInterfaceByTraitRector\AddInterfaceByTraitRectorTest
  */
 final class AddInterfaceByTraitRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const INTERFACE_BY_TRAIT = 'interface_by_trait';
@@ -40,7 +42,7 @@ class SomeClass implements SomeInterface
     use SomeTrait;
 }
 CODE_SAMPLE
-, [self::INTERFACE_BY_TRAIT => ['SomeTrait' => 'SomeInterface']])]);
+, ['SomeTrait' => 'SomeInterface'])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -74,10 +76,15 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, array<string, string>> $configuration
+     * @todo complex configuration, introduce value object!
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $this->interfaceByTrait = $configuration[self::INTERFACE_BY_TRAIT] ?? [];
+        $interfaceByTrait = $configuration[self::INTERFACE_BY_TRAIT] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($interfaceByTrait);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString(\array_keys($interfaceByTrait));
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($interfaceByTrait);
+        $this->interfaceByTrait = $interfaceByTrait;
     }
 }

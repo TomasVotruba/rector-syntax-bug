@@ -30,18 +30,22 @@ final class OptionalParametersAfterRequiredRector extends \Rector\Core\Rector\Ab
      */
     private const ALREADY_SORTED = 'already_sorted';
     /**
+     * @readonly
      * @var \Rector\Php80\NodeResolver\RequireOptionalParamResolver
      */
     private $requireOptionalParamResolver;
     /**
+     * @readonly
      * @var \Rector\Php80\NodeResolver\ArgumentSorter
      */
     private $argumentSorter;
     /**
+     * @readonly
      * @var \Rector\Core\Reflection\ReflectionResolver
      */
     private $reflectionResolver;
     /**
+     * @readonly
      * @var \Rector\CodingStyle\Reflection\VendorLocationDetector
      */
     private $vendorLocationDetector;
@@ -88,7 +92,7 @@ CODE_SAMPLE
      */
     public function refactor(\PhpParser\Node $node) : ?\PhpParser\Node
     {
-        $isAlreadySorted = $node->getAttribute(self::ALREADY_SORTED);
+        $isAlreadySorted = (bool) $node->getAttribute(self::ALREADY_SORTED, \false);
         if ($isAlreadySorted) {
             return null;
         }

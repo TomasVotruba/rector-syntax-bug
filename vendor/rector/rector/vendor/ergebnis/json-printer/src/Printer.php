@@ -9,9 +9,9 @@ declare (strict_types=1);
  *
  * @see https://github.com/ergebnis/json-printer
  */
-namespace RectorPrefix20211110\Ergebnis\Json\Printer;
+namespace RectorPrefix20211213\Ergebnis\Json\Printer;
 
-final class Printer implements \RectorPrefix20211110\Ergebnis\Json\Printer\PrinterInterface
+final class Printer implements \RectorPrefix20211213\Ergebnis\Json\Printer\PrinterInterface
 {
     /**
      * This code is adopted from composer/composer (originally licensed under MIT by Nils Adermann <naderman@naderman.de>
@@ -40,7 +40,7 @@ final class Printer implements \RectorPrefix20211110\Ergebnis\Json\Printer\Print
      *
      * @return string
      */
-    public function print($json, $indent = '    ', $newLine = \PHP_EOL) : string
+    public function print(string $json, string $indent = '    ', string $newLine = \PHP_EOL) : string
     {
         if (null === \json_decode($json) && \JSON_ERROR_NONE !== \json_last_error()) {
             throw new \InvalidArgumentException(\sprintf('"%s" is not valid JSON.', $json));

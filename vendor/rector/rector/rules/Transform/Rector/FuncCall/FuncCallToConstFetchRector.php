@@ -11,12 +11,14 @@ use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\FuncCall\FuncCallToConstFetchRector\FunctionCallToConstantRectorTest
  */
 final class FuncCallToConstFetchRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const FUNCTIONS_TO_CONSTANTS = 'functions_to_constants';
@@ -44,7 +46,7 @@ class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::FUNCTIONS_TO_CONSTANTS => ['php_sapi_name' => 'PHP_SAPI']])]);
+, ['php_sapi_name' => 'PHP_SAPI'])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -59,7 +61,7 @@ CODE_SAMPLE
     public function refactor(\PhpParser\Node $node) : ?\PhpParser\Node
     {
         $functionName = $this->getName($node);
-        if (!$functionName) {
+        if (!\is_string($functionName)) {
             return null;
         }
         if (!\array_key_exists($functionName, $this->functionsToConstants)) {
@@ -68,10 +70,15 @@ CODE_SAMPLE
         return new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name($this->functionsToConstants[$functionName]));
     }
     /**
-     * @param array<string, string[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $this->functionsToConstants = $configuration[self::FUNCTIONS_TO_CONSTANTS] ?? [];
+        $functionsToConstants = $configuration[self::FUNCTIONS_TO_CONSTANTS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($functionsToConstants);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($functionsToConstants);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString(\array_keys($functionsToConstants));
+        /** @var array<string, string> $functionsToConstants */
+        $this->functionsToConstants = $functionsToConstants;
     }
 }

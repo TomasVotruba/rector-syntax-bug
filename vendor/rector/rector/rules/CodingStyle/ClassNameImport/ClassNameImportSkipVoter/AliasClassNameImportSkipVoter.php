@@ -20,6 +20,7 @@ use Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType;
 final class AliasClassNameImportSkipVoter implements \Rector\CodingStyle\Contract\ClassNameImport\ClassNameImportSkipVoterInterface
 {
     /**
+     * @readonly
      * @var \Rector\CodingStyle\ClassNameImport\AliasUsesResolver
      */
     private $aliasUsesResolver;
@@ -27,18 +28,14 @@ final class AliasClassNameImportSkipVoter implements \Rector\CodingStyle\Contrac
     {
         $this->aliasUsesResolver = $aliasUsesResolver;
     }
-    /**
-     * @param \Rector\Core\ValueObject\Application\File $file
-     * @param \Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType $fullyQualifiedObjectType
-     * @param \PhpParser\Node $node
-     */
-    public function shouldSkip($file, $fullyQualifiedObjectType, $node) : bool
+    public function shouldSkip(\Rector\Core\ValueObject\Application\File $file, \Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType $fullyQualifiedObjectType, \PhpParser\Node $node) : bool
     {
         $aliasedUses = $this->aliasUsesResolver->resolveFromNode($node);
+        $shortNameLowered = $fullyQualifiedObjectType->getShortNameLowered();
         foreach ($aliasedUses as $aliasedUse) {
             $aliasedUseLowered = \strtolower($aliasedUse);
             // its aliased, we cannot just rename it
-            if (\substr_compare($aliasedUseLowered, '\\' . $fullyQualifiedObjectType->getShortNameLowered(), -\strlen('\\' . $fullyQualifiedObjectType->getShortNameLowered())) === 0) {
+            if (\substr_compare($aliasedUseLowered, '\\' . $shortNameLowered, -\strlen('\\' . $shortNameLowered)) === 0) {
                 return \true;
             }
         }

@@ -8,10 +8,10 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Console\Input;
+namespace RectorPrefix20211213\Symfony\Component\Console\Input;
 
-use RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidArgumentException;
-use RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidOptionException;
+use RectorPrefix20211213\Symfony\Component\Console\Exception\InvalidArgumentException;
+use RectorPrefix20211213\Symfony\Component\Console\Exception\InvalidOptionException;
 /**
  * ArrayInput represents an input provided as an array.
  *
@@ -21,10 +21,13 @@ use RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidOptionExcept
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class ArrayInput extends \RectorPrefix20211110\Symfony\Component\Console\Input\Input
+class ArrayInput extends \RectorPrefix20211213\Symfony\Component\Console\Input\Input
 {
+    /**
+     * @var mixed[]
+     */
     private $parameters;
-    public function __construct(array $parameters, \RectorPrefix20211110\Symfony\Component\Console\Input\InputDefinition $definition = null)
+    public function __construct(array $parameters, \RectorPrefix20211213\Symfony\Component\Console\Input\InputDefinition $definition = null)
     {
         $this->parameters = $parameters;
         parent::__construct($definition);
@@ -32,7 +35,7 @@ class ArrayInput extends \RectorPrefix20211110\Symfony\Component\Console\Input\I
     /**
      * {@inheritdoc}
      */
-    public function getFirstArgument()
+    public function getFirstArgument() : ?string
     {
         foreach ($this->parameters as $param => $value) {
             if ($param && \is_string($param) && '-' === $param[0]) {
@@ -44,9 +47,9 @@ class ArrayInput extends \RectorPrefix20211110\Symfony\Component\Console\Input\I
     }
     /**
      * {@inheritdoc}
-     * @param bool $onlyParams
+     * @param mixed[]|string $values
      */
-    public function hasParameterOption($values, $onlyParams = \false)
+    public function hasParameterOption($values, bool $onlyParams = \false) : bool
     {
         $values = (array) $values;
         foreach ($this->parameters as $k => $v) {
@@ -64,9 +67,11 @@ class ArrayInput extends \RectorPrefix20211110\Symfony\Component\Console\Input\I
     }
     /**
      * {@inheritdoc}
-     * @param bool $onlyParams
+     * @param mixed[]|string $values
+     * @param mixed[]|bool|float|int|string|null $default
+     * @return mixed
      */
-    public function getParameterOption($values, $default = \false, $onlyParams = \false)
+    public function getParameterOption($values, $default = \false, bool $onlyParams = \false)
     {
         $values = (array) $values;
         foreach ($this->parameters as $k => $v) {
@@ -85,10 +90,8 @@ class ArrayInput extends \RectorPrefix20211110\Symfony\Component\Console\Input\I
     }
     /**
      * Returns a stringified representation of the args passed to the command.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString() : string
     {
         $params = [];
         foreach ($this->parameters as $param => $val) {
@@ -129,11 +132,12 @@ class ArrayInput extends \RectorPrefix20211110\Symfony\Component\Console\Input\I
      * Adds a short option value.
      *
      * @throws InvalidOptionException When option given doesn't exist
+     * @param mixed $value
      */
     private function addShortOption(string $shortcut, $value)
     {
         if (!$this->definition->hasShortcut($shortcut)) {
-            throw new \RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidOptionException(\sprintf('The "-%s" option does not exist.', $shortcut));
+            throw new \RectorPrefix20211213\Symfony\Component\Console\Exception\InvalidOptionException(\sprintf('The "-%s" option does not exist.', $shortcut));
         }
         $this->addLongOption($this->definition->getOptionForShortcut($shortcut)->getName(), $value);
     }
@@ -142,12 +146,13 @@ class ArrayInput extends \RectorPrefix20211110\Symfony\Component\Console\Input\I
      *
      * @throws InvalidOptionException When option given doesn't exist
      * @throws InvalidOptionException When a required value is missing
+     * @param mixed $value
      */
     private function addLongOption(string $name, $value)
     {
         if (!$this->definition->hasOption($name)) {
             if (!$this->definition->hasNegation($name)) {
-                throw new \RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidOptionException(\sprintf('The "--%s" option does not exist.', $name));
+                throw new \RectorPrefix20211213\Symfony\Component\Console\Exception\InvalidOptionException(\sprintf('The "--%s" option does not exist.', $name));
             }
             $optionName = $this->definition->negationToName($name);
             $this->options[$optionName] = \false;
@@ -156,7 +161,7 @@ class ArrayInput extends \RectorPrefix20211110\Symfony\Component\Console\Input\I
         $option = $this->definition->getOption($name);
         if (null === $value) {
             if ($option->isValueRequired()) {
-                throw new \RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidOptionException(\sprintf('The "--%s" option requires a value.', $name));
+                throw new \RectorPrefix20211213\Symfony\Component\Console\Exception\InvalidOptionException(\sprintf('The "--%s" option requires a value.', $name));
             }
             if (!$option->isValueOptional()) {
                 $value = \true;
@@ -167,15 +172,14 @@ class ArrayInput extends \RectorPrefix20211110\Symfony\Component\Console\Input\I
     /**
      * Adds an argument value.
      *
-     * @param string|int $name  The argument name
-     * @param mixed      $value The value for the argument
-     *
      * @throws InvalidArgumentException When argument given doesn't exist
+     * @param int|string $name
+     * @param mixed $value
      */
     private function addArgument($name, $value)
     {
         if (!$this->definition->hasArgument($name)) {
-            throw new \RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidArgumentException(\sprintf('The "%s" argument does not exist.', $name));
+            throw new \RectorPrefix20211213\Symfony\Component\Console\Exception\InvalidArgumentException(\sprintf('The "%s" argument does not exist.', $name));
         }
         $this->arguments[$name] = $value;
     }

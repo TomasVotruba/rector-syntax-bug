@@ -20,14 +20,17 @@ use Rector\TypeDeclaration\NodeTypeAnalyzer\DetailedTypeAnalyzer;
 final class GenericClassStringTypeNormalizer
 {
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\NodeTypeAnalyzer\DetailedTypeAnalyzer
      */
     private $detailedTypeAnalyzer;
     /**
+     * @readonly
      * @var \Rector\PHPStanStaticTypeMapper\TypeAnalyzer\UnionTypeAnalyzer
      */
     private $unionTypeAnalyzer;
@@ -66,8 +69,7 @@ final class GenericClassStringTypeNormalizer
     }
     public function isAllGenericClassStringType(\PHPStan\Type\UnionType $unionType) : bool
     {
-        $types = $unionType->getTypes();
-        foreach ($types as $type) {
+        foreach ($unionType->getTypes() as $type) {
             if (!$type instanceof \PHPStan\Type\Generic\GenericClassStringType) {
                 return \false;
             }
@@ -121,7 +123,7 @@ final class GenericClassStringTypeNormalizer
     private function resolveStringType(string $value)
     {
         $classReflection = $this->reflectionProvider->getClass($value);
-        if ($classReflection->isBuiltIn()) {
+        if ($classReflection->isBuiltin()) {
             return new \PHPStan\Type\Generic\GenericClassStringType(new \PHPStan\Type\ObjectType($value));
         }
         if (\strpos($value, '\\') !== \false) {

@@ -12,10 +12,13 @@ use Rector\Core\Contract\PHPStan\Reflection\TypeToCallReflectionResolver\TypeToC
 use Rector\Core\ValueObject\MethodName;
 /**
  * @see https://github.com/phpstan/phpstan-src/blob/b1fd47bda2a7a7d25091197b125c0adf82af6757/src/Type/ObjectType.php#L705
+ *
+ * @implements TypeToCallReflectionResolverInterface<ObjectType>
  */
 final class ObjectTypeToCallReflectionResolver implements \Rector\Core\Contract\PHPStan\Reflection\TypeToCallReflectionResolver\TypeToCallReflectionResolverInterface
 {
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
@@ -23,18 +26,14 @@ final class ObjectTypeToCallReflectionResolver implements \Rector\Core\Contract\
     {
         $this->reflectionProvider = $reflectionProvider;
     }
-    /**
-     * @param \PHPStan\Type\Type $type
-     */
-    public function supports($type) : bool
+    public function supports(\PHPStan\Type\Type $type) : bool
     {
         return $type instanceof \PHPStan\Type\ObjectType;
     }
     /**
-     * @param \PHPStan\Type\Type $type
-     * @param \PHPStan\Analyser\Scope $scope
+     * @param ObjectType $type
      */
-    public function resolve($type, $scope) : ?\PHPStan\Reflection\MethodReflection
+    public function resolve(\PHPStan\Type\Type $type, \PHPStan\Analyser\Scope $scope) : ?\PHPStan\Reflection\MethodReflection
     {
         $className = $type->getClassName();
         if (!$this->reflectionProvider->hasClass($className)) {

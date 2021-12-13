@@ -19,41 +19,38 @@ use Rector\NodeTypeResolver\TypeAnalyzer\ArrayTypeAnalyzer;
 use Rector\PostRector\Collector\PropertyToAddCollector;
 use Rector\PostRector\ValueObject\PropertyMetadata;
 use Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType;
+use Rector\Transform\Contract\ValueObject\ArgumentFuncCallToMethodCallInterface;
 use Rector\Transform\ValueObject\ArgumentFuncCallToMethodCall;
 use Rector\Transform\ValueObject\ArrayFuncCallToMethodCall;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\FuncCall\ArgumentFuncCallToMethodCallRector\ArgumentFuncCallToMethodCallRectorTest
  */
 final class ArgumentFuncCallToMethodCallRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const FUNCTIONS_TO_METHOD_CALLS = 'functions_to_method_calls';
     /**
-     * @var string
-     */
-    public const ARRAY_FUNCTIONS_TO_METHOD_CALLS = 'array_functions_to_method_calls';
-    /**
-     * @var ArgumentFuncCallToMethodCall[]
+     * @var ArgumentFuncCallToMethodCallInterface[]
      */
     private $argumentFuncCallToMethodCalls = [];
     /**
-     * @var ArrayFuncCallToMethodCall[]
-     */
-    private $arrayFunctionsToMethodCalls = [];
-    /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\TypeAnalyzer\ArrayTypeAnalyzer
      */
     private $arrayTypeAnalyzer;
     /**
+     * @readonly
      * @var \Rector\Naming\Naming\PropertyNaming
      */
     private $propertyNaming;
     /**
+     * @readonly
      * @var \Rector\PostRector\Collector\PropertyToAddCollector
      */
     private $propertyToAddCollector;
@@ -95,7 +92,7 @@ class SomeController
     }
 }
 CODE_SAMPLE
-, [self::FUNCTIONS_TO_METHOD_CALLS => [new \Rector\Transform\ValueObject\ArgumentFuncCallToMethodCall('view', 'Illuminate\\Contracts\\View\\Factory', 'make')]])]);
+, [new \Rector\Transform\ValueObject\ArgumentFuncCallToMethodCall('view', 'Illuminate\\Contracts\\View\\Factory', 'make')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -118,27 +115,24 @@ CODE_SAMPLE
             if (!$this->isName($node, $argumentFuncCallToMethodCall->getFunction())) {
                 continue;
             }
-            return $this->refactorFuncCallToMethodCall($argumentFuncCallToMethodCall, $classLike, $node);
-        }
-        foreach ($this->arrayFunctionsToMethodCalls as $arrayFunctionToMethodCall) {
-            if (!$this->isName($node, $arrayFunctionToMethodCall->getFunction())) {
-                continue;
+            if ($argumentFuncCallToMethodCall instanceof \Rector\Transform\ValueObject\ArgumentFuncCallToMethodCall) {
+                return $this->refactorFuncCallToMethodCall($argumentFuncCallToMethodCall, $classLike, $node);
             }
-            return $this->refactorArrayFunctionToMethodCall($arrayFunctionToMethodCall, $node, $classLike);
+            if ($argumentFuncCallToMethodCall instanceof \Rector\Transform\ValueObject\ArrayFuncCallToMethodCall) {
+                return $this->refactorArrayFunctionToMethodCall($argumentFuncCallToMethodCall, $node, $classLike);
+            }
         }
         return null;
     }
     /**
-     * @param array<string, array<ArgumentFuncCallToMethodCall|ArrayFuncCallToMethodCall>> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $functionToMethodCalls = $configuration[self::FUNCTIONS_TO_METHOD_CALLS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($functionToMethodCalls, \Rector\Transform\ValueObject\ArgumentFuncCallToMethodCall::class);
+        $functionToMethodCalls = $configuration[self::FUNCTIONS_TO_METHOD_CALLS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($functionToMethodCalls);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($functionToMethodCalls, \Rector\Transform\Contract\ValueObject\ArgumentFuncCallToMethodCallInterface::class);
         $this->argumentFuncCallToMethodCalls = $functionToMethodCalls;
-        $arrayFunctionsToMethodCalls = $configuration[self::ARRAY_FUNCTIONS_TO_METHOD_CALLS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($arrayFunctionsToMethodCalls, \Rector\Transform\ValueObject\ArrayFuncCallToMethodCall::class);
-        $this->arrayFunctionsToMethodCalls = $arrayFunctionsToMethodCalls;
     }
     private function shouldSkipFuncCall(\PhpParser\Node\Expr\FuncCall $funcCall) : bool
     {
@@ -192,11 +186,8 @@ CODE_SAMPLE
      */
     private function refactorEmptyFuncCallArgs(\Rector\Transform\ValueObject\ArgumentFuncCallToMethodCall $argumentFuncCallToMethodCall, \PhpParser\Node\Expr\PropertyFetch $propertyFetch)
     {
-        if ($argumentFuncCallToMethodCall->getMethodIfNoArgs()) {
+        if ($argumentFuncCallToMethodCall->getMethodIfNoArgs() !== null) {
             $methodName = $argumentFuncCallToMethodCall->getMethodIfNoArgs();
-            if (!\is_string($methodName)) {
-                throw new \Rector\Core\Exception\ShouldNotHappenException();
-            }
             return new \PhpParser\Node\Expr\MethodCall($propertyFetch, $methodName);
         }
         return $propertyFetch;
@@ -219,13 +210,10 @@ CODE_SAMPLE
         if (!$funcCall->args[0] instanceof \PhpParser\Node\Arg) {
             return null;
         }
-        if ($arrayFuncCallToMethodCall->getArrayMethod() && $this->arrayTypeAnalyzer->isArrayType($funcCall->args[0]->value)) {
+        if ($this->arrayTypeAnalyzer->isArrayType($funcCall->args[0]->value)) {
             return new \PhpParser\Node\Expr\MethodCall($propertyFetch, $arrayFuncCallToMethodCall->getArrayMethod(), $funcCall->args);
         }
         if ($arrayFuncCallToMethodCall->getNonArrayMethod() === '') {
-            return null;
-        }
-        if ($this->arrayTypeAnalyzer->isArrayType($funcCall->args[0]->value)) {
             return null;
         }
         return new \PhpParser\Node\Expr\MethodCall($propertyFetch, $arrayFuncCallToMethodCall->getNonArrayMethod(), $funcCall->args);

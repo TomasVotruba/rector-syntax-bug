@@ -8,8 +8,9 @@
  * For the full copyright and license information, please view
  * the LICENSE file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Composer\XdebugHandler;
+namespace RectorPrefix20211213\Composer\XdebugHandler;
 
+use RectorPrefix20211213\Composer\Pcre\Preg;
 /**
  * Process utility functions
  *
@@ -35,9 +36,9 @@ class Process
             return "'" . \str_replace("'", "'\\''", $arg) . "'";
         }
         $quote = \strpbrk($arg, " \t") !== \false || $arg === '';
-        $arg = \preg_replace('/(\\\\*)"/', '$1$1\\"', $arg, -1, $dquotes);
+        $arg = \RectorPrefix20211213\Composer\Pcre\Preg::replace('/(\\\\*)"/', '$1$1\\"', $arg, -1, $dquotes);
         if ($meta) {
-            $meta = $dquotes || \preg_match('/%[^%]+%/', $arg);
+            $meta = $dquotes || \RectorPrefix20211213\Composer\Pcre\Preg::isMatch('/%[^%]+%/', $arg);
             if (!$meta) {
                 $quote = $quote || \strpbrk($arg, '^&|<>()') !== \false;
             } elseif ($module && !$dquotes && $quote) {
@@ -45,27 +46,31 @@ class Process
             }
         }
         if ($quote) {
-            $arg = '"' . \preg_replace('/(\\\\*)$/', '$1$1', $arg) . '"';
+            $arg = '"' . \RectorPrefix20211213\Composer\Pcre\Preg::replace('/(\\\\*)$/', '$1$1', $arg) . '"';
         }
         if ($meta) {
-            $arg = \preg_replace('/(["^&|<>()%])/', '^$1', $arg);
+            $arg = \RectorPrefix20211213\Composer\Pcre\Preg::replace('/(["^&|<>()%])/', '^$1', $arg);
         }
         return $arg;
     }
     /**
      * Escapes an array of arguments that make up a shell command
      *
-     * @param array $args Argument list, with the module name first
+     * @param string[] $args Argument list, with the module name first
      *
      * @return string The escaped command line
      */
-    public static function escapeShellCommand($args)
+    public static function escapeShellCommand(array $args)
     {
-        $cmd = self::escape(\array_shift($args), \true, \true);
-        foreach ($args as $arg) {
-            $cmd .= ' ' . self::escape($arg);
+        $command = '';
+        $module = \array_shift($args);
+        if ($module !== null) {
+            $command = self::escape($module, \true, \true);
+            foreach ($args as $arg) {
+                $command .= ' ' . self::escape($arg);
+            }
         }
-        return $cmd;
+        return $command;
     }
     /**
      * Makes putenv environment changes available in $_SERVER and $_ENV

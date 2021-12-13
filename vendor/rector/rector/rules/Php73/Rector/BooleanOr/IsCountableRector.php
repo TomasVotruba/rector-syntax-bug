@@ -19,10 +19,12 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class IsCountableRector extends \Rector\Core\Rector\AbstractRector implements \Rector\VersionBonding\Contract\MinPhpVersionInterface
 {
     /**
+     * @readonly
      * @var \Rector\Php71\IsArrayAndDualCheckToAble
      */
     private $isArrayAndDualCheckToAble;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
@@ -56,7 +58,7 @@ CODE_SAMPLE
         if ($this->shouldSkip()) {
             return null;
         }
-        return $this->isArrayAndDualCheckToAble->processBooleanOr($node, 'Countable', 'is_countable') ?: $node;
+        return $this->isArrayAndDualCheckToAble->processBooleanOr($node, 'Countable', 'is_countable');
     }
     public function provideMinPhpVersion() : int
     {

@@ -8,23 +8,26 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Process\Pipes;
+namespace RectorPrefix20211213\Symfony\Component\Process\Pipes;
 
-use RectorPrefix20211110\Symfony\Component\Process\Exception\InvalidArgumentException;
+use RectorPrefix20211213\Symfony\Component\Process\Exception\InvalidArgumentException;
 /**
  * @author Romain Neutron <imprec@gmail.com>
  *
  * @internal
  */
-abstract class AbstractPipes implements \RectorPrefix20211110\Symfony\Component\Process\Pipes\PipesInterface
+abstract class AbstractPipes implements \RectorPrefix20211213\Symfony\Component\Process\Pipes\PipesInterface
 {
+    /**
+     * @var mixed[]
+     */
     public $pipes = [];
     private $inputBuffer = '';
     private $input;
     private $blocked = \true;
     private $lastError;
     /**
-     * @param resource|string|int|float|bool|\Iterator|null $input
+     * @param mixed $input
      */
     public function __construct($input)
     {
@@ -91,7 +94,7 @@ abstract class AbstractPipes implements \RectorPrefix20211110\Symfony\Component\
             } elseif (!isset($this->inputBuffer[0])) {
                 if (!\is_string($input)) {
                     if (!\is_scalar($input)) {
-                        throw new \RectorPrefix20211110\Symfony\Component\Process\Exception\InvalidArgumentException(\sprintf('"%s" yielded a value of type "%s", but only scalars and stream resources are supported.', \get_debug_type($this->input), \get_debug_type($input)));
+                        throw new \RectorPrefix20211213\Symfony\Component\Process\Exception\InvalidArgumentException(\sprintf('"%s" yielded a value of type "%s", but only scalars and stream resources are supported.', \get_debug_type($this->input), \get_debug_type($input)));
                     }
                     $input = (string) $input;
                 }
@@ -150,10 +153,8 @@ abstract class AbstractPipes implements \RectorPrefix20211110\Symfony\Component\
     }
     /**
      * @internal
-     * @param int $type
-     * @param string $msg
      */
-    public function handleError($type, $msg)
+    public function handleError(int $type, string $msg)
     {
         $this->lastError = $msg;
     }

@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\Core\PhpParser;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use PhpParser\BuilderHelpers;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
@@ -13,6 +13,8 @@ use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Yield_;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Expression;
+use Rector\Core\Exception\ShouldNotHappenException;
+use Rector\Core\Util\StringUtils;
 use Rector\Core\ValueObject\SprintfStringAndArgs;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 final class NodeTransformer
@@ -40,7 +42,7 @@ final class NodeTransformer
         $messageParts = $this->splitBySpace($stringValue);
         $arrayMessageParts = [];
         foreach ($messageParts as $messagePart) {
-            if (\RectorPrefix20211110\Nette\Utils\Strings::match($messagePart, self::PERCENT_TEXT_REGEX)) {
+            if (\Rector\Core\Util\StringUtils::isMatch($messagePart, self::PERCENT_TEXT_REGEX)) {
                 /** @var Expr $messagePartNode */
                 $messagePartNode = \array_shift($arrayItems);
             } else {
@@ -72,7 +74,11 @@ final class NodeTransformer
     public function transformConcatToStringArray(\PhpParser\Node\Expr\BinaryOp\Concat $concat) : \PhpParser\Node\Expr\Array_
     {
         $arrayItems = $this->transformConcatToItems($concat);
-        return new \PhpParser\Node\Expr\Array_($arrayItems);
+        $array = \PhpParser\BuilderHelpers::normalizeValue($arrayItems);
+        if (!$array instanceof \PhpParser\Node\Expr\Array_) {
+            throw new \Rector\Core\Exception\ShouldNotHappenException();
+        }
+        return $array;
     }
     private function splitMessageAndArgs(\PhpParser\Node\Expr\FuncCall $sprintfFuncCall) : ?\Rector\Core\ValueObject\SprintfStringAndArgs
     {

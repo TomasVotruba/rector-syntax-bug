@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\DependencyInjection\Dumper;
+namespace RectorPrefix20211213\Symfony\Component\DependencyInjection\Dumper;
 
 /**
  * @author Nicolas Grekas <p@tchwork.com>
@@ -29,9 +29,9 @@ final class Preloader
             }
             $classes[] = \sprintf("\$classes[] = %s;\n", \var_export($item, \true));
         }
-        \file_put_contents($file, \sprintf("\n\$classes = [];\n%sPreloader::preload(\$classes);\n", \implode('', $classes)), \FILE_APPEND);
+        \file_put_contents($file, \sprintf("\n\$classes = [];\n%s\$preloaded = Preloader::preload(\$classes, \$preloaded);\n", \implode('', $classes)), \FILE_APPEND);
     }
-    public static function preload(array $classes) : void
+    public static function preload(array $classes, array $preloaded = []) : array
     {
         \set_error_handler(function ($t, $m, $f, $l) {
             if (\error_reporting() & $t) {
@@ -42,7 +42,6 @@ final class Preloader
             }
         });
         $prev = [];
-        $preloaded = [];
         try {
             while ($prev !== $classes) {
                 $prev = $classes;
@@ -56,6 +55,7 @@ final class Preloader
         } finally {
             \restore_error_handler();
         }
+        return $preloaded;
     }
     private static function doPreload(string $class, array &$preloaded) : void
     {
@@ -64,6 +64,9 @@ final class Preloader
         }
         $preloaded[$class] = \true;
         try {
+            if (!\class_exists($class) && !\interface_exists($class, \false) && !\trait_exists($class, \false)) {
+                return;
+            }
             $r = new \ReflectionClass($class);
             if ($r->isInternal()) {
                 return;
@@ -72,7 +75,7 @@ final class Preloader
             $r->getDefaultProperties();
             if (\PHP_VERSION_ID >= 70400) {
                 foreach ($r->getProperties(\ReflectionProperty::IS_PUBLIC) as $p) {
-                    self::preloadType($p->getType(), $preloaded);
+                    self::preloadType(null, $preloaded);
                 }
             }
             foreach ($r->getMethods(\ReflectionMethod::IS_PUBLIC) as $m) {
@@ -96,7 +99,7 @@ final class Preloader
         if (!$t) {
             return;
         }
-        foreach ($t instanceof \ReflectionUnionType || $t instanceof \RectorPrefix20211110\ReflectionIntersectionType ? $t->getTypes() : [$t] as $t) {
+        foreach ($t instanceof \ReflectionUnionType || $t instanceof \RectorPrefix20211213\ReflectionIntersectionType ? $t->getTypes() : [$t] as $t) {
             if (!$t->isBuiltin()) {
                 self::doPreload($t instanceof \ReflectionNamedType ? $t->getName() : $t, $preloaded);
             }

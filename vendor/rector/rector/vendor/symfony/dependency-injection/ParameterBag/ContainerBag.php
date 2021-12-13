@@ -8,16 +8,16 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag;
+namespace RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag;
 
-use RectorPrefix20211110\Symfony\Component\DependencyInjection\Container;
+use RectorPrefix20211213\Symfony\Component\DependencyInjection\Container;
 /**
  * @author Nicolas Grekas <p@tchwork.com>
  */
-class ContainerBag extends \RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag implements \RectorPrefix20211110\Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface
+class ContainerBag extends \RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag implements \RectorPrefix20211213\Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface
 {
     private $container;
-    public function __construct(\RectorPrefix20211110\Symfony\Component\DependencyInjection\Container $container)
+    public function __construct(\RectorPrefix20211213\Symfony\Component\DependencyInjection\Container $container)
     {
         $this->container = $container;
     }
@@ -32,9 +32,8 @@ class ContainerBag extends \RectorPrefix20211110\Symfony\Component\DependencyInj
      * {@inheritdoc}
      *
      * @return array|bool|string|int|float|null
-     * @param string $name
      */
-    public function get($name)
+    public function get(string $name)
     {
         return $this->container->getParameter($name);
     }
@@ -42,9 +41,8 @@ class ContainerBag extends \RectorPrefix20211110\Symfony\Component\DependencyInj
      * {@inheritdoc}
      *
      * @return bool
-     * @param string $name
      */
-    public function has($name)
+    public function has(string $name)
     {
         return $this->container->hasParameter($name);
     }

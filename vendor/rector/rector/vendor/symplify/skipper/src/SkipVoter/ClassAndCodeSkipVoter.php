@@ -1,16 +1,16 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Symplify\Skipper\SkipVoter;
+namespace RectorPrefix20211213\Symplify\Skipper\SkipVoter;
 
-use RectorPrefix20211110\Symplify\Skipper\Contract\SkipVoterInterface;
-use RectorPrefix20211110\Symplify\Skipper\Matcher\FileInfoMatcher;
-use RectorPrefix20211110\Symplify\Skipper\SkipCriteriaResolver\SkippedClassAndCodesResolver;
+use RectorPrefix20211213\Symplify\Skipper\Contract\SkipVoterInterface;
+use RectorPrefix20211213\Symplify\Skipper\Matcher\FileInfoMatcher;
+use RectorPrefix20211213\Symplify\Skipper\SkipCriteriaResolver\SkippedClassAndCodesResolver;
 use Symplify\SmartFileSystem\SmartFileInfo;
 /**
  * Matching class and code, e.g. App\Category\ArraySniff.SomeCode
  */
-final class ClassAndCodeSkipVoter implements \RectorPrefix20211110\Symplify\Skipper\Contract\SkipVoterInterface
+final class ClassAndCodeSkipVoter implements \RectorPrefix20211213\Symplify\Skipper\Contract\SkipVoterInterface
 {
     /**
      * @var \Symplify\Skipper\SkipCriteriaResolver\SkippedClassAndCodesResolver
@@ -20,7 +20,7 @@ final class ClassAndCodeSkipVoter implements \RectorPrefix20211110\Symplify\Skip
      * @var \Symplify\Skipper\Matcher\FileInfoMatcher
      */
     private $fileInfoMatcher;
-    public function __construct(\RectorPrefix20211110\Symplify\Skipper\SkipCriteriaResolver\SkippedClassAndCodesResolver $skippedClassAndCodesResolver, \RectorPrefix20211110\Symplify\Skipper\Matcher\FileInfoMatcher $fileInfoMatcher)
+    public function __construct(\RectorPrefix20211213\Symplify\Skipper\SkipCriteriaResolver\SkippedClassAndCodesResolver $skippedClassAndCodesResolver, \RectorPrefix20211213\Symplify\Skipper\Matcher\FileInfoMatcher $fileInfoMatcher)
     {
         $this->skippedClassAndCodesResolver = $skippedClassAndCodesResolver;
         $this->fileInfoMatcher = $fileInfoMatcher;
@@ -37,9 +37,8 @@ final class ClassAndCodeSkipVoter implements \RectorPrefix20211110\Symplify\Skip
     }
     /**
      * @param object|string $element
-     * @param \Symplify\SmartFileSystem\SmartFileInfo $smartFileInfo
      */
-    public function shouldSkip($element, $smartFileInfo) : bool
+    public function shouldSkip($element, \Symplify\SmartFileSystem\SmartFileInfo $smartFileInfo) : bool
     {
         if (\is_object($element)) {
             return \false;

@@ -10,10 +10,12 @@ use Rector\NodeNameResolver\NodeNameResolver;
 final class BuiltInMethodAnalyzer
 {
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\FamilyTree\NodeAnalyzer\ClassChildAnalyzer
      */
     private $classChildAnalyzer;
@@ -32,7 +34,7 @@ final class BuiltInMethodAnalyzer
             return \false;
         }
         foreach ($classReflection->getInterfaces() as $interfaceReflection) {
-            if (!$interfaceReflection->isBuiltIn()) {
+            if (!$interfaceReflection->isBuiltin()) {
                 continue;
             }
             if (!$interfaceReflection->hasMethod($methodName)) {

@@ -1,21 +1,21 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Symplify\Astral\NodeValue\NodeValueResolver;
+namespace RectorPrefix20211213\Symplify\Astral\NodeValue\NodeValueResolver;
 
 use PhpParser\ConstExprEvaluator;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Name;
-use RectorPrefix20211110\Symplify\Astral\Contract\NodeValueResolver\NodeValueResolverInterface;
-use RectorPrefix20211110\Symplify\Astral\Exception\ShouldNotHappenException;
-use RectorPrefix20211110\Symplify\Astral\Naming\SimpleNameResolver;
+use RectorPrefix20211213\Symplify\Astral\Contract\NodeValueResolver\NodeValueResolverInterface;
+use RectorPrefix20211213\Symplify\Astral\Exception\ShouldNotHappenException;
+use RectorPrefix20211213\Symplify\Astral\Naming\SimpleNameResolver;
 /**
  * @see \Symplify\Astral\Tests\NodeValue\NodeValueResolverTest
  *
  * @implements NodeValueResolverInterface<FuncCall>
  */
-final class FuncCallValueResolver implements \RectorPrefix20211110\Symplify\Astral\Contract\NodeValueResolver\NodeValueResolverInterface
+final class FuncCallValueResolver implements \RectorPrefix20211213\Symplify\Astral\Contract\NodeValueResolver\NodeValueResolverInterface
 {
     /**
      * @var \Symplify\Astral\Naming\SimpleNameResolver
@@ -25,7 +25,7 @@ final class FuncCallValueResolver implements \RectorPrefix20211110\Symplify\Astr
      * @var \PhpParser\ConstExprEvaluator
      */
     private $constExprEvaluator;
-    public function __construct(\RectorPrefix20211110\Symplify\Astral\Naming\SimpleNameResolver $simpleNameResolver, \PhpParser\ConstExprEvaluator $constExprEvaluator)
+    public function __construct(\RectorPrefix20211213\Symplify\Astral\Naming\SimpleNameResolver $simpleNameResolver, \PhpParser\ConstExprEvaluator $constExprEvaluator)
     {
         $this->simpleNameResolver = $simpleNameResolver;
         $this->constExprEvaluator = $constExprEvaluator;
@@ -35,11 +35,10 @@ final class FuncCallValueResolver implements \RectorPrefix20211110\Symplify\Astr
         return \PhpParser\Node\Expr\FuncCall::class;
     }
     /**
-     * @param \PhpParser\Node\Expr $expr
+     * @param FuncCall $expr
      * @return mixed
-     * @param string $currentFilePath
      */
-    public function resolve($expr, $currentFilePath)
+    public function resolve(\PhpParser\Node\Expr $expr, string $currentFilePath)
     {
         if ($this->simpleNameResolver->isName($expr, 'getcwd')) {
             return \dirname($currentFilePath);
@@ -54,7 +53,7 @@ final class FuncCallValueResolver implements \RectorPrefix20211110\Symplify\Astr
             if (\function_exists($functionName) && \is_callable($functionName)) {
                 return \call_user_func_array($functionName, $arguments);
             }
-            throw new \RectorPrefix20211110\Symplify\Astral\Exception\ShouldNotHappenException();
+            throw new \RectorPrefix20211213\Symplify\Astral\Exception\ShouldNotHappenException();
         }
         return null;
     }

@@ -13,6 +13,7 @@ use Rector\BetterPhpDocParser\ValueObject\StartAndEnd;
 final class BetterTypeParser extends \PHPStan\PhpDocParser\Parser\TypeParser
 {
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocInfo\TokenIteratorFactory
      */
     private $tokenIteratorFactory;
@@ -21,10 +22,7 @@ final class BetterTypeParser extends \PHPStan\PhpDocParser\Parser\TypeParser
         $this->tokenIteratorFactory = $tokenIteratorFactory;
         parent::__construct($constExprParser);
     }
-    /**
-     * @param \PHPStan\PhpDocParser\Parser\TokenIterator $tokenIterator
-     */
-    public function parse($tokenIterator) : \PHPStan\PhpDocParser\Ast\Type\TypeNode
+    public function parse(\PHPStan\PhpDocParser\Parser\TokenIterator $tokenIterator) : \PHPStan\PhpDocParser\Ast\Type\TypeNode
     {
         $betterTokenIterator = $this->tokenIteratorFactory->createFromTokenIterator($tokenIterator);
         $startPosition = $betterTokenIterator->currentPosition();

@@ -11,13 +11,14 @@ use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Arguments\Rector\FuncCall\SwapFuncCallArgumentsRector\SwapFuncCallArgumentsRectorTest
  */
 final class SwapFuncCallArgumentsRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const FUNCTION_ARGUMENT_SWAPS = 'new_argument_positions_by_function_name';
@@ -49,7 +50,7 @@ final class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::FUNCTION_ARGUMENT_SWAPS => [new \Rector\Arguments\ValueObject\SwapFuncCallArguments('some_function', [1, 0])]])]);
+, [new \Rector\Arguments\ValueObject\SwapFuncCallArguments('some_function', [1, 0])])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -63,7 +64,7 @@ CODE_SAMPLE
      */
     public function refactor(\PhpParser\Node $node) : ?\PhpParser\Node\Expr\FuncCall
     {
-        $isJustSwapped = $node->getAttribute(self::JUST_SWAPPED);
+        $isJustSwapped = (bool) $node->getAttribute(self::JUST_SWAPPED, \false);
         if ($isJustSwapped) {
             return null;
         }
@@ -84,12 +85,12 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, SwapFuncCallArguments[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $functionArgumentSwaps = $configuration[self::FUNCTION_ARGUMENT_SWAPS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($functionArgumentSwaps, \Rector\Arguments\ValueObject\SwapFuncCallArguments::class);
+        $functionArgumentSwaps = $configuration[self::FUNCTION_ARGUMENT_SWAPS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($functionArgumentSwaps, \Rector\Arguments\ValueObject\SwapFuncCallArguments::class);
         $this->functionArgumentSwaps = $functionArgumentSwaps;
     }
     /**

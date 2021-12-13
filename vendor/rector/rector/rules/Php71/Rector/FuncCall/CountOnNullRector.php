@@ -19,6 +19,8 @@ use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\Trait_;
 use PHPStan\Type\ArrayType;
 use PHPStan\Type\NullType;
+use PHPStan\Type\Type;
+use PHPStan\Type\UnionType;
 use Rector\Core\Rector\AbstractRector;
 use Rector\Core\ValueObject\PhpVersionFeature;
 use Rector\NodeTypeResolver\Node\AttributeKey;
@@ -39,10 +41,12 @@ final class CountOnNullRector extends \Rector\Core\Rector\AbstractRector impleme
      */
     private const ALREADY_CHANGED_ON_COUNT = 'already_changed_on_count';
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\TypeAnalyzer\CountableTypeAnalyzer
      */
     private $countableTypeAnalyzer;
     /**
+     * @readonly
      * @var \Rector\Php71\NodeAnalyzer\CountableAnalyzer
      */
     private $countableAnalyzer;
@@ -91,7 +95,7 @@ CODE_SAMPLE
         // this can lead to false positive by phpstan, but that's best we can do
         $onlyValueType = $this->getType($countedNode);
         if ($onlyValueType instanceof \PHPStan\Type\ArrayType) {
-            if (!$this->countableAnalyzer->isCastableArrayType($countedNode)) {
+            if (!$this->countableAnalyzer->isCastableArrayType($countedNode, $onlyValueType)) {
                 return null;
             }
             return $this->castToArray($countedNode, $node);
@@ -100,6 +104,9 @@ CODE_SAMPLE
             return $this->castToArray($countedNode, $node);
         }
         $countedType = $this->getType($countedNode);
+        if ($this->isAlwaysIterableType($countedType)) {
+            return null;
+        }
         if ($this->nodeTypeResolver->isNullableType($countedNode) || $countedType instanceof \PHPStan\Type\NullType) {
             $identical = new \PhpParser\Node\Expr\BinaryOp\Identical($countedNode, $this->nodeFactory->createNull());
             $ternary = new \PhpParser\Node\Expr\Ternary($identical, new \PhpParser\Node\Scalar\LNumber(0), $node);
@@ -117,6 +124,19 @@ CODE_SAMPLE
         $node->setAttribute(self::ALREADY_CHANGED_ON_COUNT, \true);
         return new \PhpParser\Node\Expr\Ternary($conditionNode, $node, new \PhpParser\Node\Scalar\LNumber(0));
     }
+    private function isAlwaysIterableType(\PHPStan\Type\Type $possibleUnionType) : bool
+    {
+        if (!$possibleUnionType instanceof \PHPStan\Type\UnionType) {
+            return \false;
+        }
+        $types = $possibleUnionType->getTypes();
+        foreach ($types as $type) {
+            if ($type->isIterable()->no()) {
+                return \false;
+            }
+        }
+        return \true;
+    }
     private function shouldSkip(\PhpParser\Node\Expr\FuncCall $funcCall) : bool
     {
         if (!$this->isName($funcCall, 'count')) {
@@ -131,7 +151,7 @@ CODE_SAMPLE
         if ($funcCall->args[0]->value instanceof \PhpParser\Node\Expr\ClassConstFetch) {
             return \true;
         }
-        $alreadyChangedOnCount = $funcCall->getAttribute(self::ALREADY_CHANGED_ON_COUNT);
+        $alreadyChangedOnCount = (bool) $funcCall->getAttribute(self::ALREADY_CHANGED_ON_COUNT, \false);
         // check if it has some condition before already, if so, probably it's already handled
         if ($alreadyChangedOnCount) {
             return \true;

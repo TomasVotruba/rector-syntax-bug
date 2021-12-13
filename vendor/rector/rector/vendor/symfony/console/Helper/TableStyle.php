@@ -8,10 +8,10 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Console\Helper;
+namespace RectorPrefix20211213\Symfony\Component\Console\Helper;
 
-use RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidArgumentException;
-use RectorPrefix20211110\Symfony\Component\Console\Exception\LogicException;
+use RectorPrefix20211213\Symfony\Component\Console\Exception\InvalidArgumentException;
+use RectorPrefix20211213\Symfony\Component\Console\Exception\LogicException;
 /**
  * Defines the styles for a Table.
  *
@@ -21,50 +21,119 @@ use RectorPrefix20211110\Symfony\Component\Console\Exception\LogicException;
  */
 class TableStyle
 {
+    /**
+     * @var string
+     */
     private $paddingChar = ' ';
+    /**
+     * @var string
+     */
     private $horizontalOutsideBorderChar = '-';
+    /**
+     * @var string
+     */
     private $horizontalInsideBorderChar = '-';
+    /**
+     * @var string
+     */
     private $verticalOutsideBorderChar = '|';
+    /**
+     * @var string
+     */
     private $verticalInsideBorderChar = '|';
+    /**
+     * @var string
+     */
     private $crossingChar = '+';
+    /**
+     * @var string
+     */
     private $crossingTopRightChar = '+';
+    /**
+     * @var string
+     */
     private $crossingTopMidChar = '+';
+    /**
+     * @var string
+     */
     private $crossingTopLeftChar = '+';
+    /**
+     * @var string
+     */
     private $crossingMidRightChar = '+';
+    /**
+     * @var string
+     */
     private $crossingBottomRightChar = '+';
+    /**
+     * @var string
+     */
     private $crossingBottomMidChar = '+';
+    /**
+     * @var string
+     */
     private $crossingBottomLeftChar = '+';
+    /**
+     * @var string
+     */
     private $crossingMidLeftChar = '+';
+    /**
+     * @var string
+     */
     private $crossingTopLeftBottomChar = '+';
+    /**
+     * @var string
+     */
     private $crossingTopMidBottomChar = '+';
+    /**
+     * @var string
+     */
     private $crossingTopRightBottomChar = '+';
+    /**
+     * @var string
+     */
     private $headerTitleFormat = '<fg=black;bg=white;options=bold> %s </>';
+    /**
+     * @var string
+     */
     private $footerTitleFormat = '<fg=black;bg=white;options=bold> %s </>';
+    /**
+     * @var string
+     */
     private $cellHeaderFormat = '<info>%s</info>';
+    /**
+     * @var string
+     */
     private $cellRowFormat = '%s';
+    /**
+     * @var string
+     */
     private $cellRowContentFormat = ' %s ';
+    /**
+     * @var string
+     */
     private $borderFormat = '%s';
+    /**
+     * @var int
+     */
     private $padType = \STR_PAD_RIGHT;
     /**
      * Sets padding character, used for cell padding.
      *
      * @return $this
-     * @param string $paddingChar
      */
-    public function setPaddingChar($paddingChar)
+    public function setPaddingChar(string $paddingChar)
     {
         if (!$paddingChar) {
-            throw new \RectorPrefix20211110\Symfony\Component\Console\Exception\LogicException('The padding char must not be empty.');
+            throw new \RectorPrefix20211213\Symfony\Component\Console\Exception\LogicException('The padding char must not be empty.');
         }
         $this->paddingChar = $paddingChar;
         return $this;
     }
     /**
      * Gets padding character, used for cell padding.
-     *
-     * @return string
      */
-    public function getPaddingChar()
+    public function getPaddingChar() : string
     {
         return $this->paddingChar;
     }
@@ -81,10 +150,10 @@ class TableStyle
      * ║ 80-902734-1-6 │ And Then There Were None │ Agatha Christie  ║
      * ╚═══════════════╧══════════════════════════╧══════════════════╝
      * </code>
-     * @param string $outside
-     * @param string|null $inside
+     *
+     * @return $this
      */
-    public function setHorizontalBorderChars($outside, $inside = null) : self
+    public function setHorizontalBorderChars(string $outside, string $inside = null)
     {
         $this->horizontalOutsideBorderChar = $outside;
         $this->horizontalInsideBorderChar = $inside ?? $outside;
@@ -104,10 +173,10 @@ class TableStyle
      * ║ 80-902734-1-6 │ And Then There Were None │ Agatha Christie  ║
      * ╚═══════════════╧══════════════════════════╧══════════════════╝
      * </code>
-     * @param string $outside
-     * @param string|null $inside
+     *
+     * @return $this
      */
-    public function setVerticalBorderChars($outside, $inside = null) : self
+    public function setVerticalBorderChars(string $outside, string $inside = null)
     {
         $this->verticalOutsideBorderChar = $outside;
         $this->verticalInsideBorderChar = $inside ?? $outside;
@@ -150,8 +219,10 @@ class TableStyle
      * @param string|null $topLeftBottom  Top left bottom char (see #8' of example), equals to $midLeft if null
      * @param string|null $topMidBottom   Top mid bottom char (see #0' of example), equals to $cross if null
      * @param string|null $topRightBottom Top right bottom char (see #4' of example), equals to $midRight if null
+     *
+     * @return $this
      */
-    public function setCrossingChars($cross, $topLeft, $topMid, $topRight, $midRight, $bottomRight, $bottomMid, $bottomLeft, $midLeft, $topLeftBottom = null, $topMidBottom = null, $topRightBottom = null) : self
+    public function setCrossingChars(string $cross, string $topLeft, string $topMid, string $topRight, string $midRight, string $bottomRight, string $bottomMid, string $bottomLeft, string $midLeft, string $topLeftBottom = null, string $topMidBottom = null, string $topRightBottom = null)
     {
         $this->crossingChar = $cross;
         $this->crossingTopLeftChar = $topLeft;
@@ -171,18 +242,15 @@ class TableStyle
      * Sets default crossing character used for each cross.
      *
      * @see {@link setCrossingChars()} for setting each crossing individually.
-     * @param string $char
      */
-    public function setDefaultCrossingChar($char) : self
+    public function setDefaultCrossingChar(string $char) : self
     {
         return $this->setCrossingChars($char, $char, $char, $char, $char, $char, $char, $char, $char);
     }
     /**
      * Gets crossing character.
-     *
-     * @return string
      */
-    public function getCrossingChar()
+    public function getCrossingChar() : string
     {
         return $this->crossingChar;
     }
@@ -199,19 +267,16 @@ class TableStyle
      * Sets header cell format.
      *
      * @return $this
-     * @param string $cellHeaderFormat
      */
-    public function setCellHeaderFormat($cellHeaderFormat)
+    public function setCellHeaderFormat(string $cellHeaderFormat)
     {
         $this->cellHeaderFormat = $cellHeaderFormat;
         return $this;
     }
     /**
      * Gets header cell format.
-     *
-     * @return string
      */
-    public function getCellHeaderFormat()
+    public function getCellHeaderFormat() : string
     {
         return $this->cellHeaderFormat;
     }
@@ -219,19 +284,16 @@ class TableStyle
      * Sets row cell format.
      *
      * @return $this
-     * @param string $cellRowFormat
      */
-    public function setCellRowFormat($cellRowFormat)
+    public function setCellRowFormat(string $cellRowFormat)
     {
         $this->cellRowFormat = $cellRowFormat;
         return $this;
     }
     /**
      * Gets row cell format.
-     *
-     * @return string
      */
-    public function getCellRowFormat()
+    public function getCellRowFormat() : string
     {
         return $this->cellRowFormat;
     }
@@ -239,19 +301,16 @@ class TableStyle
      * Sets row cell content format.
      *
      * @return $this
-     * @param string $cellRowContentFormat
      */
-    public function setCellRowContentFormat($cellRowContentFormat)
+    public function setCellRowContentFormat(string $cellRowContentFormat)
     {
         $this->cellRowContentFormat = $cellRowContentFormat;
         return $this;
     }
     /**
      * Gets row cell content format.
-     *
-     * @return string
      */
-    public function getCellRowContentFormat()
+    public function getCellRowContentFormat() : string
     {
         return $this->cellRowContentFormat;
     }
@@ -259,19 +318,16 @@ class TableStyle
      * Sets table border format.
      *
      * @return $this
-     * @param string $borderFormat
      */
-    public function setBorderFormat($borderFormat)
+    public function setBorderFormat(string $borderFormat)
     {
         $this->borderFormat = $borderFormat;
         return $this;
     }
     /**
      * Gets table border format.
-     *
-     * @return string
      */
-    public function getBorderFormat()
+    public function getBorderFormat() : string
     {
         return $this->borderFormat;
     }
@@ -279,22 +335,19 @@ class TableStyle
      * Sets cell padding type.
      *
      * @return $this
-     * @param int $padType
      */
-    public function setPadType($padType)
+    public function setPadType(int $padType)
     {
         if (!\in_array($padType, [\STR_PAD_LEFT, \STR_PAD_RIGHT, \STR_PAD_BOTH], \true)) {
-            throw new \RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidArgumentException('Invalid padding type. Expected one of (STR_PAD_LEFT, STR_PAD_RIGHT, STR_PAD_BOTH).');
+            throw new \RectorPrefix20211213\Symfony\Component\Console\Exception\InvalidArgumentException('Invalid padding type. Expected one of (STR_PAD_LEFT, STR_PAD_RIGHT, STR_PAD_BOTH).');
         }
         $this->padType = $padType;
         return $this;
     }
     /**
      * Gets cell padding type.
-     *
-     * @return int
      */
-    public function getPadType()
+    public function getPadType() : int
     {
         return $this->padType;
     }
@@ -303,9 +356,9 @@ class TableStyle
         return $this->headerTitleFormat;
     }
     /**
-     * @param string $format
+     * @return $this
      */
-    public function setHeaderTitleFormat($format) : self
+    public function setHeaderTitleFormat(string $format)
     {
         $this->headerTitleFormat = $format;
         return $this;
@@ -315,9 +368,9 @@ class TableStyle
         return $this->footerTitleFormat;
     }
     /**
-     * @param string $format
+     * @return $this
      */
-    public function setFooterTitleFormat($format) : self
+    public function setFooterTitleFormat(string $format)
     {
         $this->footerTitleFormat = $format;
         return $this;

@@ -25,6 +25,7 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class TypedPropertyFromStrictGetterMethodReturnTypeRector extends \Rector\Core\Rector\AbstractRector implements \Rector\VersionBonding\Contract\MinPhpVersionInterface
 {
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\TypeInferer\PropertyTypeInferer\GetterTypeDeclarationPropertyTypeInferer
      */
     private $getterTypeDeclarationPropertyTypeInferer;
@@ -80,8 +81,12 @@ CODE_SAMPLE
         if (!$getterReturnType instanceof \PHPStan\Type\Type) {
             return null;
         }
+        // if property is public, it should be nullable
+        if ($node->isPublic() && !\PHPStan\Type\TypeCombinator::containsNull($getterReturnType)) {
+            $getterReturnType = \PHPStan\Type\TypeCombinator::addNull($getterReturnType);
+        }
         $propertyType = $this->staticTypeMapper->mapPHPStanTypeToPhpParserNode($getterReturnType, \Rector\PHPStanStaticTypeMapper\Enum\TypeKind::PROPERTY());
-        if ($propertyType === null) {
+        if (!$propertyType instanceof \PhpParser\Node) {
             return null;
         }
         $node->type = $propertyType;

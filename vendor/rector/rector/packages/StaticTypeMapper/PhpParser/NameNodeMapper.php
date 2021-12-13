@@ -27,21 +27,28 @@ use Rector\StaticTypeMapper\Contract\PhpParser\PhpParserNodeMapperInterface;
 use Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType;
 use Rector\StaticTypeMapper\ValueObject\Type\ParentObjectWithoutClassType;
 use Rector\StaticTypeMapper\ValueObject\Type\ParentStaticType;
+/**
+ * @implements PhpParserNodeMapperInterface<Name>
+ */
 final class NameNodeMapper implements \Rector\StaticTypeMapper\Contract\PhpParser\PhpParserNodeMapperInterface
 {
     /**
+     * @readonly
      * @var \Rector\Core\Configuration\RenamedClassesDataCollector
      */
     private $renamedClassesDataCollector;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
@@ -52,17 +59,14 @@ final class NameNodeMapper implements \Rector\StaticTypeMapper\Contract\PhpParse
         $this->betterNodeFinder = $betterNodeFinder;
         $this->nodeNameResolver = $nodeNameResolver;
     }
-    /**
-     * @return class-string<Node>
-     */
     public function getNodeType() : string
     {
         return \PhpParser\Node\Name::class;
     }
     /**
-     * @param \PhpParser\Node $node
+     * @param Name $node
      */
-    public function mapToPHPStan($node) : \PHPStan\Type\Type
+    public function mapToPHPStan(\PhpParser\Node $node) : \PHPStan\Type\Type
     {
         $name = $node->toString();
         if ($this->isExistingClass($name)) {

@@ -16,7 +16,7 @@ use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Stmt\If_;
 use Rector\Core\PhpParser\Comparing\NodeComparator;
 use Rector\Core\PhpParser\Node\BetterNodeFinder;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
 final class CallAnalyzer
 {
     /**
@@ -28,6 +28,7 @@ final class CallAnalyzer
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Comparing\NodeComparator
      */
     private $nodeComparator;
@@ -38,7 +39,7 @@ final class CallAnalyzer
     /**
      * @required
      */
-    public function autowireCallAnalyzer(\Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder) : void
+    public function autowire(\Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder) : void
     {
         $this->betterNodeFinder = $betterNodeFinder;
     }

@@ -24,6 +24,7 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class RemovePhpVersionIdCheckRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const PHP_VERSION_CONSTRAINT = 'phpVersionConstraint';
@@ -32,6 +33,7 @@ final class RemovePhpVersionIdCheckRector extends \Rector\Core\Rector\AbstractRe
      */
     private $phpVersionConstraint;
     /**
+     * @readonly
      * @var \Rector\Core\Util\PhpVersionFactory
      */
     private $phpVersionFactory;
@@ -40,7 +42,7 @@ final class RemovePhpVersionIdCheckRector extends \Rector\Core\Rector\AbstractRe
         $this->phpVersionFactory = $phpVersionFactory;
     }
     /**
-     * @param array<string, int|string> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {

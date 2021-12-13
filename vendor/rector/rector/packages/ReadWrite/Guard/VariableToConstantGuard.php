@@ -21,10 +21,12 @@ final class VariableToConstantGuard
      */
     private $referencePositionsByFunctionName = [];
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
@@ -50,6 +52,9 @@ final class VariableToConstantGuard
             return \true;
         }
         $functionReflection = $this->reflectionProvider->getFunction($functionName, $argScope);
+        if (!$argScope instanceof \PHPStan\Analyser\Scope) {
+            return \true;
+        }
         $referenceParametersPositions = $this->resolveFunctionReferencePositions($functionReflection, [$arg], $argScope);
         if ($referenceParametersPositions === []) {
             // no reference always only write

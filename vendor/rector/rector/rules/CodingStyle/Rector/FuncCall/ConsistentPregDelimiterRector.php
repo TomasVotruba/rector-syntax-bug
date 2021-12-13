@@ -3,22 +3,23 @@
 declare (strict_types=1);
 namespace Rector\CodingStyle\Rector\FuncCall;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Type\ObjectType;
-use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
+use Rector\Core\Contract\Rector\AllowEmptyConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
+use Rector\Core\Util\StringUtils;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 /**
  * @see \Rector\Tests\CodingStyle\Rector\FuncCall\ConsistentPregDelimiterRector\ConsistentPregDelimiterRectorTest
  */
-final class ConsistentPregDelimiterRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
+final class ConsistentPregDelimiterRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\AllowEmptyConfigurableRectorInterface
 {
     /**
      * @api
@@ -132,9 +133,9 @@ CODE_SAMPLE
         }
         /** @var String_ $string */
         $string = $arg->value;
-        $string->value = \RectorPrefix20211110\Nette\Utils\Strings::replace($string->value, self::INNER_REGEX, function (array $match) use(&$string) : string {
+        $string->value = \RectorPrefix20211213\Nette\Utils\Strings::replace($string->value, self::INNER_REGEX, function (array $match) use(&$string) : string {
             $printedString = $this->betterStandardPrinter->print($string);
-            if (\RectorPrefix20211110\Nette\Utils\Strings::match($printedString, self::DOUBLE_QUOTED_REGEX)) {
+            if (\Rector\Core\Util\StringUtils::isMatch($printedString, self::DOUBLE_QUOTED_REGEX)) {
                 $string->setAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::IS_REGULAR_PATTERN, \true);
             }
             $innerPattern = $match['content'];

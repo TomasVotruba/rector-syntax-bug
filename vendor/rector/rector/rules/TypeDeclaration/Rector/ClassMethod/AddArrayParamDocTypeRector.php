@@ -27,18 +27,22 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class AddArrayParamDocTypeRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\TypeInferer\ParamTypeInferer
      */
     private $paramTypeInferer;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTypeChanger
      */
     private $phpDocTypeChanger;
     /**
+     * @readonly
      * @var \Rector\DeadCode\PhpDoc\TagRemover\ParamTagRemover
      */
     private $paramTagRemover;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\ParamAnalyzer
      */
     private $paramAnalyzer;
@@ -100,6 +104,7 @@ CODE_SAMPLE
             return null;
         }
         $phpDocInfo = $this->phpDocInfoFactory->createFromNodeOrEmpty($node);
+        $hasChangedNode = \false;
         foreach ($node->getParams() as $param) {
             if ($this->shouldSkipParam($param)) {
                 continue;
@@ -116,8 +121,9 @@ CODE_SAMPLE
             }
             $paramName = $this->getName($param);
             $this->phpDocTypeChanger->changeParamType($phpDocInfo, $paramType, $param, $paramName);
+            $hasChangedNode = \true;
         }
-        if ($phpDocInfo->hasChanged()) {
+        if ($phpDocInfo->hasChanged() && $hasChangedNode) {
             $node->setAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::HAS_PHP_DOC_INFO_JUST_CHANGED, \true);
             $this->paramTagRemover->removeParamTagsIfUseless($phpDocInfo, $node);
             return $node;

@@ -20,18 +20,22 @@ use Rector\Php80\ValueObject\StrStartsWith;
 final class StrposMatchAndRefactor implements \Rector\Php80\Contract\StrStartWithMatchAndRefactorInterface
 {
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\Value\ValueResolver
      */
     private $valueResolver;
     /**
+     * @readonly
      * @var \Rector\Php80\NodeFactory\StrStartsWithFuncCallFactory
      */
     private $strStartsWithFuncCallFactory;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\ArgsAnalyzer
      */
     private $argsAnalyzer;
@@ -43,7 +47,7 @@ final class StrposMatchAndRefactor implements \Rector\Php80\Contract\StrStartWit
         $this->argsAnalyzer = $argsAnalyzer;
     }
     /**
-     * @param \PhpParser\Node\Expr\BinaryOp $binaryOp
+     * @param \PhpParser\Node\Expr\BinaryOp\Identical|\PhpParser\Node\Expr\BinaryOp\NotIdentical $binaryOp
      */
     public function match($binaryOp) : ?\Rector\Php80\ValueObject\StrStartsWith
     {
@@ -61,9 +65,8 @@ final class StrposMatchAndRefactor implements \Rector\Php80\Contract\StrStartWit
     }
     /**
      * @return FuncCall|BooleanNot
-     * @param \Rector\Php80\ValueObject\StrStartsWith $strStartsWith
      */
-    public function refactorStrStartsWith($strStartsWith) : \PhpParser\Node
+    public function refactorStrStartsWith(\Rector\Php80\ValueObject\StrStartsWith $strStartsWith) : \PhpParser\Node
     {
         $strposFuncCall = $strStartsWith->getFuncCall();
         $strposFuncCall->name = new \PhpParser\Node\Name('str_starts_with');

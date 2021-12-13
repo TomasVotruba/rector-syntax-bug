@@ -29,7 +29,7 @@ use Traversable;
  *
  * @see \Rector\Tests\DowngradePhp74\Rector\Array_\DowngradeArraySpreadRector\DowngradeArraySpreadRectorTest
  */
-final class DowngradeArraySpreadRector extends \Rector\Core\Rector\AbstractRector
+class DowngradeArraySpreadRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
      * @var bool
@@ -42,6 +42,7 @@ final class DowngradeArraySpreadRector extends \Rector\Core\Rector\AbstractRecto
      */
     private $lastPositionCurrentFile = [];
     /**
+     * @readonly
      * @var \Rector\Naming\Naming\VariableNaming
      */
     private $variableNaming;
@@ -189,9 +190,8 @@ CODE_SAMPLE
      * We must then first extract it into a variable,
      * as to invoke it only once and avoid potential bugs,
      * such as a method executing some side-effect
-     * @param int|string $position
      */
-    private function createVariableFromNonVariable(\PhpParser\Node\Expr\Array_ $array, \PhpParser\Node\Expr\ArrayItem $arrayItem, $position) : \PhpParser\Node\Expr\Variable
+    private function createVariableFromNonVariable(\PhpParser\Node\Expr\Array_ $array, \PhpParser\Node\Expr\ArrayItem $arrayItem, int $position) : \PhpParser\Node\Expr\Variable
     {
         /** @var Scope $nodeScope */
         $nodeScope = $array->getAttribute(\Rector\NodeTypeResolver\Node\AttributeKey::SCOPE);
@@ -237,17 +237,15 @@ CODE_SAMPLE
             }
         }
         $iteratorToArrayFuncCall = new \PhpParser\Node\Expr\FuncCall(new \PhpParser\Node\Name('iterator_to_array'), [new \PhpParser\Node\Arg($arrayItem)]);
-        if ($type !== null) {
-            // If we know it is an array, then print it directly
-            // Otherwise PHPStan throws an error:
-            // "Else branch is unreachable because ternary operator condition is always true."
-            if ($type instanceof \PHPStan\Type\ArrayType) {
-                return new \PhpParser\Node\Arg($arrayItem);
-            }
-            // If it is iterable, then directly return `iterator_to_array`
-            if ($this->isIterableType($type)) {
-                return new \PhpParser\Node\Arg($iteratorToArrayFuncCall);
-            }
+        // If we know it is an array, then print it directly
+        // Otherwise PHPStan throws an error:
+        // "Else branch is unreachable because ternary operator condition is always true."
+        if ($type instanceof \PHPStan\Type\ArrayType) {
+            return new \PhpParser\Node\Arg($arrayItem);
+        }
+        // If it is iterable, then directly return `iterator_to_array`
+        if ($this->isIterableType($type)) {
+            return new \PhpParser\Node\Arg($iteratorToArrayFuncCall);
         }
         // Print a ternary, handling either an array or an iterator
         $inArrayFuncCall = new \PhpParser\Node\Expr\FuncCall(new \PhpParser\Node\Name('is_array'), [new \PhpParser\Node\Arg($arrayItem)]);

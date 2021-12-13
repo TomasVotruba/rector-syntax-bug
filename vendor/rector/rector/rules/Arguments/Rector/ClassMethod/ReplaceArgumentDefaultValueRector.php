@@ -13,13 +13,14 @@ use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Arguments\Rector\ClassMethod\ReplaceArgumentDefaultValueRector\ReplaceArgumentDefaultValueRectorTest
  */
 final class ReplaceArgumentDefaultValueRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const REPLACED_ARGUMENTS = 'replaced_arguments';
@@ -28,6 +29,7 @@ final class ReplaceArgumentDefaultValueRector extends \Rector\Core\Rector\Abstra
      */
     private $replacedArguments = [];
     /**
+     * @readonly
      * @var \Rector\Arguments\ArgumentDefaultValueReplacer
      */
     private $argumentDefaultValueReplacer;
@@ -45,7 +47,7 @@ CODE_SAMPLE
 $someObject = new SomeClass;
 $someObject->someMethod(false);
 CODE_SAMPLE
-, [self::REPLACED_ARGUMENTS => [new \Rector\Arguments\ValueObject\ReplaceArgumentDefaultValue('SomeClass', 'someMethod', 0, 'SomeClass::OLD_CONSTANT', \false)]])]);
+, [new \Rector\Arguments\ValueObject\ReplaceArgumentDefaultValue('SomeClass', 'someMethod', 0, 'SomeClass::OLD_CONSTANT', \false)])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -72,12 +74,13 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, ReplaceArgumentDefaultValue[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $replacedArguments = $configuration[self::REPLACED_ARGUMENTS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($replacedArguments, \Rector\Arguments\ValueObject\ReplaceArgumentDefaultValue::class);
+        $replacedArguments = $configuration[self::REPLACED_ARGUMENTS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($replacedArguments);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($replacedArguments, \Rector\Arguments\ValueObject\ReplaceArgumentDefaultValue::class);
         $this->replacedArguments = $replacedArguments;
     }
 }

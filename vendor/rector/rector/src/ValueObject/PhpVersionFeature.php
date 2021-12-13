@@ -424,8 +424,38 @@ final class PhpVersionFeature
      */
     public const PHP8_RESOURCE_TO_OBJECT = \Rector\Core\ValueObject\PhpVersion::PHP_80;
     /**
+     * @see https://wiki.php.net/rfc/lsp_errors
+     * @var int
+     */
+    public const FATAL_ERROR_ON_INCOMPATIBLE_METHOD_SIGNATURE = \Rector\Core\ValueObject\PhpVersion::PHP_80;
+    /**
      * @see https://www.php.net/manual/en/migration81.incompatible.php#migration81.incompatible.resource2object
      * @var int
      */
     public const PHP81_RESOURCE_TO_OBJECT = \Rector\Core\ValueObject\PhpVersion::PHP_81;
+    /**
+     * @see https://wiki.php.net/rfc/new_in_initializers
+     * @var int
+     */
+    public const NEW_INITIALIZERS = \Rector\Core\ValueObject\PhpVersion::PHP_81;
+    /**
+     * @see https://wiki.php.net/rfc/pure-intersection-types
+     * @var int
+     */
+    public const INTERSECTION_TYPES = \Rector\Core\ValueObject\PhpVersion::PHP_81;
+    /**
+     * @see https://wiki.php.net/rfc/array_unpacking_string_keys
+     * @var int
+     */
+    public const ARRAY_SPREAD_STRING_KEYS = \Rector\Core\ValueObject\PhpVersion::PHP_81;
+    /**
+     * @see https://wiki.php.net/rfc/deprecate_dynamic_properties
+     * @var int
+     */
+    public const DEPRECATE_DYNAMIC_PROPERTIES = \Rector\Core\ValueObject\PhpVersion::PHP_82;
+    /**
+     * @see https://wiki.php.net/rfc/mixed_type_v2
+     * @var int
+     */
+    public const MIXED_TYPE = \Rector\Core\ValueObject\PhpVersion::PHP_80;
 }

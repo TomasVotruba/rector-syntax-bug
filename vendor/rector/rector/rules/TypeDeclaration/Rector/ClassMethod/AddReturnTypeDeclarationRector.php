@@ -10,18 +10,20 @@ use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
+use Rector\Core\ValueObject\PhpVersionFeature;
 use Rector\NodeTypeResolver\TypeComparator\TypeComparator;
 use Rector\PHPStanStaticTypeMapper\Enum\TypeKind;
 use Rector\TypeDeclaration\ValueObject\AddReturnTypeDeclaration;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\TypeDeclaration\Rector\ClassMethod\AddReturnTypeDeclarationRector\AddReturnTypeDeclarationRectorTest
  */
 final class AddReturnTypeDeclarationRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const METHOD_RETURN_TYPES = 'method_return_types';
@@ -30,6 +32,7 @@ final class AddReturnTypeDeclarationRector extends \Rector\Core\Rector\AbstractR
      */
     private $methodReturnTypes = [];
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\TypeComparator\TypeComparator
      */
     private $typeComparator;
@@ -40,7 +43,6 @@ final class AddReturnTypeDeclarationRector extends \Rector\Core\Rector\AbstractR
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
         $arrayType = new \PHPStan\Type\ArrayType(new \PHPStan\Type\MixedType(), new \PHPStan\Type\MixedType());
-        $configuration = [self::METHOD_RETURN_TYPES => [new \Rector\TypeDeclaration\ValueObject\AddReturnTypeDeclaration('SomeClass', 'getData', $arrayType)]];
         return new \Symplify\RuleDocGenerator\ValueObject\RuleDefinition('Changes defined return typehint of method and class.', [new \Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample(<<<'CODE_SAMPLE'
 class SomeClass
 {
@@ -57,7 +59,7 @@ class SomeClass
     }
 }
 CODE_SAMPLE
-, $configuration)]);
+, [new \Rector\TypeDeclaration\ValueObject\AddReturnTypeDeclaration('SomeClass', 'getData', $arrayType)])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -84,18 +86,19 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, AddReturnTypeDeclaration[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $methodReturnTypes = $configuration[self::METHOD_RETURN_TYPES] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($methodReturnTypes, \Rector\TypeDeclaration\ValueObject\AddReturnTypeDeclaration::class);
+        $methodReturnTypes = $configuration[self::METHOD_RETURN_TYPES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($methodReturnTypes);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($methodReturnTypes, \Rector\TypeDeclaration\ValueObject\AddReturnTypeDeclaration::class);
         $this->methodReturnTypes = $methodReturnTypes;
     }
     private function processClassMethodNodeWithTypehints(\PhpParser\Node\Stmt\ClassMethod $classMethod, \PHPStan\Type\Type $newType) : void
     {
         // remove it
-        if ($newType instanceof \PHPStan\Type\MixedType) {
+        if ($newType instanceof \PHPStan\Type\MixedType && !$this->phpVersionProvider->isAtLeastPhpVersion(\Rector\Core\ValueObject\PhpVersionFeature::MIXED_TYPE)) {
             $classMethod->returnType = null;
             return;
         }

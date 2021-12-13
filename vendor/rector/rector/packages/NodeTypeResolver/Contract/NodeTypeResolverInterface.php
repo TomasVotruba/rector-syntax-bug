@@ -6,7 +6,7 @@ namespace Rector\NodeTypeResolver\Contract;
 use PhpParser\Node;
 use PHPStan\Type\Type;
 /**
- * @template TNode as Node
+ * @template TNode as \PhpParser\Node
  */
 interface NodeTypeResolverInterface
 {
@@ -15,7 +15,7 @@ interface NodeTypeResolverInterface
      */
     public function getNodeClasses() : array;
     /**
-     * @param \PhpParser\Node $node
+     * @param TNode $node
      */
-    public function resolve($node) : \PHPStan\Type\Type;
+    public function resolve(\PhpParser\Node $node) : \PHPStan\Type\Type;
 }

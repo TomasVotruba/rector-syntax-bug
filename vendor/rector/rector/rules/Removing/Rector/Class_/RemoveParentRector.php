@@ -12,6 +12,7 @@ use Rector\NodeCollector\ScopeResolver\ParentClassScopeResolver;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Removing\Rector\Class_\RemoveParentRector\RemoveParentRectorTest
  */
@@ -19,6 +20,7 @@ final class RemoveParentRector extends \Rector\Core\Rector\AbstractRector implem
 {
     /**
      * @api
+     * @deprecated
      * @var string
      */
     public const PARENT_TYPES_TO_REMOVE = 'parents_types_to_remove';
@@ -27,6 +29,7 @@ final class RemoveParentRector extends \Rector\Core\Rector\AbstractRector implem
      */
     private $parentClassesToRemove = [];
     /**
+     * @readonly
      * @var \Rector\NodeCollector\ScopeResolver\ParentClassScopeResolver
      */
     private $parentClassScopeResolver;
@@ -46,7 +49,7 @@ final class SomeClass
 {
 }
 CODE_SAMPLE
-, [self::PARENT_TYPES_TO_REMOVE => ['SomeParentClass']])]);
+, ['SomeParentClass'])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -76,10 +79,13 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, class-string[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $this->parentClassesToRemove = $configuration[self::PARENT_TYPES_TO_REMOVE] ?? [];
+        $parentTypesToRemove = $configuration[self::PARENT_TYPES_TO_REMOVE] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($parentTypesToRemove);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($parentTypesToRemove);
+        $this->parentClassesToRemove = $parentTypesToRemove;
     }
 }

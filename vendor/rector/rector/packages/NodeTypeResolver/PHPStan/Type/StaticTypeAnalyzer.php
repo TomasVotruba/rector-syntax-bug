@@ -19,6 +19,7 @@ use Rector\PHPStanStaticTypeMapper\TypeAnalyzer\UnionTypeAnalyzer;
 final class StaticTypeAnalyzer
 {
     /**
+     * @readonly
      * @var \Rector\PHPStanStaticTypeMapper\TypeAnalyzer\UnionTypeAnalyzer
      */
     private $unionTypeAnalyzer;
@@ -74,6 +75,9 @@ final class StaticTypeAnalyzer
     private function isAlwaysTruableArrayType(\PHPStan\Type\ArrayType $arrayType) : bool
     {
         $itemType = $arrayType->getItemType();
-        return $itemType instanceof \PHPStan\Type\ConstantScalarType && $itemType->getValue();
+        if (!$itemType instanceof \PHPStan\Type\ConstantScalarType) {
+            return \false;
+        }
+        return (bool) $itemType->getValue();
     }
 }

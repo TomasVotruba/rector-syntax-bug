@@ -9,6 +9,7 @@ use PhpParser\Node\Stmt\Class_;
 use Rector\Core\NodeAnalyzer\ClassAnalyzer;
 use Rector\Core\Rector\AbstractRector;
 use Rector\Core\ValueObject\MethodName;
+use Rector\Privatization\NodeManipulator\VisibilityManipulator;
 use Rector\Transform\NodeAnalyzer\SingletonClassMethodAnalyzer;
 use Rector\Transform\ValueObject\PropertyAndClassMethodName;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
@@ -22,17 +23,25 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class ChangeSingletonToServiceRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
+     * @readonly
      * @var \Rector\Transform\NodeAnalyzer\SingletonClassMethodAnalyzer
      */
     private $singletonClassMethodAnalyzer;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\ClassAnalyzer
      */
     private $classAnalyzer;
-    public function __construct(\Rector\Transform\NodeAnalyzer\SingletonClassMethodAnalyzer $singletonClassMethodAnalyzer, \Rector\Core\NodeAnalyzer\ClassAnalyzer $classAnalyzer)
+    /**
+     * @readonly
+     * @var \Rector\Privatization\NodeManipulator\VisibilityManipulator
+     */
+    private $visibilityManipulator;
+    public function __construct(\Rector\Transform\NodeAnalyzer\SingletonClassMethodAnalyzer $singletonClassMethodAnalyzer, \Rector\Core\NodeAnalyzer\ClassAnalyzer $classAnalyzer, \Rector\Privatization\NodeManipulator\VisibilityManipulator $visibilityManipulator)
     {
         $this->singletonClassMethodAnalyzer = $singletonClassMethodAnalyzer;
         $this->classAnalyzer = $classAnalyzer;
+        $this->visibilityManipulator = $visibilityManipulator;
     }
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {

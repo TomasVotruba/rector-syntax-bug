@@ -5,20 +5,22 @@ namespace Rector\Core\Configuration;
 
 use Rector\ChangesReporting\Output\ConsoleOutputFormatter;
 use Rector\Core\ValueObject\Configuration;
-use RectorPrefix20211110\Symfony\Component\Console\Input\InputInterface;
-use RectorPrefix20211110\Symfony\Component\Console\Style\SymfonyStyle;
-use RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider;
+use RectorPrefix20211213\Symfony\Component\Console\Input\InputInterface;
+use RectorPrefix20211213\Symfony\Component\Console\Style\SymfonyStyle;
+use RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider;
 final class ConfigurationFactory
 {
     /**
+     * @readonly
      * @var \Symplify\PackageBuilder\Parameter\ParameterProvider
      */
     private $parameterProvider;
     /**
+     * @readonly
      * @var \Symfony\Component\Console\Style\SymfonyStyle
      */
     private $symfonyStyle;
-    public function __construct(\RectorPrefix20211110\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider, \RectorPrefix20211110\Symfony\Component\Console\Style\SymfonyStyle $symfonyStyle)
+    public function __construct(\RectorPrefix20211213\Symplify\PackageBuilder\Parameter\ParameterProvider $parameterProvider, \RectorPrefix20211213\Symfony\Component\Console\Style\SymfonyStyle $symfonyStyle)
     {
         $this->parameterProvider = $parameterProvider;
         $this->symfonyStyle = $symfonyStyle;
@@ -26,12 +28,12 @@ final class ConfigurationFactory
     public function createForTests() : \Rector\Core\ValueObject\Configuration
     {
         $fileExtensions = $this->parameterProvider->provideArrayParameter(\Rector\Core\Configuration\Option::FILE_EXTENSIONS);
-        return new \Rector\Core\ValueObject\Configuration(\true, \true, \false, 'console', $fileExtensions);
+        return new \Rector\Core\ValueObject\Configuration(\true, \true, \false, \Rector\ChangesReporting\Output\ConsoleOutputFormatter::NAME, $fileExtensions);
     }
     /**
      * Needs to run in the start of the life cycle, since the rest of workflow uses it.
      */
-    public function createFromInput(\RectorPrefix20211110\Symfony\Component\Console\Input\InputInterface $input) : \Rector\Core\ValueObject\Configuration
+    public function createFromInput(\RectorPrefix20211213\Symfony\Component\Console\Input\InputInterface $input) : \Rector\Core\ValueObject\Configuration
     {
         $isDryRun = (bool) $input->getOption(\Rector\Core\Configuration\Option::DRY_RUN);
         $shouldClearCache = (bool) $input->getOption(\Rector\Core\Configuration\Option::CLEAR_CACHE);
@@ -40,9 +42,11 @@ final class ConfigurationFactory
         $showDiffs = !(bool) $input->getOption(\Rector\Core\Configuration\Option::NO_DIFFS);
         $paths = $this->resolvePaths($input);
         $fileExtensions = $this->parameterProvider->provideArrayParameter(\Rector\Core\Configuration\Option::FILE_EXTENSIONS);
-        return new \Rector\Core\ValueObject\Configuration($isDryRun, $showProgressBar, $shouldClearCache, $outputFormat, $fileExtensions, $paths, $showDiffs);
+        $parallelPort = (string) $input->getOption(\Rector\Core\Configuration\Option::PARALLEL_PORT);
+        $parallelIdentifier = (string) $input->getOption(\Rector\Core\Configuration\Option::PARALLEL_IDENTIFIER);
+        return new \Rector\Core\ValueObject\Configuration($isDryRun, $showProgressBar, $shouldClearCache, $outputFormat, $fileExtensions, $paths, $showDiffs, null, $parallelPort, $parallelIdentifier);
     }
-    private function shouldShowProgressBar(\RectorPrefix20211110\Symfony\Component\Console\Input\InputInterface $input, string $outputFormat) : bool
+    private function shouldShowProgressBar(\RectorPrefix20211213\Symfony\Component\Console\Input\InputInterface $input, string $outputFormat) : bool
     {
         $noProgressBar = (bool) $input->getOption(\Rector\Core\Configuration\Option::NO_PROGRESS_BAR);
         if ($noProgressBar) {
@@ -70,7 +74,7 @@ final class ConfigurationFactory
     /**
      * @return string[]|mixed[]
      */
-    private function resolvePaths(\RectorPrefix20211110\Symfony\Component\Console\Input\InputInterface $input) : array
+    private function resolvePaths(\RectorPrefix20211213\Symfony\Component\Console\Input\InputInterface $input) : array
     {
         $commandLinePaths = (array) $input->getArgument(\Rector\Core\Configuration\Option::SOURCE);
         // command line has priority

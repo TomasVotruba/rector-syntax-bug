@@ -26,10 +26,12 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class CallUserFuncArrayToVariadicRector extends \Rector\Core\Rector\AbstractRector implements \Rector\VersionBonding\Contract\MinPhpVersionInterface
 {
     /**
+     * @readonly
      * @var \Rector\CodingStyle\NodeFactory\ArrayCallableToMethodCallFactory
      */
     private $arrayCallableToMethodCallFactory;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\ArgsAnalyzer
      */
     private $argsAnalyzer;
@@ -79,10 +81,10 @@ CODE_SAMPLE
             return null;
         }
         /** @var Arg $firstArg */
-        $firstArg = $node->args[0];
+        $firstArg = $node->getArgs()[0];
         $firstArgValue = $firstArg->value;
         /** @var Arg $secondArg */
-        $secondArg = $node->args[1];
+        $secondArg = $node->getArgs()[1];
         $secondArgValue = $secondArg->value;
         if ($firstArgValue instanceof \PhpParser\Node\Scalar\String_) {
             $functionName = $this->valueResolver->getValue($firstArgValue);

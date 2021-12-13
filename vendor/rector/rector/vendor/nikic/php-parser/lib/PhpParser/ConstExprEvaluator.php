@@ -2,6 +2,7 @@
 
 namespace PhpParser;
 
+use function array_merge;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Scalar;
 /**
@@ -57,7 +58,7 @@ class ConstExprEvaluator
      *
      * @throws ConstExprEvaluationException if the expression cannot be evaluated or an error occurred
      */
-    public function evaluateSilently($expr)
+    public function evaluateSilently(\PhpParser\Node\Expr $expr)
     {
         \set_error_handler(function ($num, $str, $file, $line) {
             throw new \ErrorException($str, 0, $num, $file, $line);
@@ -90,7 +91,7 @@ class ConstExprEvaluator
      *
      * @throws ConstExprEvaluationException if the expression cannot be evaluated
      */
-    public function evaluateDirectly($expr)
+    public function evaluateDirectly(\PhpParser\Node\Expr $expr)
     {
         return $this->evaluate($expr);
     }
@@ -135,6 +136,8 @@ class ConstExprEvaluator
         foreach ($expr->items as $item) {
             if (null !== $item->key) {
                 $array[$this->evaluate($item->key)] = $this->evaluate($item->value);
+            } elseif ($item->unpack) {
+                $array = \array_merge($array, $this->evaluate($item->value));
             } else {
                 $array[] = $this->evaluate($item->value);
             }

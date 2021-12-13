@@ -20,26 +20,24 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Renaming\NodeManipulator\ClassRenamer;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Renaming\Rector\Name\RenameClassRector\RenameClassRectorTest
  */
 final class RenameClassRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const OLD_TO_NEW_CLASSES = 'old_to_new_classes';
     /**
-     * @api
-     * @var string
-     */
-    public const CLASS_MAP_FILES = 'class_map_files';
-    /**
+     * @readonly
      * @var \Rector\Core\Configuration\RenamedClassesDataCollector
      */
     private $renamedClassesDataCollector;
     /**
+     * @readonly
      * @var \Rector\Renaming\NodeManipulator\ClassRenamer
      */
     private $classRenamer;
@@ -74,7 +72,7 @@ function someFunction(SomeNewClass $someOldClass): SomeNewClass
     }
 }
 CODE_SAMPLE
-, [self::OLD_TO_NEW_CLASSES => ['App\\SomeOldClass' => 'App\\SomeNewClass']])]);
+, ['App\\SomeOldClass' => 'App\\SomeNewClass'])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -98,18 +96,14 @@ CODE_SAMPLE
         return $this->processCleanUpUse($node, $oldToNewClasses);
     }
     /**
-     * @param array<string, array<string, string>> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $this->addOldToNewClasses($configuration[self::OLD_TO_NEW_CLASSES] ?? []);
-        $classMapFiles = $configuration[self::CLASS_MAP_FILES] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allString($classMapFiles);
-        foreach ($classMapFiles as $classMapFile) {
-            \RectorPrefix20211110\Webmozart\Assert\Assert::fileExists($classMapFile);
-            $oldToNewClasses = (require_once $classMapFile);
-            $this->addOldToNewClasses($oldToNewClasses);
-        }
+        $oldToNewClasses = $configuration[self::OLD_TO_NEW_CLASSES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($oldToNewClasses);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($oldToNewClasses);
+        $this->addOldToNewClasses($oldToNewClasses);
     }
     /**
      * @param array<string, string> $oldToNewClasses
@@ -117,7 +111,7 @@ CODE_SAMPLE
     private function processCleanUpUse(\PhpParser\Node\Stmt\Use_ $use, array $oldToNewClasses) : ?\PhpParser\Node\Stmt\Use_
     {
         foreach ($use->uses as $useUse) {
-            if ($useUse->name instanceof \PhpParser\Node\Name && !$useUse->alias instanceof \PhpParser\Node\Identifier && isset($oldToNewClasses[$useUse->name->toString()])) {
+            if (!$useUse->alias instanceof \PhpParser\Node\Identifier && isset($oldToNewClasses[$useUse->name->toString()])) {
                 $this->removeNode($use);
                 return $use;
             }
@@ -125,12 +119,12 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, string> $oldToNewClasses
+     * @param mixed[] $oldToNewClasses
      */
     private function addOldToNewClasses(array $oldToNewClasses) : void
     {
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allString(\array_keys($oldToNewClasses));
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allString($oldToNewClasses);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString(\array_keys($oldToNewClasses));
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($oldToNewClasses);
         $this->renamedClassesDataCollector->addOldToNewClasses($oldToNewClasses);
     }
 }

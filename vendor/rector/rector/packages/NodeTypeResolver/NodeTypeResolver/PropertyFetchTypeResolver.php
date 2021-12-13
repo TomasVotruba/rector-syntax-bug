@@ -16,9 +16,11 @@ use Rector\NodeNameResolver\NodeNameResolver;
 use Rector\NodeTypeResolver\Contract\NodeTypeResolverInterface;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\NodeTypeResolver\NodeTypeResolver;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
 /**
  * @see \Rector\Tests\NodeTypeResolver\PerNodeTypeResolver\PropertyFetchTypeResolver\PropertyFetchTypeResolverTest
+ *
+ * @implements NodeTypeResolverInterface<PropertyFetch>
  */
 final class PropertyFetchTypeResolver implements \Rector\NodeTypeResolver\Contract\NodeTypeResolverInterface
 {
@@ -27,14 +29,17 @@ final class PropertyFetchTypeResolver implements \Rector\NodeTypeResolver\Contra
      */
     private $nodeTypeResolver;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
@@ -47,7 +52,7 @@ final class PropertyFetchTypeResolver implements \Rector\NodeTypeResolver\Contra
     /**
      * @required
      */
-    public function autowirePropertyFetchTypeResolver(\Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver) : void
+    public function autowire(\Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver) : void
     {
         $this->nodeTypeResolver = $nodeTypeResolver;
     }
@@ -59,9 +64,9 @@ final class PropertyFetchTypeResolver implements \Rector\NodeTypeResolver\Contra
         return [\PhpParser\Node\Expr\PropertyFetch::class];
     }
     /**
-     * @param \PhpParser\Node $node
+     * @param PropertyFetch $node
      */
-    public function resolve($node) : \PHPStan\Type\Type
+    public function resolve(\PhpParser\Node $node) : \PHPStan\Type\Type
     {
         // compensate 3rd party non-analysed property reflection
         $vendorPropertyType = $this->getVendorPropertyFetchType($node);

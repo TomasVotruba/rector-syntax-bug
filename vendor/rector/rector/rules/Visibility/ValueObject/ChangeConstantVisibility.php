@@ -4,17 +4,21 @@ declare (strict_types=1);
 namespace Rector\Visibility\ValueObject;
 
 use PHPStan\Type\ObjectType;
+use Rector\Core\Validation\RectorAssert;
 final class ChangeConstantVisibility
 {
     /**
+     * @readonly
      * @var string
      */
     private $class;
     /**
+     * @readonly
      * @var string
      */
     private $constant;
     /**
+     * @readonly
      * @var int
      */
     private $visibility;
@@ -23,6 +27,7 @@ final class ChangeConstantVisibility
         $this->class = $class;
         $this->constant = $constant;
         $this->visibility = $visibility;
+        \Rector\Core\Validation\RectorAssert::className($class);
     }
     public function getObjectType() : \PHPStan\Type\ObjectType
     {

@@ -4,6 +4,7 @@ declare (strict_types=1);
 namespace Rector\PHPStanStaticTypeMapper\TypeMapper;
 
 use PhpParser\Node;
+use PhpParser\Node\ComplexType;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
@@ -21,7 +22,6 @@ use PHPStan\Type\UnionType;
 use PHPStan\Type\VoidType;
 use Rector\BetterPhpDocParser\ValueObject\Type\BracketsAwareUnionTypeNode;
 use Rector\Core\Enum\ObjectReference;
-use Rector\Core\Exception\ShouldNotHappenException;
 use Rector\Core\Php\PhpVersionProvider;
 use Rector\Core\Rector\AbstractRector;
 use Rector\Core\ValueObject\PhpVersionFeature;
@@ -34,7 +34,7 @@ use Rector\PHPStanStaticTypeMapper\TypeAnalyzer\BoolUnionTypeAnalyzer;
 use Rector\PHPStanStaticTypeMapper\TypeAnalyzer\UnionTypeAnalyzer;
 use Rector\PHPStanStaticTypeMapper\TypeAnalyzer\UnionTypeCommonTypeNarrower;
 use Rector\PHPStanStaticTypeMapper\ValueObject\UnionTypeAnalysis;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
 /**
  * @implements TypeMapperInterface<UnionType>
  */
@@ -45,26 +45,32 @@ final class UnionTypeMapper implements \Rector\PHPStanStaticTypeMapper\Contract\
      */
     private $phpStanStaticTypeMapper;
     /**
+     * @readonly
      * @var \Rector\PHPStanStaticTypeMapper\DoctrineTypeAnalyzer
      */
     private $doctrineTypeAnalyzer;
     /**
+     * @readonly
      * @var \Rector\Core\Php\PhpVersionProvider
      */
     private $phpVersionProvider;
     /**
+     * @readonly
      * @var \Rector\PHPStanStaticTypeMapper\TypeAnalyzer\UnionTypeAnalyzer
      */
     private $unionTypeAnalyzer;
     /**
+     * @readonly
      * @var \Rector\PHPStanStaticTypeMapper\TypeAnalyzer\BoolUnionTypeAnalyzer
      */
     private $boolUnionTypeAnalyzer;
     /**
+     * @readonly
      * @var \Rector\PHPStanStaticTypeMapper\TypeAnalyzer\UnionTypeCommonTypeNarrower
      */
     private $unionTypeCommonTypeNarrower;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
@@ -80,7 +86,7 @@ final class UnionTypeMapper implements \Rector\PHPStanStaticTypeMapper\Contract\
     /**
      * @required
      */
-    public function autowireUnionTypeMapper(\Rector\PHPStanStaticTypeMapper\PHPStanStaticTypeMapper $phpStanStaticTypeMapper) : void
+    public function autowire(\Rector\PHPStanStaticTypeMapper\PHPStanStaticTypeMapper $phpStanStaticTypeMapper) : void
     {
         $this->phpStanStaticTypeMapper = $phpStanStaticTypeMapper;
     }
@@ -92,10 +98,9 @@ final class UnionTypeMapper implements \Rector\PHPStanStaticTypeMapper\Contract\
         return \PHPStan\Type\UnionType::class;
     }
     /**
-     * @param \PHPStan\Type\Type $type
-     * @param \Rector\PHPStanStaticTypeMapper\Enum\TypeKind $typeKind
+     * @param UnionType $type
      */
-    public function mapToPHPStanPhpDocTypeNode($type, $typeKind) : \PHPStan\PhpDocParser\Ast\Type\TypeNode
+    public function mapToPHPStanPhpDocTypeNode(\PHPStan\Type\Type $type, \Rector\PHPStanStaticTypeMapper\Enum\TypeKind $typeKind) : \PHPStan\PhpDocParser\Ast\Type\TypeNode
     {
         $unionTypesNodes = [];
         $skipIterable = $this->shouldSkipIterable($type);
@@ -109,10 +114,9 @@ final class UnionTypeMapper implements \Rector\PHPStanStaticTypeMapper\Contract\
         return new \Rector\BetterPhpDocParser\ValueObject\Type\BracketsAwareUnionTypeNode($unionTypesNodes);
     }
     /**
-     * @param \PHPStan\Type\Type $type
-     * @param \Rector\PHPStanStaticTypeMapper\Enum\TypeKind $typeKind
+     * @param UnionType $type
      */
-    public function mapToPhpParserNode($type, $typeKind) : ?\PhpParser\Node
+    public function mapToPhpParserNode(\PHPStan\Type\Type $type, \Rector\PHPStanStaticTypeMapper\Enum\TypeKind $typeKind) : ?\PhpParser\Node
     {
         $arrayNode = $this->matchArrayTypes($type);
         if ($arrayNode !== null) {
@@ -142,8 +146,8 @@ final class UnionTypeMapper implements \Rector\PHPStanStaticTypeMapper\Contract\
         if ($nullabledTypeNode instanceof \PhpParser\Node\NullableType) {
             return $nullabledTypeNode;
         }
-        if ($nullabledTypeNode instanceof \PhpParser\Node\UnionType) {
-            throw new \Rector\Core\Exception\ShouldNotHappenException();
+        if ($nullabledTypeNode instanceof \PhpParser\Node\ComplexType) {
+            return $nullabledTypeNode;
         }
         return new \PhpParser\Node\NullableType($nullabledTypeNode);
     }

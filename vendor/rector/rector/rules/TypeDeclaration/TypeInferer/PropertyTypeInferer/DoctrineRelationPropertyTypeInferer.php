@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\TypeDeclaration\TypeInferer\PropertyTypeInferer;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node\Stmt\Property;
 use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprTrueNode;
 use PHPStan\Type\ArrayType;
@@ -24,18 +24,22 @@ final class DoctrineRelationPropertyTypeInferer implements \Rector\TypeDeclarati
      */
     private const COLLECTION_TYPE = 'Doctrine\\Common\\Collections\\Collection';
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PHPStan\Type\TypeFactory
      */
     private $typeFactory;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfoFactory
      */
     private $phpDocInfoFactory;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\PhpDoc\ShortClassExpander
      */
     private $shortClassExpander;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocParser\ClassAnnotationMatcher
      */
     private $classAnnotationMatcher;
@@ -46,10 +50,7 @@ final class DoctrineRelationPropertyTypeInferer implements \Rector\TypeDeclarati
         $this->shortClassExpander = $shortClassExpander;
         $this->classAnnotationMatcher = $classAnnotationMatcher;
     }
-    /**
-     * @param \PhpParser\Node\Stmt\Property $property
-     */
-    public function inferProperty($property) : ?\PHPStan\Type\Type
+    public function inferProperty(\PhpParser\Node\Stmt\Property $property) : ?\PHPStan\Type\Type
     {
         $phpDocInfo = $this->phpDocInfoFactory->createFromNodeOrEmpty($property);
         $toManyRelationTagValueNode = $phpDocInfo->getByAnnotationClasses(['Doctrine\\ORM\\Mapping\\OneToMany', 'Doctrine\\ORM\\Mapping\\ManyToMany']);
@@ -71,7 +72,7 @@ final class DoctrineRelationPropertyTypeInferer implements \Rector\TypeDeclarati
     {
         $types = [];
         $targetEntity = $doctrineAnnotationTagValueNode->getValueWithoutQuotes('targetEntity');
-        if ($targetEntity) {
+        if (\is_string($targetEntity)) {
             $entityFullyQualifiedClass = $this->shortClassExpander->resolveFqnTargetEntity($targetEntity, $property);
             $types[] = new \PHPStan\Type\ArrayType(new \PHPStan\Type\MixedType(), new \Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType($entityFullyQualifiedClass));
         }
@@ -85,7 +86,7 @@ final class DoctrineRelationPropertyTypeInferer implements \Rector\TypeDeclarati
             return new \PHPStan\Type\MixedType();
         }
         if (\substr_compare($targetEntity, '::class', -\strlen('::class')) === 0) {
-            $targetEntity = \RectorPrefix20211110\Nette\Utils\Strings::before($targetEntity, '::class');
+            $targetEntity = \RectorPrefix20211213\Nette\Utils\Strings::before($targetEntity, '::class');
         }
         // resolve to FQN
         $tagFullyQualifiedName = $this->classAnnotationMatcher->resolveTagFullyQualifiedName($targetEntity, $property);

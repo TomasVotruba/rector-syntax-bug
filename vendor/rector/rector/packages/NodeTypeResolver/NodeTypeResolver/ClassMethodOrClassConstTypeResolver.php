@@ -13,7 +13,10 @@ use PHPStan\Type\Type;
 use Rector\Core\PhpParser\Node\BetterNodeFinder;
 use Rector\NodeTypeResolver\Contract\NodeTypeResolverInterface;
 use Rector\NodeTypeResolver\NodeTypeResolver;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
+/**
+ * @implements NodeTypeResolverInterface<ClassMethod|ClassConst>
+ */
 final class ClassMethodOrClassConstTypeResolver implements \Rector\NodeTypeResolver\Contract\NodeTypeResolverInterface
 {
     /**
@@ -21,6 +24,7 @@ final class ClassMethodOrClassConstTypeResolver implements \Rector\NodeTypeResol
      */
     private $nodeTypeResolver;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
@@ -31,7 +35,7 @@ final class ClassMethodOrClassConstTypeResolver implements \Rector\NodeTypeResol
     /**
      * @required
      */
-    public function autowireClassMethodOrClassConstTypeResolver(\Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver) : void
+    public function autowire(\Rector\NodeTypeResolver\NodeTypeResolver $nodeTypeResolver) : void
     {
         $this->nodeTypeResolver = $nodeTypeResolver;
     }
@@ -43,9 +47,9 @@ final class ClassMethodOrClassConstTypeResolver implements \Rector\NodeTypeResol
         return [\PhpParser\Node\Stmt\ClassMethod::class, \PhpParser\Node\Stmt\ClassConst::class];
     }
     /**
-     * @param \PhpParser\Node $node
+     * @param ClassMethod|ClassConst $node
      */
-    public function resolve($node) : \PHPStan\Type\Type
+    public function resolve(\PhpParser\Node $node) : \PHPStan\Type\Type
     {
         $classLike = $this->betterNodeFinder->findParentType($node, \PhpParser\Node\Stmt\ClassLike::class);
         if (!$classLike instanceof \PhpParser\Node\Stmt\ClassLike) {

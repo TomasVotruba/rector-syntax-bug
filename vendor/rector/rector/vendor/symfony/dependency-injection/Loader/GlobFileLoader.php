@@ -8,14 +8,14 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\DependencyInjection\Loader;
+namespace RectorPrefix20211213\Symfony\Component\DependencyInjection\Loader;
 
 /**
  * GlobFileLoader loads files from a glob pattern.
  *
  * @author Nicolas Grekas <p@tchwork.com>
  */
-class GlobFileLoader extends \RectorPrefix20211110\Symfony\Component\DependencyInjection\Loader\FileLoader
+class GlobFileLoader extends \RectorPrefix20211213\Symfony\Component\DependencyInjection\Loader\FileLoader
 {
     /**
      * {@inheritdoc}
@@ -27,12 +27,12 @@ class GlobFileLoader extends \RectorPrefix20211110\Symfony\Component\DependencyI
             $this->import($path);
         }
         $this->container->addResource($globResource);
+        return null;
     }
     /**
      * {@inheritdoc}
-     * @param string|null $type
      */
-    public function supports($resource, $type = null)
+    public function supports($resource, string $type = null)
     {
         return 'glob' === $type;
     }

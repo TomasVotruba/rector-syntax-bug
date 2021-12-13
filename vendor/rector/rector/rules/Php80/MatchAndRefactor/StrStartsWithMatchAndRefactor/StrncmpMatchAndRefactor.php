@@ -5,7 +5,6 @@ namespace Rector\Php80\MatchAndRefactor\StrStartsWithMatchAndRefactor;
 
 use PhpParser\Node;
 use PhpParser\Node\Arg;
-use PhpParser\Node\Expr\BinaryOp;
 use PhpParser\Node\Expr\BinaryOp\Identical;
 use PhpParser\Node\Expr\BinaryOp\NotIdentical;
 use PhpParser\Node\Expr\FuncCall;
@@ -25,22 +24,27 @@ final class StrncmpMatchAndRefactor implements \Rector\Php80\Contract\StrStartWi
      */
     private const FUNCTION_NAME = 'strncmp';
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\Php80\ValueObjectFactory\StrStartsWithFactory
      */
     private $strStartsWithFactory;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Comparing\NodeComparator
      */
     private $nodeComparator;
     /**
+     * @readonly
      * @var \Rector\Php80\NodeFactory\StrStartsWithFuncCallFactory
      */
     private $strStartsWithFuncCallFactory;
     /**
+     * @readonly
      * @var \Rector\Core\NodeAnalyzer\ArgsAnalyzer
      */
     private $argsAnalyzer;
@@ -53,7 +57,7 @@ final class StrncmpMatchAndRefactor implements \Rector\Php80\Contract\StrStartWi
         $this->argsAnalyzer = $argsAnalyzer;
     }
     /**
-     * @param \PhpParser\Node\Expr\BinaryOp $binaryOp
+     * @param \PhpParser\Node\Expr\BinaryOp\Identical|\PhpParser\Node\Expr\BinaryOp\NotIdentical $binaryOp
      */
     public function match($binaryOp) : ?\Rector\Php80\ValueObject\StrStartsWith
     {
@@ -69,10 +73,7 @@ final class StrncmpMatchAndRefactor implements \Rector\Php80\Contract\StrStartWi
         }
         return $this->strStartsWithFactory->createFromFuncCall($binaryOp->right, $isPositive);
     }
-    /**
-     * @param \Rector\Php80\ValueObject\StrStartsWith $strStartsWith
-     */
-    public function refactorStrStartsWith($strStartsWith) : ?\PhpParser\Node
+    public function refactorStrStartsWith(\Rector\Php80\ValueObject\StrStartsWith $strStartsWith) : ?\PhpParser\Node
     {
         if ($this->isNeedleExprWithStrlen($strStartsWith)) {
             return $this->strStartsWithFuncCallFactory->createStrStartsWith($strStartsWith);

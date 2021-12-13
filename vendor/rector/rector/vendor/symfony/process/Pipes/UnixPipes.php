@@ -8,9 +8,9 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Process\Pipes;
+namespace RectorPrefix20211213\Symfony\Component\Process\Pipes;
 
-use RectorPrefix20211110\Symfony\Component\Process\Process;
+use RectorPrefix20211213\Symfony\Component\Process\Process;
 /**
  * UnixPipes implementation uses unix pipes as handles.
  *
@@ -18,11 +18,14 @@ use RectorPrefix20211110\Symfony\Component\Process\Process;
  *
  * @internal
  */
-class UnixPipes extends \RectorPrefix20211110\Symfony\Component\Process\Pipes\AbstractPipes
+class UnixPipes extends \RectorPrefix20211213\Symfony\Component\Process\Pipes\AbstractPipes
 {
     private $ttyMode;
     private $ptyMode;
     private $haveReadSupport;
+    /**
+     * @param mixed $input
+     */
     public function __construct(?bool $ttyMode, bool $ptyMode, $input, bool $haveReadSupport)
     {
         $this->ttyMode = $ttyMode;
@@ -30,10 +33,7 @@ class UnixPipes extends \RectorPrefix20211110\Symfony\Component\Process\Pipes\Ab
         $this->haveReadSupport = $haveReadSupport;
         parent::__construct($input);
     }
-    /**
-     * @return array
-     */
-    public function __sleep()
+    public function __sleep() : array
     {
         throw new \BadMethodCallException('Cannot serialize ' . __CLASS__);
     }
@@ -57,7 +57,7 @@ class UnixPipes extends \RectorPrefix20211110\Symfony\Component\Process\Pipes\Ab
         if ($this->ttyMode) {
             return [['file', '/dev/tty', 'r'], ['file', '/dev/tty', 'w'], ['file', '/dev/tty', 'w']];
         }
-        if ($this->ptyMode && \RectorPrefix20211110\Symfony\Component\Process\Process::isPtySupported()) {
+        if ($this->ptyMode && \RectorPrefix20211213\Symfony\Component\Process\Process::isPtySupported()) {
             return [['pty'], ['pty'], ['pty']];
         }
         return [
@@ -76,10 +76,8 @@ class UnixPipes extends \RectorPrefix20211110\Symfony\Component\Process\Pipes\Ab
     }
     /**
      * {@inheritdoc}
-     * @param bool $blocking
-     * @param bool $close
      */
-    public function readAndWrite($blocking, $close = \false) : array
+    public function readAndWrite(bool $blocking, bool $close = \false) : array
     {
         $this->unblock();
         $w = $this->write();
@@ -88,7 +86,7 @@ class UnixPipes extends \RectorPrefix20211110\Symfony\Component\Process\Pipes\Ab
         unset($r[0]);
         // let's have a look if something changed in streams
         \set_error_handler([$this, 'handleError']);
-        if (($r || $w) && \false === \stream_select($r, $w, $e, 0, $blocking ? \RectorPrefix20211110\Symfony\Component\Process\Process::TIMEOUT_PRECISION * 1000000.0 : 0)) {
+        if (($r || $w) && \false === \stream_select($r, $w, $e, 0, $blocking ? \RectorPrefix20211213\Symfony\Component\Process\Process::TIMEOUT_PRECISION * 1000000.0 : 0)) {
             \restore_error_handler();
             // if a system call has been interrupted, forget about it, let's try again
             // otherwise, an error occurred, let's reset pipes

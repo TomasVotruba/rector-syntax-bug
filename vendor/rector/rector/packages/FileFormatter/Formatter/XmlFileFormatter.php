@@ -3,7 +3,8 @@
 declare (strict_types=1);
 namespace Rector\FileFormatter\Formatter;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
+use Rector\Core\Util\StringUtils;
 use Rector\Core\ValueObject\Application\File;
 use Rector\FileFormatter\Contract\Formatter\FileFormatterInterface;
 use Rector\FileFormatter\ValueObject\EditorConfigConfiguration;
@@ -30,9 +31,9 @@ final class XmlFileFormatter implements \Rector\FileFormatter\Contract\Formatter
      */
     private const IS_CLOSING_TAG_REGEX = '#^\\s*<\\/#';
     /**
-     * @var int|null
+     * @var int
      */
-    private $depth;
+    private $depth = 0;
     /**
      * @var int
      */
@@ -45,19 +46,12 @@ final class XmlFileFormatter implements \Rector\FileFormatter\Contract\Formatter
      * @var bool
      */
     private $preserveWhitespace = \false;
-    /**
-     * @param \Rector\Core\ValueObject\Application\File $file
-     */
-    public function supports($file) : bool
+    public function supports(\Rector\Core\ValueObject\Application\File $file) : bool
     {
         $smartFileInfo = $file->getSmartFileInfo();
         return $smartFileInfo->getExtension() === 'xml';
     }
-    /**
-     * @param \Rector\Core\ValueObject\Application\File $file
-     * @param \Rector\FileFormatter\ValueObject\EditorConfigConfiguration $editorConfigConfiguration
-     */
-    public function format($file, $editorConfigConfiguration) : void
+    public function format(\Rector\Core\ValueObject\Application\File $file, \Rector\FileFormatter\ValueObject\EditorConfigConfiguration $editorConfigConfiguration) : void
     {
         $this->padChar = $editorConfigConfiguration->getIndentStyleCharacter();
         $this->indent = $editorConfigConfiguration->getIndentSize();
@@ -77,7 +71,7 @@ final class XmlFileFormatter implements \Rector\FileFormatter\Contract\Formatter
         $this->depth = 0;
         $parts = $this->getXmlParts($xml);
         if (\strncmp($parts[0], '<?xml', \strlen('<?xml')) === 0) {
-            $output = \array_shift($parts) . $editorConfigConfiguration->getNewline();
+            $output = \array_shift($parts) . $editorConfigConfiguration->getNewLine();
         }
         foreach ($parts as $part) {
             $output .= $this->getOutputForPart($part, $editorConfigConfiguration);
@@ -89,7 +83,7 @@ final class XmlFileFormatter implements \Rector\FileFormatter\Contract\Formatter
      */
     private function getXmlParts(string $xml) : array
     {
-        $withNewLines = \RectorPrefix20211110\Nette\Utils\Strings::replace(\trim($xml), self::XML_PARTS_REGEX, "\$1\n\$2\$3");
+        $withNewLines = \RectorPrefix20211213\Nette\Utils\Strings::replace(\trim($xml), self::XML_PARTS_REGEX, "\$1\n\$2\$3");
         return \explode("\n", $withNewLines);
     }
     private function getOutputForPart(string $part, \Rector\FileFormatter\ValueObject\EditorConfigConfiguration $editorConfigConfiguration) : string
@@ -97,10 +91,10 @@ final class XmlFileFormatter implements \Rector\FileFormatter\Contract\Formatter
         $output = '';
         $this->runPre($part);
         if ($this->preserveWhitespace) {
-            $output .= $part . $editorConfigConfiguration->getNewline();
+            $output .= $part . $editorConfigConfiguration->getNewLine();
         } else {
             $part = \trim($part);
-            $output .= $this->getPaddedString($part) . $editorConfigConfiguration->getNewline();
+            $output .= $this->getPaddedString($part) . $editorConfigConfiguration->getNewLine();
         }
         $this->runPost($part);
         return $output;
@@ -129,11 +123,11 @@ final class XmlFileFormatter implements \Rector\FileFormatter\Contract\Formatter
     }
     private function isOpeningTag(string $part) : bool
     {
-        return (bool) \RectorPrefix20211110\Nette\Utils\Strings::match($part, self::IS_OPENING_TAG_REGEX);
+        return \Rector\Core\Util\StringUtils::isMatch($part, self::IS_OPENING_TAG_REGEX);
     }
     private function isClosingTag(string $part) : bool
     {
-        return (bool) \RectorPrefix20211110\Nette\Utils\Strings::match($part, self::IS_CLOSING_TAG_REGEX);
+        return \Rector\Core\Util\StringUtils::isMatch($part, self::IS_CLOSING_TAG_REGEX);
     }
     private function isOpeningCdataTag(string $part) : bool
     {

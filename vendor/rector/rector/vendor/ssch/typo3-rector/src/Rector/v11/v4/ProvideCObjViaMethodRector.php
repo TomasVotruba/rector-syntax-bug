@@ -12,8 +12,9 @@ use PhpParser\Node\Stmt\Nop;
 use PhpParser\Node\Stmt\Property;
 use PHPStan\Type\ObjectType;
 use Rector\Core\Rector\AbstractRector;
-use RectorPrefix20211110\Symplify\Astral\ValueObject\NodeBuilder\MethodBuilder;
-use RectorPrefix20211110\Symplify\Astral\ValueObject\NodeBuilder\ParamBuilder;
+use Rector\Privatization\NodeManipulator\VisibilityManipulator;
+use RectorPrefix20211213\Symplify\Astral\ValueObject\NodeBuilder\MethodBuilder;
+use RectorPrefix20211213\Symplify\Astral\ValueObject\NodeBuilder\ParamBuilder;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 /**
@@ -26,6 +27,14 @@ final class ProvideCObjViaMethodRector extends \Rector\Core\Rector\AbstractRecto
      * @var string
      */
     private const COBJ = 'cObj';
+    /**
+     * @var \Rector\Privatization\NodeManipulator\VisibilityManipulator
+     */
+    private $visibilityManipulator;
+    public function __construct(\Rector\Privatization\NodeManipulator\VisibilityManipulator $visibilityManipulator)
+    {
+        $this->visibilityManipulator = $visibilityManipulator;
+    }
     /**
      * @return array<class-string<Node>>
      */
@@ -78,11 +87,11 @@ CODE_SAMPLE
     }
     private function addSetContentObjectRendererMethod(\PhpParser\Node\Stmt\Class_ $node) : void
     {
-        $paramBuilder = new \RectorPrefix20211110\Symplify\Astral\ValueObject\NodeBuilder\ParamBuilder(self::COBJ);
+        $paramBuilder = new \RectorPrefix20211213\Symplify\Astral\ValueObject\NodeBuilder\ParamBuilder(self::COBJ);
         $paramBuilder->setType(new \PhpParser\Node\Name\FullyQualified('TYPO3\\CMS\\Frontend\\ContentObject\\ContentObjectRenderer'));
         $param = $paramBuilder->getNode();
         $propertyAssignNode = $this->nodeFactory->createPropertyAssignmentWithExpr(self::COBJ, new \PhpParser\Node\Expr\Variable(self::COBJ));
-        $classMethodBuilder = new \RectorPrefix20211110\Symplify\Astral\ValueObject\NodeBuilder\MethodBuilder('setContentObjectRenderer');
+        $classMethodBuilder = new \RectorPrefix20211213\Symplify\Astral\ValueObject\NodeBuilder\MethodBuilder('setContentObjectRenderer');
         $classMethodBuilder->addParam($param);
         $classMethodBuilder->addStmt($propertyAssignNode);
         $classMethodBuilder->makePublic();

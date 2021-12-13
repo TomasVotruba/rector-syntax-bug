@@ -21,30 +21,37 @@ use Rector\TypeDeclaration\TypeInferer\ReturnTypeInferer\ReturnTagReturnTypeInfe
 final class GetterPropertyTypeInferer implements \Rector\TypeDeclaration\Contract\TypeInferer\PropertyTypeInfererInterface
 {
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\TypeInferer\ReturnTypeInferer\ReturnTagReturnTypeInferer
      */
     private $returnTagReturnTypeInferer;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\TypeInferer\ReturnTypeInferer\ReturnedNodesReturnTypeInferer
      */
     private $returnedNodesReturnTypeInferer;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\FunctionLikeReturnTypeResolver
      */
     private $functionLikeReturnTypeResolver;
     /**
+     * @readonly
      * @var \Rector\TypeDeclaration\NodeAnalyzer\ClassMethodAndPropertyAnalyzer
      */
     private $classMethodAndPropertyAnalyzer;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\AstResolver
      */
     private $astResolver;
@@ -58,10 +65,7 @@ final class GetterPropertyTypeInferer implements \Rector\TypeDeclaration\Contrac
         $this->betterNodeFinder = $betterNodeFinder;
         $this->astResolver = $astResolver;
     }
-    /**
-     * @param \PhpParser\Node\Stmt\Property $property
-     */
-    public function inferProperty($property) : ?\PHPStan\Type\Type
+    public function inferProperty(\PhpParser\Node\Stmt\Property $property) : ?\PHPStan\Type\Type
     {
         $class = $this->betterNodeFinder->findParentType($property, \PhpParser\Node\Stmt\Class_::class);
         if (!$class instanceof \PhpParser\Node\Stmt\Class_) {

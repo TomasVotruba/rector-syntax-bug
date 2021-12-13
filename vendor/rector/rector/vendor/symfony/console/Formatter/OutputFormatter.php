@@ -8,18 +8,24 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Console\Formatter;
+namespace RectorPrefix20211213\Symfony\Component\Console\Formatter;
 
-use RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidArgumentException;
+use RectorPrefix20211213\Symfony\Component\Console\Exception\InvalidArgumentException;
 /**
  * Formatter class for console output.
  *
  * @author Konstantin Kudryashov <ever.zet@gmail.com>
  * @author Roland Franssen <franssen.roland@gmail.com>
  */
-class OutputFormatter implements \RectorPrefix20211110\Symfony\Component\Console\Formatter\WrappableOutputFormatterInterface
+class OutputFormatter implements \RectorPrefix20211213\Symfony\Component\Console\Formatter\WrappableOutputFormatterInterface
 {
+    /**
+     * @var bool
+     */
     private $decorated;
+    /**
+     * @var mixed[]
+     */
     private $styles = [];
     private $styleStack;
     public function __clone()
@@ -31,11 +37,8 @@ class OutputFormatter implements \RectorPrefix20211110\Symfony\Component\Console
     }
     /**
      * Escapes "<" special char in given text.
-     *
-     * @return string Escaped text
-     * @param string $text
      */
-    public static function escape($text)
+    public static function escape(string $text) : string
     {
         $text = \preg_replace('/([^\\\\]?)</', '$1\\<', $text);
         return self::escapeTrailingBackslash($text);
@@ -44,9 +47,8 @@ class OutputFormatter implements \RectorPrefix20211110\Symfony\Component\Console
      * Escapes trailing "\" in given text.
      *
      * @internal
-     * @param string $text
      */
-    public static function escapeTrailingBackslash($text) : string
+    public static function escapeTrailingBackslash(string $text) : string
     {
         if (\substr_compare($text, '\\', -\strlen('\\')) === 0) {
             $len = \strlen($text);
@@ -64,72 +66,64 @@ class OutputFormatter implements \RectorPrefix20211110\Symfony\Component\Console
     public function __construct(bool $decorated = \false, array $styles = [])
     {
         $this->decorated = $decorated;
-        $this->setStyle('error', new \RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterStyle('white', 'red'));
-        $this->setStyle('info', new \RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterStyle('green'));
-        $this->setStyle('comment', new \RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterStyle('yellow'));
-        $this->setStyle('question', new \RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterStyle('black', 'cyan'));
+        $this->setStyle('error', new \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterStyle('white', 'red'));
+        $this->setStyle('info', new \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterStyle('green'));
+        $this->setStyle('comment', new \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterStyle('yellow'));
+        $this->setStyle('question', new \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterStyle('black', 'cyan'));
         foreach ($styles as $name => $style) {
             $this->setStyle($name, $style);
         }
-        $this->styleStack = new \RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterStyleStack();
+        $this->styleStack = new \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterStyleStack();
     }
     /**
      * {@inheritdoc}
-     * @param bool $decorated
      */
-    public function setDecorated($decorated)
+    public function setDecorated(bool $decorated)
     {
         $this->decorated = $decorated;
     }
     /**
      * {@inheritdoc}
      */
-    public function isDecorated()
+    public function isDecorated() : bool
     {
         return $this->decorated;
     }
     /**
      * {@inheritdoc}
-     * @param string $name
-     * @param \Symfony\Component\Console\Formatter\OutputFormatterStyleInterface $style
      */
-    public function setStyle($name, $style)
+    public function setStyle(string $name, \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterStyleInterface $style)
     {
         $this->styles[\strtolower($name)] = $style;
     }
     /**
      * {@inheritdoc}
-     * @param string $name
      */
-    public function hasStyle($name)
+    public function hasStyle(string $name) : bool
     {
         return isset($this->styles[\strtolower($name)]);
     }
     /**
      * {@inheritdoc}
-     * @param string $name
      */
-    public function getStyle($name)
+    public function getStyle(string $name) : \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterStyleInterface
     {
         if (!$this->hasStyle($name)) {
-            throw new \RectorPrefix20211110\Symfony\Component\Console\Exception\InvalidArgumentException(\sprintf('Undefined style: "%s".', $name));
+            throw new \RectorPrefix20211213\Symfony\Component\Console\Exception\InvalidArgumentException(\sprintf('Undefined style: "%s".', $name));
         }
         return $this->styles[\strtolower($name)];
     }
     /**
      * {@inheritdoc}
-     * @param string|null $message
      */
-    public function format($message)
+    public function format(?string $message) : ?string
     {
         return $this->formatAndWrap($message, 0);
     }
     /**
      * {@inheritdoc}
-     * @param string|null $message
-     * @param int $width
      */
-    public function formatAndWrap($message, $width)
+    public function formatAndWrap(?string $message, int $width)
     {
         $offset = 0;
         $output = '';
@@ -168,17 +162,14 @@ class OutputFormatter implements \RectorPrefix20211110\Symfony\Component\Console
         }
         return \str_replace('\\<', '<', $output);
     }
-    /**
-     * @return OutputFormatterStyleStack
-     */
-    public function getStyleStack()
+    public function getStyleStack() : \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterStyleStack
     {
         return $this->styleStack;
     }
     /**
      * Tries to create new style instance from string.
      */
-    private function createStyleFromString(string $string) : ?\RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterStyleInterface
+    private function createStyleFromString(string $string) : ?\RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterStyleInterface
     {
         if (isset($this->styles[$string])) {
             return $this->styles[$string];
@@ -186,7 +177,7 @@ class OutputFormatter implements \RectorPrefix20211110\Symfony\Component\Console
         if (!\preg_match_all('/([^=]+)=([^;]+)(;|$)/', $string, $matches, \PREG_SET_ORDER)) {
             return null;
         }
-        $style = new \RectorPrefix20211110\Symfony\Component\Console\Formatter\OutputFormatterStyle();
+        $style = new \RectorPrefix20211213\Symfony\Component\Console\Formatter\OutputFormatterStyle();
         foreach ($matches as $match) {
             \array_shift($match);
             $match[0] = \strtolower($match[0]);

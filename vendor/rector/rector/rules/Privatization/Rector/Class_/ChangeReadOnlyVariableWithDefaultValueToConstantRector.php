@@ -19,7 +19,7 @@ use Rector\Core\Exception\ShouldNotHappenException;
 use Rector\Core\NodeManipulator\ClassMethodAssignManipulator;
 use Rector\Core\Rector\AbstractRector;
 use Rector\PostRector\Collector\PropertyToAddCollector;
-use RectorPrefix20211110\Stringy\Stringy;
+use Rector\Privatization\Naming\ConstantNaming;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 /**
@@ -28,22 +28,31 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 final class ChangeReadOnlyVariableWithDefaultValueToConstantRector extends \Rector\Core\Rector\AbstractRector
 {
     /**
+     * @readonly
      * @var \Rector\Core\NodeManipulator\ClassMethodAssignManipulator
      */
     private $classMethodAssignManipulator;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocManipulator\VarAnnotationManipulator
      */
     private $varAnnotationManipulator;
     /**
+     * @readonly
      * @var \Rector\PostRector\Collector\PropertyToAddCollector
      */
     private $propertyToAddCollector;
-    public function __construct(\Rector\Core\NodeManipulator\ClassMethodAssignManipulator $classMethodAssignManipulator, \Rector\BetterPhpDocParser\PhpDocManipulator\VarAnnotationManipulator $varAnnotationManipulator, \Rector\PostRector\Collector\PropertyToAddCollector $propertyToAddCollector)
+    /**
+     * @readonly
+     * @var \Rector\Privatization\Naming\ConstantNaming
+     */
+    private $constantNaming;
+    public function __construct(\Rector\Core\NodeManipulator\ClassMethodAssignManipulator $classMethodAssignManipulator, \Rector\BetterPhpDocParser\PhpDocManipulator\VarAnnotationManipulator $varAnnotationManipulator, \Rector\PostRector\Collector\PropertyToAddCollector $propertyToAddCollector, \Rector\Privatization\Naming\ConstantNaming $constantNaming)
     {
         $this->classMethodAssignManipulator = $classMethodAssignManipulator;
         $this->varAnnotationManipulator = $varAnnotationManipulator;
         $this->propertyToAddCollector = $propertyToAddCollector;
+        $this->constantNaming = $constantNaming;
     }
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
@@ -199,7 +208,10 @@ CODE_SAMPLE
     }
     private function createPrivateClassConst(\PhpParser\Node\Expr\Variable $variable, \PhpParser\Node\Expr $expr) : \PhpParser\Node\Stmt\ClassConst
     {
-        $constantName = $this->createConstantNameFromVariable($variable);
+        $constantName = $this->constantNaming->createFromVariable($variable);
+        if ($constantName === null) {
+            throw new \Rector\Core\Exception\ShouldNotHappenException();
+        }
         $const = new \PhpParser\Node\Const_($constantName, $expr);
         $classConst = new \PhpParser\Node\Stmt\ClassConst([$const]);
         $classConst->flags = \PhpParser\Node\Stmt\Class_::MODIFIER_PRIVATE;
@@ -224,14 +236,5 @@ CODE_SAMPLE
             // replace with constant fetch
             return new \PhpParser\Node\Expr\ClassConstFetch(new \PhpParser\Node\Name('self'), new \PhpParser\Node\Identifier($constantName));
         });
-    }
-    private function createConstantNameFromVariable(\PhpParser\Node\Expr\Variable $variable) : string
-    {
-        $variableName = $this->getName($variable);
-        if ($variableName === null) {
-            throw new \Rector\Core\Exception\ShouldNotHappenException();
-        }
-        $stringy = new \RectorPrefix20211110\Stringy\Stringy($variableName);
-        return (string) $stringy->underscored()->toUpperCase();
     }
 }

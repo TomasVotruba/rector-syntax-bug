@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Rector\CodingStyle\Rector\ClassMethod;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
+use RectorPrefix20211213\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
@@ -11,6 +11,7 @@ use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\ClassMethod;
 use Rector\CodingStyle\ValueObject\ObjectMagicMethods;
 use Rector\Core\Rector\AbstractRector;
+use Rector\Core\Util\StringUtils;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 /**
@@ -64,10 +65,10 @@ CODE_SAMPLE
         if (\in_array($methodName, \Rector\CodingStyle\ValueObject\ObjectMagicMethods::METHOD_NAMES, \true)) {
             return null;
         }
-        if (!\RectorPrefix20211110\Nette\Utils\Strings::match($methodName, self::DOUBLE_UNDERSCORE_START_REGEX)) {
+        if (!\Rector\Core\Util\StringUtils::isMatch($methodName, self::DOUBLE_UNDERSCORE_START_REGEX)) {
             return null;
         }
-        $newName = \RectorPrefix20211110\Nette\Utils\Strings::substring($methodName, 2);
+        $newName = \RectorPrefix20211213\Nette\Utils\Strings::substring($methodName, 2);
         if (\is_numeric($newName[0])) {
             return null;
         }

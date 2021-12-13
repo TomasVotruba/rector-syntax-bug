@@ -17,13 +17,14 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Renaming\ValueObject\RenameProperty;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Renaming\Rector\PropertyFetch\RenamePropertyRector\RenamePropertyRectorTest
  */
 final class RenamePropertyRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const RENAMED_PROPERTIES = 'old_to_new_property_by_types';
@@ -33,7 +34,7 @@ final class RenamePropertyRector extends \Rector\Core\Rector\AbstractRector impl
     private $renamedProperties = [];
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
-        return new \Symplify\RuleDocGenerator\ValueObject\RuleDefinition('Replaces defined old properties by new ones.', [new \Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample('$someObject->someOldProperty;', '$someObject->someNewProperty;', [self::RENAMED_PROPERTIES => [new \Rector\Renaming\ValueObject\RenameProperty('SomeClass', 'someOldProperty', 'someNewProperty')]])]);
+        return new \Symplify\RuleDocGenerator\ValueObject\RuleDefinition('Replaces defined old properties by new ones.', [new \Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample('$someObject->someOldProperty;', '$someObject->someNewProperty;', [new \Rector\Renaming\ValueObject\RenameProperty('SomeClass', 'someOldProperty', 'someNewProperty')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -53,12 +54,12 @@ final class RenamePropertyRector extends \Rector\Core\Rector\AbstractRector impl
         return $this->processFromPropertyFetch($node);
     }
     /**
-     * @param array<string, RenameProperty[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $renamedProperties = $configuration[self::RENAMED_PROPERTIES] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($renamedProperties, \Rector\Renaming\ValueObject\RenameProperty::class);
+        $renamedProperties = $configuration[self::RENAMED_PROPERTIES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($renamedProperties, \Rector\Renaming\ValueObject\RenameProperty::class);
         $this->renamedProperties = $renamedProperties;
     }
     private function processFromClassLike(\PhpParser\Node\Stmt\ClassLike $classLike) : \PhpParser\Node\Stmt\ClassLike

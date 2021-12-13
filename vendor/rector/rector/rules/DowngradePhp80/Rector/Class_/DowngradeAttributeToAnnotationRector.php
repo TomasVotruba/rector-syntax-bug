@@ -19,7 +19,7 @@ use Rector\DowngradePhp80\ValueObject\DowngradeAttributeToAnnotation;
 use Rector\PhpAttribute\Printer\DoctrineAnnotationFactory;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @changelog https://php.watch/articles/php-attributes#syntax
  *
@@ -28,6 +28,7 @@ use RectorPrefix20211110\Webmozart\Assert\Assert;
 final class DowngradeAttributeToAnnotationRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const ATTRIBUTE_TO_ANNOTATION = 'attribute_to_annotation';
@@ -36,6 +37,7 @@ final class DowngradeAttributeToAnnotationRector extends \Rector\Core\Rector\Abs
      */
     private $attributesToAnnotations = [];
     /**
+     * @readonly
      * @var \Rector\PhpAttribute\Printer\DoctrineAnnotationFactory
      */
     private $doctrineAnnotationFactory;
@@ -69,7 +71,7 @@ class SymfonyRoute
     }
 }
 CODE_SAMPLE
-, [self::ATTRIBUTE_TO_ANNOTATION => [new \Rector\DowngradePhp80\ValueObject\DowngradeAttributeToAnnotation('Symfony\\Component\\Routing\\Annotation\\Route')]])]);
+, [new \Rector\DowngradePhp80\ValueObject\DowngradeAttributeToAnnotation('Symfony\\Component\\Routing\\Annotation\\Route')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -104,12 +106,12 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, DowngradeAttributeToAnnotation[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $attributesToAnnotations = $configuration[self::ATTRIBUTE_TO_ANNOTATION] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($attributesToAnnotations, \Rector\DowngradePhp80\ValueObject\DowngradeAttributeToAnnotation::class);
+        $attributesToAnnotations = $configuration[self::ATTRIBUTE_TO_ANNOTATION] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($attributesToAnnotations, \Rector\DowngradePhp80\ValueObject\DowngradeAttributeToAnnotation::class);
         $this->attributesToAnnotations = $attributesToAnnotations;
     }
     /**

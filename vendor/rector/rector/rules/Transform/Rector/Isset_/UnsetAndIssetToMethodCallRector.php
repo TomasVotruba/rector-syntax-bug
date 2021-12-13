@@ -12,13 +12,14 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Transform\ValueObject\UnsetAndIssetToMethodCall;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\Isset_\UnsetAndIssetToMethodCallRector\UnsetAndIssetToMethodCallRectorTest
  */
 final class UnsetAndIssetToMethodCallRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const ISSET_UNSET_TO_METHOD_CALL = 'isset_unset_to_method_call';
@@ -28,7 +29,6 @@ final class UnsetAndIssetToMethodCallRector extends \Rector\Core\Rector\Abstract
     private $issetUnsetToMethodCalls = [];
     public function getRuleDefinition() : \Symplify\RuleDocGenerator\ValueObject\RuleDefinition
     {
-        $unsetAndIssetToMethodCall = new \Rector\Transform\ValueObject\UnsetAndIssetToMethodCall('SomeContainer', 'hasService', 'removeService');
         return new \Symplify\RuleDocGenerator\ValueObject\RuleDefinition('Turns defined `__isset`/`__unset` calls to specific method calls.', [new \Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample(<<<'CODE_SAMPLE'
 $container = new SomeContainer;
 isset($container["someKey"]);
@@ -39,7 +39,7 @@ $container = new SomeContainer;
 $container->hasService("someKey");
 $container->removeService("someKey");
 CODE_SAMPLE
-, [self::ISSET_UNSET_TO_METHOD_CALL => [$unsetAndIssetToMethodCall]])]);
+, [new \Rector\Transform\ValueObject\UnsetAndIssetToMethodCall('SomeContainer', 'hasService', 'removeService')])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -70,12 +70,13 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, UnsetAndIssetToMethodCall[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $issetUnsetToMethodCalls = $configuration[self::ISSET_UNSET_TO_METHOD_CALL] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($issetUnsetToMethodCalls, \Rector\Transform\ValueObject\UnsetAndIssetToMethodCall::class);
+        $issetUnsetToMethodCalls = $configuration[self::ISSET_UNSET_TO_METHOD_CALL] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::isArray($issetUnsetToMethodCalls);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($issetUnsetToMethodCalls, \Rector\Transform\ValueObject\UnsetAndIssetToMethodCall::class);
         $this->issetUnsetToMethodCalls = $issetUnsetToMethodCalls;
     }
     private function processArrayDimFetchNode(\PhpParser\Node $node, \PhpParser\Node\Expr\ArrayDimFetch $arrayDimFetch, \Rector\Transform\ValueObject\UnsetAndIssetToMethodCall $unsetAndIssetToMethodCall) : ?\PhpParser\Node

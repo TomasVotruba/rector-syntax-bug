@@ -12,6 +12,7 @@ use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\String_\ToStringToMethodCallRector\ToStringToMethodCallRectorTest
  */
@@ -19,6 +20,7 @@ final class ToStringToMethodCallRector extends \Rector\Core\Rector\AbstractRecto
 {
     /**
      * @api
+     * @deprecated
      * @var string
      */
     public const METHOD_NAMES_BY_TYPE = 'method_names_by_type';
@@ -38,7 +40,7 @@ $someValue = new SomeObject;
 $result = $someValue->getPath();
 $result = $someValue->getPath();
 CODE_SAMPLE
-, [self::METHOD_NAMES_BY_TYPE => ['SomeObject' => 'getPath']])]);
+, ['SomeObject' => 'getPath'])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -58,11 +60,15 @@ CODE_SAMPLE
         return $this->processMethodCall($node);
     }
     /**
-     * @param array<string, array<string, string>> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $this->methodNamesByType = $configuration[self::METHOD_NAMES_BY_TYPE] ?? [];
+        $methodNamesByType = $configuration[self::METHOD_NAMES_BY_TYPE] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString(\array_keys($methodNamesByType));
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($methodNamesByType);
+        /** @var array<string, string> $methodNamesByType */
+        $this->methodNamesByType = $methodNamesByType;
     }
     private function processStringNode(\PhpParser\Node\Expr\Cast\String_ $string) : ?\PhpParser\Node
     {

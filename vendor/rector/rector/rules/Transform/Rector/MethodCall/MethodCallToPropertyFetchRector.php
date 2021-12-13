@@ -9,6 +9,7 @@ use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\MethodCall\MethodCallToPropertyFetchRector\MethodCallToPropertyFetchRectorTest
  */
@@ -16,6 +17,7 @@ final class MethodCallToPropertyFetchRector extends \Rector\Core\Rector\Abstract
 {
     /**
      * @api
+     * @deprecated
      * @var string
      */
     public const METHOD_CALL_TO_PROPERTY_FETCHES = 'method_call_to_property_fetch_collection';
@@ -43,7 +45,7 @@ class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::METHOD_CALL_TO_PROPERTY_FETCHES => ['someMethod' => 'someProperty']])]);
+, ['someMethod' => 'someProperty'])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -66,10 +68,14 @@ CODE_SAMPLE
         return null;
     }
     /**
-     * @param array<string, array<string, string>> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $this->methodCallToPropertyFetchCollection = $configuration[self::METHOD_CALL_TO_PROPERTY_FETCHES] ?? [];
+        $methodCallToPropertyFetchCollection = $configuration[self::METHOD_CALL_TO_PROPERTY_FETCHES] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString(\array_keys($methodCallToPropertyFetchCollection));
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allString($methodCallToPropertyFetchCollection);
+        /** @var array<string, string> $methodCallToPropertyFetchCollection */
+        $this->methodCallToPropertyFetchCollection = $methodCallToPropertyFetchCollection;
     }
 }

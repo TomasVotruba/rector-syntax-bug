@@ -3,7 +3,6 @@
 declare (strict_types=1);
 namespace Rector\NodeTypeResolver\PHPStan\Scope;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
@@ -13,8 +12,6 @@ use PhpParser\NodeTraverser;
 use PHPStan\AnalysedCodeException;
 use PHPStan\Analyser\MutatingScope;
 use PHPStan\Analyser\NodeScopeResolver;
-use PHPStan\Analyser\ScopeContext;
-use PHPStan\BetterReflection\Reflection\Exception\NotAnInterfaceReflection;
 use PHPStan\BetterReflection\Reflector\ClassReflector;
 use PHPStan\BetterReflection\SourceLocator\Type\AggregateSourceLocator;
 use PHPStan\BetterReflection\SourceLocator\Type\SourceLocator;
@@ -25,13 +22,11 @@ use Rector\Caching\FileSystem\DependencyResolver;
 use Rector\Core\Exception\ShouldNotHappenException;
 use Rector\Core\StaticReflection\SourceLocator\ParentAttributeSourceLocator;
 use Rector\Core\StaticReflection\SourceLocator\RenamedClassesSourceLocator;
-use Rector\Core\Stubs\DummyTraitClass;
+use Rector\Core\Util\StringUtils;
 use Rector\NodeTypeResolver\Node\AttributeKey;
-use Rector\NodeTypeResolver\PHPStan\CollisionGuard\MixinGuard;
 use Rector\NodeTypeResolver\PHPStan\Scope\NodeVisitor\RemoveDeepChainMethodCallNodeVisitor;
-use RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesAccessor;
+use RectorPrefix20211213\Symplify\PackageBuilder\Reflection\PrivatesAccessor;
 use Symplify\SmartFileSystem\SmartFileInfo;
-use Throwable;
 /**
  * @inspired by https://github.com/silverstripe/silverstripe-upgrader/blob/532182b23e854d02e0b27e68ebc394f436de0682/src/UpgradeRule/PHP/Visitor/PHPStanScopeVisitor.php
  * - https://github.com/silverstripe/silverstripe-upgrader/pull/57/commits/e5c7cfa166ad940d9d4ff69537d9f7608e992359#diff-5e0807bb3dc03d6a8d8b6ad049abd774
@@ -45,50 +40,59 @@ final class PHPStanNodeScopeResolver
     private const ANONYMOUS_CLASS_START_REGEX = '#^AnonymousClass(\\w+)#';
     /**
      * @var string
-     * @see https://regex101.com/r/AIA24M/1
      */
-    private const NOT_AN_INTERFACE_EXCEPTION_REGEX = '#^Provided node ".*" is not interface, but "class"$#';
+    private const CONTEXT = 'context';
     /**
+     * @readonly
      * @var \Rector\Caching\Detector\ChangedFilesDetector
      */
     private $changedFilesDetector;
     /**
+     * @readonly
      * @var \Rector\Caching\FileSystem\DependencyResolver
      */
     private $dependencyResolver;
     /**
+     * @readonly
      * @var \PHPStan\Analyser\NodeScopeResolver
      */
     private $nodeScopeResolver;
     /**
+     * @readonly
      * @var \PHPStan\Reflection\ReflectionProvider
      */
     private $reflectionProvider;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PHPStan\Scope\NodeVisitor\RemoveDeepChainMethodCallNodeVisitor
      */
     private $removeDeepChainMethodCallNodeVisitor;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PHPStan\Scope\ScopeFactory
      */
     private $scopeFactory;
     /**
+     * @readonly
      * @var \Symplify\PackageBuilder\Reflection\PrivatesAccessor
      */
     private $privatesAccessor;
     /**
+     * @readonly
      * @var \Rector\Core\StaticReflection\SourceLocator\RenamedClassesSourceLocator
      */
     private $renamedClassesSourceLocator;
     /**
+     * @readonly
      * @var \Rector\Core\StaticReflection\SourceLocator\ParentAttributeSourceLocator
      */
     private $parentAttributeSourceLocator;
     /**
-     * @var \Rector\NodeTypeResolver\PHPStan\CollisionGuard\MixinGuard
+     * @readonly
+     * @var \Rector\NodeTypeResolver\PHPStan\Scope\TraitScopeFaker
      */
-    private $mixinGuard;
-    public function __construct(\Rector\Caching\Detector\ChangedFilesDetector $changedFilesDetector, \Rector\Caching\FileSystem\DependencyResolver $dependencyResolver, \PHPStan\Analyser\NodeScopeResolver $nodeScopeResolver, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\NodeTypeResolver\PHPStan\Scope\NodeVisitor\RemoveDeepChainMethodCallNodeVisitor $removeDeepChainMethodCallNodeVisitor, \Rector\NodeTypeResolver\PHPStan\Scope\ScopeFactory $scopeFactory, \RectorPrefix20211110\Symplify\PackageBuilder\Reflection\PrivatesAccessor $privatesAccessor, \Rector\Core\StaticReflection\SourceLocator\RenamedClassesSourceLocator $renamedClassesSourceLocator, \Rector\Core\StaticReflection\SourceLocator\ParentAttributeSourceLocator $parentAttributeSourceLocator, \Rector\NodeTypeResolver\PHPStan\CollisionGuard\MixinGuard $mixinGuard)
+    private $traitScopeFaker;
+    public function __construct(\Rector\Caching\Detector\ChangedFilesDetector $changedFilesDetector, \Rector\Caching\FileSystem\DependencyResolver $dependencyResolver, \PHPStan\Analyser\NodeScopeResolver $nodeScopeResolver, \PHPStan\Reflection\ReflectionProvider $reflectionProvider, \Rector\NodeTypeResolver\PHPStan\Scope\NodeVisitor\RemoveDeepChainMethodCallNodeVisitor $removeDeepChainMethodCallNodeVisitor, \Rector\NodeTypeResolver\PHPStan\Scope\ScopeFactory $scopeFactory, \RectorPrefix20211213\Symplify\PackageBuilder\Reflection\PrivatesAccessor $privatesAccessor, \Rector\Core\StaticReflection\SourceLocator\RenamedClassesSourceLocator $renamedClassesSourceLocator, \Rector\Core\StaticReflection\SourceLocator\ParentAttributeSourceLocator $parentAttributeSourceLocator, \Rector\NodeTypeResolver\PHPStan\Scope\TraitScopeFaker $traitScopeFaker)
     {
         $this->changedFilesDetector = $changedFilesDetector;
         $this->dependencyResolver = $dependencyResolver;
@@ -99,7 +103,7 @@ final class PHPStanNodeScopeResolver
         $this->privatesAccessor = $privatesAccessor;
         $this->renamedClassesSourceLocator = $renamedClassesSourceLocator;
         $this->parentAttributeSourceLocator = $parentAttributeSourceLocator;
-        $this->mixinGuard = $mixinGuard;
+        $this->traitScopeFaker = $traitScopeFaker;
     }
     /**
      * @param Stmt[] $stmts
@@ -114,9 +118,9 @@ final class PHPStanNodeScopeResolver
             if ($node instanceof \PhpParser\Node\Stmt\Trait_) {
                 $traitName = $this->resolveClassName($node);
                 $traitReflectionClass = $this->reflectionProvider->getClass($traitName);
-                $scopeContext = $this->createDummyClassScopeContext($scope);
+                $scopeContext = $this->traitScopeFaker->createDummyClassScopeContext($scope);
                 $traitScope = clone $scope;
-                $this->privatesAccessor->setPrivateProperty($traitScope, 'context', $scopeContext);
+                $this->privatesAccessor->setPrivateProperty($traitScope, self::CONTEXT, $scopeContext);
                 $traitScope = $traitScope->enterTrait($traitReflectionClass);
                 $this->nodeScopeResolver->processNodes($node->stmts, $traitScope, $nodeCallback);
                 return;
@@ -137,27 +141,15 @@ final class PHPStanNodeScopeResolver
             }
         };
         $this->decoratePHPStanNodeScopeResolverWithRenamedClassSourceLocator($this->nodeScopeResolver);
-        return $this->processNodesWithMixinHandling($smartFileInfo, $stmts, $scope, $nodeCallback);
+        return $this->processNodesWithDependentFiles($smartFileInfo, $stmts, $scope, $nodeCallback);
     }
     /**
      * @param Stmt[] $stmts
      * @return Stmt[]
      */
-    private function processNodesWithMixinHandling(\Symplify\SmartFileSystem\SmartFileInfo $smartFileInfo, array $stmts, \PHPStan\Analyser\MutatingScope $mutatingScope, callable $nodeCallback) : array
+    private function processNodesWithDependentFiles(\Symplify\SmartFileSystem\SmartFileInfo $smartFileInfo, array $stmts, \PHPStan\Analyser\MutatingScope $mutatingScope, callable $nodeCallback) : array
     {
-        if ($this->mixinGuard->containsMixinPhpDoc($stmts)) {
-            return $stmts;
-        }
-        try {
-            $this->nodeScopeResolver->processNodes($stmts, $mutatingScope, $nodeCallback);
-        } catch (\Throwable $throwable) {
-            if (!$throwable instanceof \PHPStan\BetterReflection\Reflection\Exception\NotAnInterfaceReflection) {
-                throw $throwable;
-            }
-            if (!\RectorPrefix20211110\Nette\Utils\Strings::match($throwable->getMessage(), self::NOT_AN_INTERFACE_EXCEPTION_REGEX)) {
-                throw $throwable;
-            }
-        }
+        $this->nodeScopeResolver->processNodes($stmts, $mutatingScope, $nodeCallback);
         $this->resolveAndSaveDependentFiles($stmts, $mutatingScope, $smartFileInfo);
         return $stmts;
     }
@@ -177,7 +169,7 @@ final class PHPStanNodeScopeResolver
     {
         $className = $this->resolveClassName($classLike);
         // is anonymous class? - not possible to enter it since PHPStan 0.12.33, see https://github.com/phpstan/phpstan-src/commit/e87fb0ec26f9c8552bbeef26a868b1e5d8185e91
-        if ($classLike instanceof \PhpParser\Node\Stmt\Class_ && \RectorPrefix20211110\Nette\Utils\Strings::match($className, self::ANONYMOUS_CLASS_START_REGEX)) {
+        if ($classLike instanceof \PhpParser\Node\Stmt\Class_ && \Rector\Core\Util\StringUtils::isMatch($className, self::ANONYMOUS_CLASS_START_REGEX)) {
             $classReflection = $this->reflectionProvider->getAnonymousClassReflection($classLike, $mutatingScope);
         } elseif (!$this->reflectionProvider->hasClass($className)) {
             return $mutatingScope;
@@ -232,14 +224,5 @@ final class PHPStanNodeScopeResolver
         // 2. get Rector locator
         $aggregateSourceLocator = new \PHPStan\BetterReflection\SourceLocator\Type\AggregateSourceLocator([$sourceLocator, $this->renamedClassesSourceLocator, $this->parentAttributeSourceLocator]);
         $this->privatesAccessor->setPrivateProperty($classReflector, 'sourceLocator', $aggregateSourceLocator);
-    }
-    private function createDummyClassScopeContext(\PHPStan\Analyser\MutatingScope $mutatingScope) : \PHPStan\Analyser\ScopeContext
-    {
-        // this has to be faked, because trait PHPStan does not traverse trait without a class
-        /** @var ScopeContext $scopeContext */
-        $scopeContext = $this->privatesAccessor->getPrivateProperty($mutatingScope, 'context');
-        $dummyClassReflection = $this->reflectionProvider->getClass(\Rector\Core\Stubs\DummyTraitClass::class);
-        // faking a class reflection
-        return \PHPStan\Analyser\ScopeContext::create($scopeContext->getFile())->enterClass($dummyClassReflection);
     }
 }

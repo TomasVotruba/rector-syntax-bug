@@ -13,13 +13,14 @@ use Rector\Core\Rector\AbstractRector;
 use Rector\Transform\ValueObject\WrapReturn;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Transform\Rector\ClassMethod\WrapReturnRector\WrapReturnRectorTest
  */
 final class WrapReturnRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const TYPE_METHOD_WRAPS = 'type_method_wraps';
@@ -47,7 +48,7 @@ final class SomeClass
     }
 }
 CODE_SAMPLE
-, [self::TYPE_METHOD_WRAPS => [new \Rector\Transform\ValueObject\WrapReturn('SomeClass', 'getItem', \true)]])]);
+, [new \Rector\Transform\ValueObject\WrapReturn('SomeClass', 'getItem', \true)])]);
     }
     /**
      * @return array<class-string<Node>>
@@ -68,7 +69,7 @@ CODE_SAMPLE
             if (!$this->isName($node, $typeMethodWrap->getMethod())) {
                 continue;
             }
-            if (!$node->stmts) {
+            if ($node->stmts === null) {
                 continue;
             }
             return $this->wrap($node, $typeMethodWrap->isArrayWrap());
@@ -76,12 +77,12 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, WrapReturn[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $typeMethodWraps = $configuration[self::TYPE_METHOD_WRAPS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($typeMethodWraps, \Rector\Transform\ValueObject\WrapReturn::class);
+        $typeMethodWraps = $configuration[self::TYPE_METHOD_WRAPS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($typeMethodWraps, \Rector\Transform\ValueObject\WrapReturn::class);
         $this->typeMethodWraps = $typeMethodWraps;
     }
     private function wrap(\PhpParser\Node\Stmt\ClassMethod $classMethod, bool $isArrayWrap) : ?\PhpParser\Node\Stmt\ClassMethod

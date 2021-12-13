@@ -6,7 +6,6 @@ namespace Rector\Php80\Rector\Class_;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\AttributeGroup;
-use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Stmt\Class_;
 use PHPStan\Type\MixedType;
 use Rector\BetterPhpDocParser\PhpDoc\DoctrineAnnotationTagValueNode;
@@ -16,6 +15,7 @@ use Rector\BetterPhpDocParser\ValueObject\PhpDoc\DoctrineAnnotation\CurlyListNod
 use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Core\Rector\AbstractRector;
 use Rector\Core\ValueObject\PhpVersionFeature;
+use Rector\Php80\NodeAnalyzer\AnnotationTargetResolver;
 use Rector\Php80\NodeAnalyzer\PhpAttributeAnalyzer;
 use Rector\Php80\NodeFactory\AttributeFlagFactory;
 use Rector\PhpAttribute\Printer\PhpAttributeGroupFactory;
@@ -24,7 +24,7 @@ use Rector\PostRector\ValueObject\PropertyMetadata;
 use Rector\VersionBonding\Contract\MinPhpVersionInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @changelog https://php.watch/articles/php-attributes#syntax
  *
@@ -36,22 +36,10 @@ use RectorPrefix20211110\Webmozart\Assert\Assert;
 final class DoctrineAnnotationClassToAttributeRector extends \Rector\Core\Rector\AbstractRector implements \Rector\Core\Contract\Rector\ConfigurableRectorInterface, \Rector\VersionBonding\Contract\MinPhpVersionInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const REMOVE_ANNOTATIONS = 'remove_annotations';
-    /**
-     * @see https://github.com/doctrine/annotations/blob/e6e7b7d5b45a2f2abc5460cc6396480b2b1d321f/lib/Doctrine/Common/Annotations/Annotation/Target.php#L24-L29
-     * @var array<string, string>
-     */
-    private const TARGET_TO_CONSTANT_MAP = [
-        'METHOD' => 'TARGET_METHOD',
-        'PROPERTY' => 'TARGET_PROPERTY',
-        'CLASS' => 'TARGET_CLASS',
-        'FUNCTION' => 'TARGET_FUNCTION',
-        'ALL' => 'TARGET_ALL',
-        // special case
-        'ANNOTATION' => 'TARGET_CLASS',
-    ];
     /**
      * @var string
      */
@@ -61,32 +49,43 @@ final class DoctrineAnnotationClassToAttributeRector extends \Rector\Core\Rector
      */
     private $shouldRemoveAnnotations = \true;
     /**
+     * @readonly
      * @var \Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTagRemover
      */
     private $phpDocTagRemover;
     /**
+     * @readonly
      * @var \Rector\Php80\NodeFactory\AttributeFlagFactory
      */
     private $attributeFlagFactory;
     /**
+     * @readonly
      * @var \Rector\PhpAttribute\Printer\PhpAttributeGroupFactory
      */
     private $phpAttributeGroupFactory;
     /**
+     * @readonly
      * @var \Rector\Php80\NodeAnalyzer\PhpAttributeAnalyzer
      */
     private $phpAttributeAnalyzer;
     /**
+     * @readonly
      * @var \Rector\PostRector\Collector\PropertyToAddCollector
      */
     private $propertyToAddCollector;
-    public function __construct(\Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTagRemover $phpDocTagRemover, \Rector\Php80\NodeFactory\AttributeFlagFactory $attributeFlagFactory, \Rector\PhpAttribute\Printer\PhpAttributeGroupFactory $phpAttributeGroupFactory, \Rector\Php80\NodeAnalyzer\PhpAttributeAnalyzer $phpAttributeAnalyzer, \Rector\PostRector\Collector\PropertyToAddCollector $propertyToAddCollector)
+    /**
+     * @readonly
+     * @var \Rector\Php80\NodeAnalyzer\AnnotationTargetResolver
+     */
+    private $annotationTargetResolver;
+    public function __construct(\Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocTagRemover $phpDocTagRemover, \Rector\Php80\NodeFactory\AttributeFlagFactory $attributeFlagFactory, \Rector\PhpAttribute\Printer\PhpAttributeGroupFactory $phpAttributeGroupFactory, \Rector\Php80\NodeAnalyzer\PhpAttributeAnalyzer $phpAttributeAnalyzer, \Rector\PostRector\Collector\PropertyToAddCollector $propertyToAddCollector, \Rector\Php80\NodeAnalyzer\AnnotationTargetResolver $annotationTargetResolver)
     {
         $this->phpDocTagRemover = $phpDocTagRemover;
         $this->attributeFlagFactory = $attributeFlagFactory;
         $this->phpAttributeGroupFactory = $phpAttributeGroupFactory;
         $this->phpAttributeAnalyzer = $phpAttributeAnalyzer;
         $this->propertyToAddCollector = $propertyToAddCollector;
+        $this->annotationTargetResolver = $annotationTargetResolver;
     }
     public function provideMinPhpVersion() : int
     {
@@ -164,32 +163,17 @@ CODE_SAMPLE
         return $node;
     }
     /**
-     * @param array<string, bool> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
         $shouldRemoveAnnotations = $configuration[self::REMOVE_ANNOTATIONS] ?? \true;
-        \RectorPrefix20211110\Webmozart\Assert\Assert::boolean($shouldRemoveAnnotations);
+        \RectorPrefix20211213\Webmozart\Assert\Assert::boolean($shouldRemoveAnnotations);
         $this->shouldRemoveAnnotations = $shouldRemoveAnnotations;
-    }
-    /**
-     * @param array<int|string, mixed> $targetValues
-     * @return ClassConstFetch[]
-     */
-    private function resolveFlags(array $targetValues) : array
-    {
-        $flags = [];
-        foreach (self::TARGET_TO_CONSTANT_MAP as $target => $constant) {
-            if (!\in_array($target, $targetValues, \true)) {
-                continue;
-            }
-            $flags[] = $this->nodeFactory->createClassConstFetch(self::ATTRIBUTE, $constant);
-        }
-        return $flags;
     }
     private function decorateTarget(\Rector\BetterPhpDocParser\PhpDocInfo\PhpDocInfo $phpDocInfo, \PhpParser\Node\AttributeGroup $attributeGroup) : void
     {
-        $targetDoctrineAnnotationTagValueNode = $phpDocInfo->findOneByAnnotationClass('Doctrine\\Common\\Annotations\\Annotation\\Target');
+        $targetDoctrineAnnotationTagValueNode = $phpDocInfo->findOneByAnnotationClasses(['Doctrine\\Common\\Annotations\\Annotation\\Target', 'Target']);
         if (!$targetDoctrineAnnotationTagValueNode instanceof \Rector\BetterPhpDocParser\PhpDoc\DoctrineAnnotationTagValueNode) {
             return;
         }
@@ -204,8 +188,8 @@ CODE_SAMPLE
         } else {
             return;
         }
-        $flags = $this->resolveFlags($targetValues);
-        $flagCollection = $this->attributeFlagFactory->createFlagCollection($flags);
+        $flagClassConstFetches = $this->annotationTargetResolver->resolveFlagClassConstFetches($targetValues);
+        $flagCollection = $this->attributeFlagFactory->createFlagCollection($flagClassConstFetches);
         if ($flagCollection === null) {
             return;
         }

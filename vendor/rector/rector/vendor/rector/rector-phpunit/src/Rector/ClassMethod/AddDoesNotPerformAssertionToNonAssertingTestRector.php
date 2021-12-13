@@ -10,7 +10,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\PhpDocParser\Ast\PhpDoc\GenericTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use PHPStan\Type\TypeWithClassName;
-use RectorPrefix20211110\PHPUnit\Framework\MockObject\MockBuilder;
+use RectorPrefix20211213\PHPUnit\Framework\MockObject\MockBuilder;
 use Rector\Core\PhpParser\AstResolver;
 use Rector\Core\Rector\AbstractRector;
 use Rector\PHPUnit\NodeAnalyzer\TestsNodeAnalyzer;
@@ -145,7 +145,7 @@ CODE_SAMPLE
         return (bool) $this->betterNodeFinder->findFirst((array) $classMethod->stmts, function (\PhpParser\Node $node) : bool {
             if ($node instanceof \PhpParser\Node\Expr\MethodCall) {
                 $type = $this->nodeTypeResolver->getType($node->var);
-                if ($type instanceof \Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType && $type->getClassName() === \RectorPrefix20211110\PHPUnit\Framework\MockObject\MockBuilder::class) {
+                if ($type instanceof \Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType && $type->getClassName() === \RectorPrefix20211213\PHPUnit\Framework\MockObject\MockBuilder::class) {
                     return \true;
                 }
                 return $this->isNames($node->name, [
@@ -193,10 +193,10 @@ CODE_SAMPLE
     private function resolveClassMethodFromCall($call) : ?\PhpParser\Node\Stmt\ClassMethod
     {
         if ($call instanceof \PhpParser\Node\Expr\MethodCall) {
-            $objectType = $this->getObjectType($call->var);
+            $objectType = $this->nodeTypeResolver->getType($call->var);
         } else {
             // StaticCall
-            $objectType = $this->getObjectType($call->class);
+            $objectType = $this->nodeTypeResolver->getType($call->class);
         }
         if (!$objectType instanceof \PHPStan\Type\TypeWithClassName) {
             return null;

@@ -1,24 +1,24 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Symplify\Astral\NodeValue\NodeValueResolver;
+namespace RectorPrefix20211213\Symplify\Astral\NodeValue\NodeValueResolver;
 
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ConstFetch;
-use RectorPrefix20211110\Symplify\Astral\Contract\NodeValueResolver\NodeValueResolverInterface;
-use RectorPrefix20211110\Symplify\Astral\Naming\SimpleNameResolver;
+use RectorPrefix20211213\Symplify\Astral\Contract\NodeValueResolver\NodeValueResolverInterface;
+use RectorPrefix20211213\Symplify\Astral\Naming\SimpleNameResolver;
 /**
  * @see \Symplify\Astral\Tests\NodeValue\NodeValueResolverTest
  *
  * @implements NodeValueResolverInterface<ConstFetch>
  */
-final class ConstFetchValueResolver implements \RectorPrefix20211110\Symplify\Astral\Contract\NodeValueResolver\NodeValueResolverInterface
+final class ConstFetchValueResolver implements \RectorPrefix20211213\Symplify\Astral\Contract\NodeValueResolver\NodeValueResolverInterface
 {
     /**
      * @var \Symplify\Astral\Naming\SimpleNameResolver
      */
     private $simpleNameResolver;
-    public function __construct(\RectorPrefix20211110\Symplify\Astral\Naming\SimpleNameResolver $simpleNameResolver)
+    public function __construct(\RectorPrefix20211213\Symplify\Astral\Naming\SimpleNameResolver $simpleNameResolver)
     {
         $this->simpleNameResolver = $simpleNameResolver;
     }
@@ -27,11 +27,10 @@ final class ConstFetchValueResolver implements \RectorPrefix20211110\Symplify\As
         return \PhpParser\Node\Expr\ConstFetch::class;
     }
     /**
-     * @param \PhpParser\Node\Expr $expr
+     * @param ConstFetch $expr
      * @return null|mixed
-     * @param string $currentFilePath
      */
-    public function resolve($expr, $currentFilePath)
+    public function resolve(\PhpParser\Node\Expr $expr, string $currentFilePath)
     {
         $constFetchName = $this->simpleNameResolver->getName($expr);
         if ($constFetchName === null) {

@@ -11,7 +11,10 @@ use PHPStan\Type\Type;
 use Rector\NodeTypeResolver\PHPStan\Type\TypeFactory;
 use Rector\StaticTypeMapper\Contract\PhpDocParser\PhpDocTypeMapperInterface;
 use Rector\StaticTypeMapper\PhpDoc\PhpDocTypeMapper;
-use RectorPrefix20211110\Symfony\Contracts\Service\Attribute\Required;
+use RectorPrefix20211213\Symfony\Contracts\Service\Attribute\Required;
+/**
+ * @implements PhpDocTypeMapperInterface<UnionTypeNode>
+ */
 final class UnionTypeMapper implements \Rector\StaticTypeMapper\Contract\PhpDocParser\PhpDocTypeMapperInterface
 {
     /**
@@ -19,6 +22,7 @@ final class UnionTypeMapper implements \Rector\StaticTypeMapper\Contract\PhpDocP
      */
     private $phpDocTypeMapper;
     /**
+     * @readonly
      * @var \Rector\NodeTypeResolver\PHPStan\Type\TypeFactory
      */
     private $typeFactory;
@@ -26,9 +30,6 @@ final class UnionTypeMapper implements \Rector\StaticTypeMapper\Contract\PhpDocP
     {
         $this->typeFactory = $typeFactory;
     }
-    /**
-     * @return class-string<TypeNode>
-     */
     public function getNodeType() : string
     {
         return \PHPStan\PhpDocParser\Ast\Type\UnionTypeNode::class;
@@ -36,16 +37,14 @@ final class UnionTypeMapper implements \Rector\StaticTypeMapper\Contract\PhpDocP
     /**
      * @required
      */
-    public function autowireUnionTypeMapper(\Rector\StaticTypeMapper\PhpDoc\PhpDocTypeMapper $phpDocTypeMapper) : void
+    public function autowire(\Rector\StaticTypeMapper\PhpDoc\PhpDocTypeMapper $phpDocTypeMapper) : void
     {
         $this->phpDocTypeMapper = $phpDocTypeMapper;
     }
     /**
-     * @param \PHPStan\PhpDocParser\Ast\Type\TypeNode $typeNode
-     * @param \PhpParser\Node $node
-     * @param \PHPStan\Analyser\NameScope $nameScope
+     * @param UnionTypeNode $typeNode
      */
-    public function mapToPHPStanType($typeNode, $node, $nameScope) : \PHPStan\Type\Type
+    public function mapToPHPStanType(\PHPStan\PhpDocParser\Ast\Type\TypeNode $typeNode, \PhpParser\Node $node, \PHPStan\Analyser\NameScope $nameScope) : \PHPStan\Type\Type
     {
         $unionedTypes = [];
         foreach ($typeNode->types as $unionedTypeNode) {

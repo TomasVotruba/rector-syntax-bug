@@ -1,10 +1,10 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Idiosyncratic\EditorConfig;
+namespace RectorPrefix20211213\Idiosyncratic\EditorConfig;
 
 use ErrorException;
-use RectorPrefix20211110\Idiosyncratic\EditorConfig\Declaration\Factory;
+use RectorPrefix20211213\Idiosyncratic\EditorConfig\Declaration\Factory;
 use function array_key_exists;
 use function debug_backtrace;
 use function explode;
@@ -28,7 +28,7 @@ final class Section
     /**
      * @param array<string, mixed> $declarations
      */
-    public function __construct(string $globPrefix, string $glob, array $declarations, \RectorPrefix20211110\Idiosyncratic\EditorConfig\Declaration\Factory $declarationFactory)
+    public function __construct(string $globPrefix, string $glob, array $declarations, \RectorPrefix20211213\Idiosyncratic\EditorConfig\Declaration\Factory $declarationFactory)
     {
         $this->globPrefix = $globPrefix;
         $this->glob = $glob;
@@ -46,10 +46,7 @@ final class Section
     {
         return $this->declarations;
     }
-    /**
-     * @param string $path
-     */
-    public function matches($path) : bool
+    public function matches(string $path) : bool
     {
         // normalize path to unix-style directory separator,
         // because the glob pattern assumes linux-style directory separators

@@ -6,16 +6,17 @@ namespace Rector\Composer\Rector;
 use Rector\Composer\Contract\Rector\ComposerRectorInterface;
 use Rector\Composer\Guard\VersionGuard;
 use Rector\Composer\ValueObject\PackageAndVersion;
-use RectorPrefix20211110\Symplify\ComposerJsonManipulator\ValueObject\ComposerJson;
+use RectorPrefix20211213\Symplify\ComposerJsonManipulator\ValueObject\ComposerJson;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use RectorPrefix20211110\Webmozart\Assert\Assert;
+use RectorPrefix20211213\Webmozart\Assert\Assert;
 /**
  * @see \Rector\Tests\Composer\Rector\AddPackageToRequireComposerRector\AddPackageToRequireComposerRectorTest
  */
 final class AddPackageToRequireComposerRector implements \Rector\Composer\Contract\Rector\ComposerRectorInterface
 {
     /**
+     * @deprecated
      * @var string
      */
     public const PACKAGES_AND_VERSIONS = 'packages_and_versions';
@@ -24,6 +25,7 @@ final class AddPackageToRequireComposerRector implements \Rector\Composer\Contra
      */
     private $packagesAndVersions = [];
     /**
+     * @readonly
      * @var \Rector\Composer\Guard\VersionGuard
      */
     private $versionGuard;
@@ -31,7 +33,7 @@ final class AddPackageToRequireComposerRector implements \Rector\Composer\Contra
     {
         $this->versionGuard = $versionGuard;
     }
-    public function refactor(\RectorPrefix20211110\Symplify\ComposerJsonManipulator\ValueObject\ComposerJson $composerJson) : void
+    public function refactor(\RectorPrefix20211213\Symplify\ComposerJsonManipulator\ValueObject\ComposerJson $composerJson) : void
     {
         foreach ($this->packagesAndVersions as $packageAndVersion) {
             $composerJson->addRequiredPackage($packageAndVersion->getPackageName(), $packageAndVersion->getVersion());
@@ -50,15 +52,15 @@ CODE_SAMPLE
     }
 }
 CODE_SAMPLE
-, [self::PACKAGES_AND_VERSIONS => [new \Rector\Composer\ValueObject\PackageAndVersion('symfony/console', '^3.4')]])]);
+, [new \Rector\Composer\ValueObject\PackageAndVersion('symfony/console', '^3.4')])]);
     }
     /**
-     * @param array<string, PackageAndVersion[]> $configuration
+     * @param mixed[] $configuration
      */
     public function configure(array $configuration) : void
     {
-        $packagesAndVersions = $configuration[self::PACKAGES_AND_VERSIONS] ?? [];
-        \RectorPrefix20211110\Webmozart\Assert\Assert::allIsInstanceOf($packagesAndVersions, \Rector\Composer\ValueObject\PackageAndVersion::class);
+        $packagesAndVersions = $configuration[self::PACKAGES_AND_VERSIONS] ?? $configuration;
+        \RectorPrefix20211213\Webmozart\Assert\Assert::allIsAOf($packagesAndVersions, \Rector\Composer\ValueObject\PackageAndVersion::class);
         $this->versionGuard->validate($packagesAndVersions);
         $this->packagesAndVersions = $packagesAndVersions;
     }

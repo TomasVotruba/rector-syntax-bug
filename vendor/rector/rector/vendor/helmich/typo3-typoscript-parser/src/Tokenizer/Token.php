@@ -1,9 +1,9 @@
 <?php
 
 declare (strict_types=1);
-namespace RectorPrefix20211110\Helmich\TypoScriptParser\Tokenizer;
+namespace RectorPrefix20211213\Helmich\TypoScriptParser\Tokenizer;
 
-class Token implements \RectorPrefix20211110\Helmich\TypoScriptParser\Tokenizer\TokenInterface
+class Token implements \RectorPrefix20211213\Helmich\TypoScriptParser\Tokenizer\TokenInterface
 {
     /** @var string */
     private $type;
@@ -45,12 +45,12 @@ class Token implements \RectorPrefix20211110\Helmich\TypoScriptParser\Tokenizer\
         return $this->value;
     }
     /**
-     * @param string $string
+     * @param string $name
      * @return string|null
      */
-    public function getSubMatch($string) : ?string
+    public function getSubMatch(string $name) : ?string
     {
-        return isset($this->patternMatches[$string]) ? $this->patternMatches[$string] : null;
+        return isset($this->patternMatches[$name]) ? $this->patternMatches[$name] : null;
     }
     /**
      * @return int

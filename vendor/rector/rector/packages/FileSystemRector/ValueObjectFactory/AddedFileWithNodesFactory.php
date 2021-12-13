@@ -3,7 +3,6 @@
 declare (strict_types=1);
 namespace Rector\FileSystemRector\ValueObjectFactory;
 
-use RectorPrefix20211110\Nette\Utils\Strings;
 use PhpParser\Node;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
@@ -12,6 +11,7 @@ use PhpParser\Node\Stmt\Namespace_;
 use Rector\Autodiscovery\Configuration\CategoryNamespaceProvider;
 use Rector\Core\Configuration\RenamedClassesDataCollector;
 use Rector\Core\PhpParser\Node\BetterNodeFinder;
+use Rector\Core\Util\StringUtils;
 use Rector\Core\ValueObject\Application\File;
 use Rector\FileSystemRector\ValueObject\AddedFileWithNodes;
 use Rector\PSR4\FileInfoAnalyzer\FileInfoDeletionAnalyzer;
@@ -20,22 +20,27 @@ use Symplify\SmartFileSystem\SmartFileInfo;
 final class AddedFileWithNodesFactory
 {
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
     /**
+     * @readonly
      * @var \Rector\Autodiscovery\Configuration\CategoryNamespaceProvider
      */
     private $categoryNamespaceProvider;
     /**
+     * @readonly
      * @var \Rector\PSR4\FileRelocationResolver
      */
     private $fileRelocationResolver;
     /**
+     * @readonly
      * @var \Rector\Core\Configuration\RenamedClassesDataCollector
      */
     private $renamedClassesDataCollector;
     /**
+     * @readonly
      * @var \Rector\PSR4\FileInfoAnalyzer\FileInfoDeletionAnalyzer
      */
     private $fileInfoDeletionAnalyzer;
@@ -71,7 +76,7 @@ final class AddedFileWithNodesFactory
         if ($oldClassName === $newClassName) {
             return null;
         }
-        if (\RectorPrefix20211110\Nette\Utils\Strings::match($oldClassName, '#\\b' . $desiredGroupName . '\\b#')) {
+        if (\Rector\Core\Util\StringUtils::isMatch($oldClassName, '#\\b' . $desiredGroupName . '\\b#')) {
             return null;
         }
         // 1. rename namespace

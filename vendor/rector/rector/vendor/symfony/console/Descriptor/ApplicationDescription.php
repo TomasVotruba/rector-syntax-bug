@@ -8,11 +8,11 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RectorPrefix20211110\Symfony\Component\Console\Descriptor;
+namespace RectorPrefix20211213\Symfony\Component\Console\Descriptor;
 
-use RectorPrefix20211110\Symfony\Component\Console\Application;
-use RectorPrefix20211110\Symfony\Component\Console\Command\Command;
-use RectorPrefix20211110\Symfony\Component\Console\Exception\CommandNotFoundException;
+use RectorPrefix20211213\Symfony\Component\Console\Application;
+use RectorPrefix20211213\Symfony\Component\Console\Command\Command;
+use RectorPrefix20211213\Symfony\Component\Console\Exception\CommandNotFoundException;
 /**
  * @author Jean-François Simon <jeanfrancois.simon@sensiolabs.com>
  *
@@ -22,21 +22,27 @@ class ApplicationDescription
 {
     public const GLOBAL_NAMESPACE = '_global';
     private $application;
+    /**
+     * @var string|null
+     */
     private $namespace;
+    /**
+     * @var bool
+     */
     private $showHidden;
     /**
-     * @var array
+     * @var mixed[]
      */
     private $namespaces;
     /**
-     * @var Command[]
+     * @var array<string, Command>
      */
     private $commands;
     /**
-     * @var Command[]
+     * @var array<string, Command>
      */
-    private $aliases;
-    public function __construct(\RectorPrefix20211110\Symfony\Component\Console\Application $application, string $namespace = null, bool $showHidden = \false)
+    private $aliases = [];
+    public function __construct(\RectorPrefix20211213\Symfony\Component\Console\Application $application, string $namespace = null, bool $showHidden = \false)
     {
         $this->application = $application;
         $this->namespace = $namespace;
@@ -44,7 +50,7 @@ class ApplicationDescription
     }
     public function getNamespaces() : array
     {
-        if (null === $this->namespaces) {
+        if (!isset($this->namespaces)) {
             $this->inspectApplication();
         }
         return $this->namespaces;
@@ -54,19 +60,18 @@ class ApplicationDescription
      */
     public function getCommands() : array
     {
-        if (null === $this->commands) {
+        if (!isset($this->commands)) {
             $this->inspectApplication();
         }
         return $this->commands;
     }
     /**
      * @throws CommandNotFoundException
-     * @param string $name
      */
-    public function getCommand($name) : \RectorPrefix20211110\Symfony\Component\Console\Command\Command
+    public function getCommand(string $name) : \RectorPrefix20211213\Symfony\Component\Console\Command\Command
     {
         if (!isset($this->commands[$name]) && !isset($this->aliases[$name])) {
-            throw new \RectorPrefix20211110\Symfony\Component\Console\Exception\CommandNotFoundException(\sprintf('Command "%s" does not exist.', $name));
+            throw new \RectorPrefix20211213\Symfony\Component\Console\Exception\CommandNotFoundException(\sprintf('Command "%s" does not exist.', $name));
         }
         return $this->commands[$name] ?? $this->aliases[$name];
     }

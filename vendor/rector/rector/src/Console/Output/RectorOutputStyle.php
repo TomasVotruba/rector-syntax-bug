@@ -4,7 +4,7 @@ declare (strict_types=1);
 namespace Rector\Core\Console\Output;
 
 use Rector\Core\Contract\Console\OutputStyleInterface;
-use RectorPrefix20211110\Symfony\Component\Console\Style\SymfonyStyle;
+use RectorPrefix20211213\Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * This services helps to abstract from Symfony, and allow custom output formatters to use this Rector internal class.
  * It is very helpful while scoping Rector from analysed project.
@@ -12,66 +12,46 @@ use RectorPrefix20211110\Symfony\Component\Console\Style\SymfonyStyle;
 final class RectorOutputStyle implements \Rector\Core\Contract\Console\OutputStyleInterface
 {
     /**
+     * @readonly
      * @var \Symfony\Component\Console\Style\SymfonyStyle
      */
     private $symfonyStyle;
-    public function __construct(\RectorPrefix20211110\Symfony\Component\Console\Style\SymfonyStyle $symfonyStyle)
+    public function __construct(\RectorPrefix20211213\Symfony\Component\Console\Style\SymfonyStyle $symfonyStyle)
     {
         $this->symfonyStyle = $symfonyStyle;
     }
-    /**
-     * @param string $message
-     */
-    public function error($message) : void
+    public function error(string $message) : void
     {
         $this->symfonyStyle->error($message);
     }
-    /**
-     * @param string $message
-     */
-    public function warning($message) : void
+    public function warning(string $message) : void
     {
         $this->symfonyStyle->warning($message);
     }
-    /**
-     * @param string $message
-     */
-    public function success($message) : void
+    public function success(string $message) : void
     {
         $this->symfonyStyle->success($message);
     }
-    /**
-     * @param string $message
-     */
-    public function note($message) : void
+    public function note(string $message) : void
     {
         $this->symfonyStyle->note($message);
     }
-    /**
-     * @param string $message
-     */
-    public function title($message) : void
+    public function title(string $message) : void
     {
         $this->symfonyStyle->title($message);
     }
-    /**
-     * @param string $message
-     */
-    public function writeln($message) : void
+    public function writeln(string $message) : void
     {
         $this->symfonyStyle->writeln($message);
     }
-    /**
-     * @param int $count
-     */
-    public function newline($count = 1) : void
+    public function newline(int $count = 1) : void
     {
         $this->symfonyStyle->newLine($count);
     }
     /**
      * @param string[] $elements
      */
-    public function listing($elements) : void
+    public function listing(array $elements) : void
     {
         $this->symfonyStyle->listing($elements);
     }

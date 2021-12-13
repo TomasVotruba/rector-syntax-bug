@@ -8,6 +8,7 @@ use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignRef;
+use PhpParser\Node\Expr\BinaryOp\Coalesce;
 use PhpParser\Node\Expr\Cast\Unset_ as UnsetCast;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\Isset_;
@@ -27,26 +28,30 @@ use Rector\Core\PhpParser\Comparing\NodeComparator;
 use Rector\Core\PhpParser\Node\BetterNodeFinder;
 use Rector\NodeNameResolver\NodeNameResolver;
 use Rector\NodeTypeResolver\Node\AttributeKey;
-use RectorPrefix20211110\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser;
+use RectorPrefix20211213\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser;
 final class UndefinedVariableResolver
 {
     /**
+     * @readonly
      * @var \Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser
      */
     private $simpleCallableNodeTraverser;
     /**
+     * @readonly
      * @var \Rector\NodeNameResolver\NodeNameResolver
      */
     private $nodeNameResolver;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Comparing\NodeComparator
      */
     private $nodeComparator;
     /**
+     * @readonly
      * @var \Rector\Core\PhpParser\Node\BetterNodeFinder
      */
     private $betterNodeFinder;
-    public function __construct(\RectorPrefix20211110\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser $simpleCallableNodeTraverser, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \Rector\Core\PhpParser\Comparing\NodeComparator $nodeComparator, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder)
+    public function __construct(\RectorPrefix20211213\Symplify\Astral\NodeTraverser\SimpleCallableNodeTraverser $simpleCallableNodeTraverser, \Rector\NodeNameResolver\NodeNameResolver $nodeNameResolver, \Rector\Core\PhpParser\Comparing\NodeComparator $nodeComparator, \Rector\Core\PhpParser\Node\BetterNodeFinder $betterNodeFinder)
     {
         $this->simpleCallableNodeTraverser = $simpleCallableNodeTraverser;
         $this->nodeNameResolver = $nodeNameResolver;
@@ -112,6 +117,10 @@ final class UndefinedVariableResolver
     {
         return \in_array(\get_class($parentNode), [\PhpParser\Node\Stmt\Unset_::class, \PhpParser\Node\Expr\Cast\Unset_::class, \PhpParser\Node\Expr\Isset_::class], \true);
     }
+    private function isAsCoalesceLeft(\PhpParser\Node $parentNode, \PhpParser\Node\Expr\Variable $variable) : bool
+    {
+        return $parentNode instanceof \PhpParser\Node\Expr\BinaryOp\Coalesce && $parentNode->left === $variable;
+    }
     private function isAssignOrStaticVariableParent(\PhpParser\Node $parentNode) : bool
     {
         if (\in_array(\get_class($parentNode), [\PhpParser\Node\Expr\Assign::class, \PhpParser\Node\Expr\AssignRef::class], \true)) {
@@ -132,6 +141,9 @@ final class UndefinedVariableResolver
             return \true;
         }
         if ($this->issetOrUnsetParent($parentNode)) {
+            return \true;
+        }
+        if ($this->isAsCoalesceLeft($parentNode, $variable)) {
             return \true;
         }
         // list() = | [$values] = defines variables as null

@@ -37,7 +37,10 @@ final class PHPStanStubLoader
         }
         foreach (self::VENDOR_PATHS as $vendorPath) {
             $vendorPath = \realpath($vendorPath);
-            if (!$vendorPath) {
+            if ($vendorPath === \false) {
+                continue;
+            }
+            if ($vendorPath === '') {
                 continue;
             }
             foreach (self::STUBS as $stub) {
@@ -54,14 +57,8 @@ final class PHPStanStubLoader
     }
     private function getStubPath(string $vendorPath, string $stub) : ?string
     {
-        // @todo: need to be switched when phpstan-extracted used after scoped php 7.0 works
         $path = \sprintf('phar://%s/phpstan/phpstan/phpstan.phar/stubs/runtime/%s', $vendorPath, $stub);
         $isExists = \file_exists($path);
-        if (!$isExists) {
-            // this is to handle phpstan's stubs got from phpstan-extracted instead of the .phar when exists after scoped php 7.0 applied
-            $path = \sprintf('%s/phpstan/phpstan-extracted/stubs/runtime/%s', $vendorPath, $stub);
-            $isExists = \file_exists($path);
-        }
         if ($isExists) {
             return $path;
         }

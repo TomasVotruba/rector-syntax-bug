@@ -4,9 +4,6 @@ declare (strict_types=1);
 namespace PhpParser\Node\Stmt;
 
 use PhpParser\Node;
-/**
- * @property Node\Name $namespacedName Namespaced name (if using NameResolver)
- */
 abstract class ClassLike extends \PhpParser\Node\Stmt
 {
     /** @var Node\Identifier|null Name */
@@ -15,6 +12,8 @@ abstract class ClassLike extends \PhpParser\Node\Stmt
     public $stmts;
     /** @var Node\AttributeGroup[] PHP attribute groups */
     public $attrGroups;
+    /** @var Node\Name Namespaced name (if using NameResolver) */
+    public $namespacedName;
     /**
      * @return TraitUse[]
      */
@@ -61,7 +60,7 @@ abstract class ClassLike extends \PhpParser\Node\Stmt
      *
      * @return Property|null Property node or null if the property does not exist
      */
-    public function getProperty($name)
+    public function getProperty(string $name)
     {
         foreach ($this->stmts as $stmt) {
             if ($stmt instanceof \PhpParser\Node\Stmt\Property) {
@@ -96,7 +95,7 @@ abstract class ClassLike extends \PhpParser\Node\Stmt
      *
      * @return ClassMethod|null Method node or null if the method does not exist
      */
-    public function getMethod($name)
+    public function getMethod(string $name)
     {
         $lowerName = \strtolower($name);
         foreach ($this->stmts as $stmt) {
