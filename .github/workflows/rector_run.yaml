@@ -1,0 +1,27 @@
+name: Rector Run
+
+on:
+    pull_request: null
+
+env:
+    # see https://github.com/composer/composer/issues/9368#issuecomment-718112361
+    COMPOSER_ROOT_VERSION: "dev-main"
+
+jobs:
+    rector_run:
+        runs-on: ubuntu-latest
+
+        steps:
+            -
+                if: github.event.pull_request.head.repo.full_name != github.repository
+                uses: actions/checkout@v2
+
+            -
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 7.4
+                    coverage: none
+
+            -   run: composer install --no-progress --ansi
+
+            -   run: vendor/bin/rector process src --ansi
